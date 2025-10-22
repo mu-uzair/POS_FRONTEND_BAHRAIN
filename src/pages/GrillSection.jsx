@@ -529,7 +529,7 @@ import { enqueueSnackbar } from "notistack";
 import socket from "../socket"; // ✅ import  shared socket instance
 
 // ⚠️ IMPORTANT: Set this to your running backend server URL
-const SOCKET_SERVER_URL = "http://localhost:8000" || "https://pos-backend-bahrain.onrender.com";
+const SOCKET_SERVER_URL ="https://pos-backend-bahrain.onrender.com";
 // 🔔 CONSTANT: URL to your alert sound file (use a relative path like /assets/sound.mp3 or a public URL)
 const ALERT_SOUND_URL = "/notification.mp3";
 // Note: You must ensure 'order_alert.mp3' exists in your public folder.

@@ -383,7 +383,7 @@ import { useNavigate } from 'react-router-dom';
 
 
 // ⚠️ IMPORTANT: Set this to your running backend server URL
-const SOCKET_SERVER_URL = "http://localhost:8000" || "https://pos-backend-bahrain.onrender.com";
+const SOCKET_SERVER_URL ="https://pos-backend-bahrain.onrender.com";
 
 const Orders = () => {
     const navigate = useNavigate();
