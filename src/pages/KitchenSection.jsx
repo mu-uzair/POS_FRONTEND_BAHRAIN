@@ -843,7 +843,8 @@ import BottomNav from "../components/shared/BottomNav";
 import { getOrdersByStatus, markSectionItemsReady } from "../https/index";
 import { useQuery, keepPreviousData, useQueryClient } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
-import io from 'socket.io-client';
+// import io from 'socket.io-client';
+import socket from "../socket"; // ✅ import  shared socket instance
 
 // ⚠️ IMPORTANT: Set this to your running backend server URL
 const SOCKET_SERVER_URL = "http://localhost:8000" || "https://pos-backend-bahrain.onrender.com";
@@ -949,7 +950,7 @@ const KitchenSection = () => {
     // -----------------------------------------------------------
 
     useEffect(() => {
-        const socket = io(SOCKET_SERVER_URL);
+        // const socket = io(SOCKET_SERVER_URL);
 
         // Event listener for real-time updates from the server
         socket.on('orderUpdate', (data) => {
@@ -981,7 +982,9 @@ const KitchenSection = () => {
 
         // Clean up socket connection on component unmount
         return () => {
-            socket.disconnect();
+            // socket.disconnect();
+            socket.off("orderUpdate");
+
         };
         // Dependencies: Include isSoundEnabled and orderAlert for correct sound state and object access
     }, [queryClient, isSoundEnabled, orderAlert]);
@@ -1037,8 +1040,8 @@ const KitchenSection = () => {
                 <button
                     onClick={handleToggleSound}
                     className={`flex items-center space-x-2 py-2 px-4 rounded-full font-bold transition-all duration-300 shadow-md ${isSoundEnabled
-                            ? 'bg-green-700 hover:bg-green-600 text-white'
-                            : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                        ? 'bg-green-700 hover:bg-green-600 text-white'
+                        : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
                         }`}
                     title={isSoundEnabled ? "Notifications ON" : "Notifications OFF"}
                 >

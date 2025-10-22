@@ -375,7 +375,9 @@ import BackButton from "../components/shared/BackButton";
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getOrders } from "../https/index";
 import { enqueueSnackbar } from "notistack";
-import io from 'socket.io-client';
+// import io from 'socket.io-client';
+import socket from "../socket"; // ✅ import  shared socket instance
+
 import { useNavigate } from 'react-router-dom';
 
 
@@ -412,7 +414,7 @@ const Orders = () => {
     // 🟢 IMPLEMENTATION: SOCKET.IO LISTENER FOR REAL-TIME REFRESH
     // -----------------------------------------------------------
     useEffect(() => {
-        const socket = io(SOCKET_SERVER_URL);
+        // const socket = io(SOCKET_SERVER_URL);
 
         // Event listener for real-time updates from the server
         socket.on('orderUpdate', (data) => {
@@ -432,7 +434,8 @@ const Orders = () => {
 
         // Clean up socket connection on component unmount
         return () => {
-            socket.disconnect();
+            // socket.disconnect();
+            socket.off("orderUpdate");
         };
     }, [queryClient]);
     // -----------------------------------------------------------
