@@ -27,7 +27,7 @@
 //         enqueueSnackbar("Something went wrong!", { variant: "error" });
 //     }
 
-  
+
 // const ordersArray = resData?.data?.data ?? [];
 // const filteredOrders = ordersArray.filter((order) => {
 //     // Filter by status
@@ -63,7 +63,7 @@
 
 //     return (
 //         <section className="bg-[#1f1f1f] h-[calc(100vh-5rem)] overflow-hidden">
-        
+
 //             {/* Header Section */}
 //             <div className="flex items-center justify-between px-10 py-4">
 //                 <div className="flex items-center">
@@ -263,10 +263,10 @@
 
 //     return (
 //         <section className="bg-[#1f1f1f] h-[calc(100vh-5rem)] overflow-hidden">
-            
+
 //             {/* 1. Main Header Bar (Title, Back Button, and Total Amount) */}
 //             <div className="flex items-center justify-between px-8 py-4 bg-[#1a1a1a] shadow-lg">
-                
+
 //                 {/* Left: Title & Back Button */}
 //                 <div className="flex items-center gap-4">
 //                     <BackButton />
@@ -282,7 +282,7 @@
 
 //             {/* 2. Filter Bar (Status, Date, Order Type) */}
 //             <div className="flex items-center justify-between px-8 py-3 border-b border-[#333333]">
-                
+
 //                 {/* Left: Status Filter (Segmented Control style) */}
 //                 <div className="flex items-center bg-[#333333] p-1 rounded-xl shadow-md">
 //                     {["All", "In Progress", "Ready", "Completed"].map((s) => (
@@ -302,7 +302,7 @@
 
 //                 {/* Right: Date and Order Type Filters (Grouped) */}
 //                 <div className="flex items-center gap-6">
-                    
+
 //                     {/* Date Filters Group */}
 //                     <div className="flex items-center gap-3 p-2 bg-[#333333] rounded-xl">
 //                         {["All", "Today", "Yesterday", "Custom"].map((d) => (
@@ -376,17 +376,21 @@ import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-quer
 import { getOrders } from "../https/index";
 import { enqueueSnackbar } from "notistack";
 import io from 'socket.io-client';
+import { useNavigate } from 'react-router-dom';
+
+
 
 // ⚠️ IMPORTANT: Set this to your running backend server URL
-const SOCKET_SERVER_URL = "http://localhost:8000"; 
+const SOCKET_SERVER_URL = "http://localhost:8000" || "https://pos-backend-bahrain.onrender.com";
 
 const Orders = () => {
+    const navigate = useNavigate();
     // TanStack Query Client for invalidation
     const queryClient = useQueryClient();
 
     const [status, setStatus] = useState("In Progress"); // Set default to In Progress for immediate utility
-    const [dateFilter, setDateFilter] = useState("All"); 
-    const [selectedDate, setSelectedDate] = useState(""); 
+    const [dateFilter, setDateFilter] = useState("All");
+    const [selectedDate, setSelectedDate] = useState("");
     const [orderType, setOrderType] = useState("All");
 
     // Fetch orders using useQuery
@@ -394,7 +398,7 @@ const Orders = () => {
         queryKey: ["orders", "all"], // Changed query key to be more general
         queryFn: async () => {
             const response = await getOrders();
-            console.log("Orders API Response:", response); 
+            console.log("Orders API Response:", response);
             return response;
         },
         placeholderData: keepPreviousData,
@@ -413,14 +417,13 @@ const Orders = () => {
         // Event listener for real-time updates from the server
         socket.on('orderUpdate', (data) => {
             console.log("Received real-time order update in Orders page:", data);
-            
+
             // Invalidate the 'orders, all' query for ANY action that affects the data
-            if (data.action === 'new_order' || 
-                data.action === 'items_ready' || 
-                data.action === 'status_changed' || 
+            if (data.action === 'new_order' ||
+                data.action === 'items_ready' ||
+                data.action === 'status_changed' ||
                 data.action === 'order_modified' ||
-                data.action === 'order_deleted') 
-            {
+                data.action === 'order_deleted') {
                 // Force a refetch of all orders immediately
                 queryClient.invalidateQueries({ queryKey: ["orders", "all"] });
                 enqueueSnackbar(`Order list updated in real-time. Action: ${data.action.replace('_', ' ')}`, { variant: "info" });
@@ -431,7 +434,7 @@ const Orders = () => {
         return () => {
             socket.disconnect();
         };
-    }, [queryClient]); 
+    }, [queryClient]);
     // -----------------------------------------------------------
 
     const ordersArray = resData?.data?.data ?? [];
@@ -441,7 +444,7 @@ const Orders = () => {
         if (status !== "All" && order.orderStatus !== status) return false;
 
         // Filter by date
-        const orderDate = new Date(order.createdAt).toDateString(); 
+        const orderDate = new Date(order.createdAt).toDateString();
         const today = new Date().toDateString();
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
@@ -472,16 +475,16 @@ const Orders = () => {
 
     // Calculate the total amount for the currently filtered orders
     const totalFilteredAmount = sortedFilteredOrders.reduce((sum, order) => {
-        const amount = order.bills?.totalWithTax || 0; 
+        const amount = order.bills?.totalWithTax || 0;
         return sum + amount;
     }, 0).toFixed(2);
 
     return (
         <section className="bg-[#1f1f1f] h-[calc(100vh-5rem)] overflow-hidden">
-            
+
             {/* 1. Main Header Bar (Title, Back Button, and Total Amount) */}
             <div className="flex items-center justify-between px-8 py-4 bg-[#1a1a1a] shadow-lg">
-                
+
                 {/* Left: Title & Back Button */}
                 <div className="flex items-center gap-4">
                     <BackButton />
@@ -490,14 +493,14 @@ const Orders = () => {
 
                 {/* Right: Total Filtered Amount - Made more prominent */}
                 <div className="text-[#f5f5f5] text-xl font-bold p-3 rounded-xl bg-[#333333] shadow-inner flex items-center gap-2">
-                    <span className="text-sm font-medium text-[#ababab] uppercase">Total Amount:</span> 
+                    <span className="text-sm font-medium text-[#ababab] uppercase">Total Amount:</span>
                     <span className="text-3xl text-[#02ca3a]">BHD {totalFilteredAmount}</span>
                 </div>
             </div>
 
             {/* 2. Filter Bar (Status, Date, Order Type) */}
             <div className="flex items-center justify-between px-8 py-3 border-b border-[#333333]">
-                
+
                 {/* Left: Status Filter (Segmented Control style) */}
                 <div className="flex items-center bg-[#333333] p-1 rounded-xl shadow-md">
                     {["All", "In Progress", "Ready", "Completed"].map((s) => (
@@ -505,8 +508,8 @@ const Orders = () => {
                             key={s}
                             onClick={() => setStatus(s)}
                             className={`text-sm font-semibold transition-all duration-200 ease-in-out px-4 py-2 rounded-lg 
-                                ${status === s 
-                                    ? "bg-[#02ca3a] text-black shadow-lg" 
+                                ${status === s
+                                    ? "bg-[#02ca3a] text-black shadow-lg"
                                     : "text-[#ababab] hover:bg-[#444444]"}`
                             }
                         >
@@ -517,7 +520,7 @@ const Orders = () => {
 
                 {/* Right: Date and Order Type Filters (Grouped) */}
                 <div className="flex items-center gap-6">
-                    
+
                     {/* Date Filters Group */}
                     <div className="flex items-center gap-3 p-2 bg-[#333333] rounded-xl">
                         {["All", "Today", "Yesterday", "Custom"].map((d) => (
@@ -525,8 +528,8 @@ const Orders = () => {
                                 key={d}
                                 onClick={() => setDateFilter(d)}
                                 className={`text-sm font-medium px-4 py-1 rounded-lg transition-colors 
-                                    ${dateFilter === d 
-                                        ? "bg-[#444444] text-[#f5f5f5] shadow-inner" 
+                                    ${dateFilter === d
+                                        ? "bg-[#444444] text-[#f5f5f5] shadow-inner"
                                         : "text-[#ababab] hover:bg-[#444444]"}`
                                 }
                             >
@@ -550,17 +553,28 @@ const Orders = () => {
                                 key={type}
                                 onClick={() => setOrderType(type)}
                                 className={`text-sm font-medium px-4 py-1 rounded-lg transition-colors 
-                                    ${orderType === type 
-                                        ? "bg-[#444444] text-[#f5f5f5] shadow-inner" 
+                                    ${orderType === type
+                                        ? "bg-[#444444] text-[#f5f5f5] shadow-inner"
                                         : "text-[#ababab] hover:bg-[#444444]"}`
                                 }
                             >
                                 {type}
                             </button>
+
                         ))}
+                        <button
+                            className="bg-[#02ca3a] text-black font-semibold px-4 py-2 rounded-xl shadow-md hover:bg-[#03e94a] transition-all duration-200"
+                            onClick={() => navigate("/DeliveryMetrics")}
+                        >
+                            Delivery Metrics
+                        </button>
                     </div>
                 </div>
             </div>
+
+
+
+
 
             {/* 3. Orders Container */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 px-8 py-5 custom-scrollbar overflow-y-auto h-[calc(100vh-5rem-128px)]">
