@@ -48,7 +48,15 @@ export const updateOrderStatus = ({ orderId, orderStatus }) =>
     api.put(`/api/order/${orderId}`, { orderStatus });
 export const markSectionItemsReady = (orderId, section) =>
     api.put(`/api/order/${orderId}/section-ready`, { section });
-export const deleteOrder = (orderId) => api.delete(`/api/order/${orderId}`);
+// export const deleteOrder = (orderId) => api.delete(`/api/order/${orderId}`);
+
+// deleteOrder now optionally accepts a password
+export const deleteOrder = (orderId, password = null) =>
+  api.delete(`/api/order/${orderId}`, {
+    data: { password }, // axios allows sending body with DELETE this way
+  });
+
+
 // For full order updates
 export const updateOrder = (orderId, orderData) =>
     api.put(`/api/order/by-order-id/${orderId}`, orderData);
