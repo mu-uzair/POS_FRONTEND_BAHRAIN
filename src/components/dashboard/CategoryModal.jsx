@@ -9,15 +9,15 @@ import { enqueueSnackbar } from 'notistack';
 
 const CategoryModal = ({setIsCategoryModalOpen}) => {
 
-    const [categoryData, setCategoryData] = useState({
-        categoryName: ""
-    } );
+  const [categoryData, setCategoryData] = useState({
+    categoryName: "",
+    imageUrl: ""
+  });
 
-    const handleInputChange = (e) => {
-
-        const { name, value } = e.target;
-        setCategoryData((prev) => ({...prev, [name]: value}))
-      };
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setCategoryData((prev) => ({ ...prev, [name]: value }));
+  };
 
       const handleSubmit =  (e) => {
         e.preventDefault();
@@ -86,9 +86,10 @@ const CategoryModal = ({setIsCategoryModalOpen}) => {
 
       {/* modal body */}
 
+
       <form 
-      onSubmit={handleSubmit}
-       className='space-y-4 mt-10'>
+        onSubmit={handleSubmit}
+        className='space-y-4 mt-10'>
         <div className="classname">
           <label className="block text-[#ababab] mb-2 mt-3 text-sm font-medium">
             Category Name
@@ -99,35 +100,43 @@ const CategoryModal = ({setIsCategoryModalOpen}) => {
               name='categoryName'
               value={categoryData.categoryName}
               onChange={handleInputChange}
-
               className='bg-transparent flex-1 text-white focus:outline-none'
               required
             />
-
           </div>
-
         </div>
 
-        {/* <div className="classname">
+
+        <div className="classname">
           <label className="block text-[#ababab] mb-2 mt-3 text-sm font-medium">
-            Disciption
+            Image URL
           </label>
           <div className="flex items-center rounded-lg p-5 px-4 bg-[#1f1f1f]">
             <input
-              type="number"
-              name='seats'
-            //   value={tableData.seats}
-            //   onChange={handleInputChange}
-
+              type="url"
+              name='imageUrl'
+              value={categoryData.imageUrl}
+              onChange={handleInputChange}
               className='bg-transparent flex-1 text-white focus:outline-none'
-              required
+              placeholder='https://example.com/image.jpg'
             />
-
           </div>
+          {/* Image preview */}
+              {categoryData.imageUrl && /^https?:\/\//i.test(categoryData.imageUrl.trim()) && (
+            <div className="flex justify-center mt-4">
+              <img
+                src={categoryData.imageUrl}
+                alt="Category Preview"
+                className="max-h-32 rounded shadow border border-[#383838]"
+                onError={e => { e.target.style.display = 'none'; }}
+              />
+            </div>
+          )}
+        </div>
 
-        </div> */}
         <button type='submit' className='w-full rounded mt-6 py-3 text-lg bg-yellow-400 text-grey-900 font-bold'>
-          Add Category</button>
+          Add Category
+        </button>
       </form>
 
 

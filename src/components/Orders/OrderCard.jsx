@@ -173,7 +173,7 @@ import { enqueueSnackbar } from "notistack";
 import { MdFileDownloadDone, MdEdit } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { setEditingMode } from "../../redux/slice/editOrderSlice";
-import { setCustomer } from "../../redux/slice/customerSlice";
+import { setCustomer, setDeliveryInfo } from "../../redux/slice/customerSlice";
 import { setCartItems, removeAllItems, addItems } from "../../redux/slice/cartSlice";
 import BillInfo from "../Menu/BillInfo";
 
@@ -188,7 +188,7 @@ const OrderCard = ({ order }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    
+
 
     // Mutation for updating table status
     const updateTableMutation = useMutation({
@@ -228,44 +228,44 @@ const OrderCard = ({ order }) => {
         },
     });
 
-    
+
 
     // --------------------------
     // Mutation for deleting an order
     // Accepts the full order object to retrieve order ID and table details (if any)
     // --------------------------
-// Mutation for deleting an order (receives the full order object)
-const deleteOrderMutation = useMutation({
-    mutationFn: (order) => {
-      return deleteOrder(order._id); // Pass only the order ID to the API
-    },
-    onSuccess: (data, order) => {
-      enqueueSnackbar("Order deleted successfully!", { variant: "success" });
-      queryClient.invalidateQueries(["orders"]); // Refresh the orders list
-  
-      // If the deleted order had an assigned table, mark that table as "Available"
-      if (order.table) {
-        updateTableMutation.mutate({ tableId: order.table._id, status: "Available" });
-      }
-    },
-    onError: (error) => {
-      console.error("Error deleting order:", error);
-      enqueueSnackbar("Failed to delete order!", { variant: "error" });
-    },
-  });
+    // Mutation for deleting an order (receives the full order object)
+    const deleteOrderMutation = useMutation({
+        mutationFn: (order) => {
+            return deleteOrder(order._id); // Pass only the order ID to the API
+        },
+        onSuccess: (data, order) => {
+            enqueueSnackbar("Order deleted successfully!", { variant: "success" });
+            queryClient.invalidateQueries(["orders"]); // Refresh the orders list
+
+            // If the deleted order had an assigned table, mark that table as "Available"
+            if (order.table) {
+                updateTableMutation.mutate({ tableId: order.table._id, status: "Available" });
+            }
+        },
+        onError: (error) => {
+            console.error("Error deleting order:", error);
+            enqueueSnackbar("Failed to delete order!", { variant: "error" });
+        },
+    });
 
 
     const handleStatusChange = (newStatus) => {
         if (newStatus === "delete") {
-          // Handle delete action
-          if (window.confirm("Are you sure you want to delete this order?")) {
-            deleteOrderMutation.mutate(order); // Pass the full order object here
-          }
+            // Handle delete action
+            if (window.confirm("Are you sure you want to delete this order?")) {
+                deleteOrderMutation.mutate(order); // Pass the full order object here
+            }
         } else {
-          // Handle status update
-          orderStatusUpdateMutation.mutate({ orderId: order._id, orderStatus: newStatus });
+            // Handle status update
+            orderStatusUpdateMutation.mutate({ orderId: order._id, orderStatus: newStatus });
         }
-      };
+    };
 
 
     const handleEditOrder = () => {
@@ -278,10 +278,17 @@ const deleteOrderMutation = useMutation({
         dispatch(setEditingMode(true));
 
         const itemsForCart = order.items.map(item => ({
-            id: (item._id || item.id),
+            // id: (item._id || item.id),
+            // name: item.name,
+            // price: item.price,
+            // quantity: item.quantity || 1,
+
+            id: item.menuItem,       // use menuItem as id
+            dishId: item.menuItem,   // store dishId for backend
             name: item.name,
-            price: item.price,
+            price: item.pricePerQuantity || item.price,
             quantity: item.quantity || 1,
+            section: item.section || null
         }));
 
         console.log('Original order details:', {
@@ -296,9 +303,24 @@ const deleteOrderMutation = useMutation({
             guests: order.customerDetails?.guests,
             orderType: order.customerDetails?.orderType,
             paymentMethod: order.paymentMethod || "Online",
-            orderId: order.orderId?.orderId || order._id,
+            orderId: order.orderId || order._id,
+            table: order.table || null,
+
+
 
         }));
+
+
+
+        // Step 2️⃣ Set delivery info if applicable
+        if (order.customerDetails?.orderType === "Delivery") {
+            dispatch(setDeliveryInfo({
+                address: order.deliveryAddress,
+                deliveryBoyId: order.deliveryBoyId,
+                phone: order.customerDetails?.phone,
+                name: order.customerDetails?.name,
+            }));
+        }
 
 
 
@@ -321,7 +343,7 @@ const deleteOrderMutation = useMutation({
                             {order.customerDetails.name}
                         </h1>
                         <p className="text-[#ababab] text-sm">
-                            #{order.orderId?.orderId} / {order.customerDetails.orderType}
+                            #{order.orderId} / {order.customerDetails.orderType}
                         </p>
                         {order.table && (
                             <p className="text-[#ababab] text-sm">
@@ -396,7 +418,7 @@ const deleteOrderMutation = useMutation({
             <div className="flex items-center justify-between mt-4">
                 <h1 className="text-[#f5f5f5] text-lg semi-bold">Total</h1>
                 <p className="text-[#f5f5f5] text-lg font-semi-bold">
-                    Rs {order.bills.totalWithTax.toFixed(2)}
+                    BHD {order.bills.totalWithTax.toFixed(2)}
                 </p>
             </div>
         </div>

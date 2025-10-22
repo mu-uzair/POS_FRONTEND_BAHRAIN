@@ -1,6 +1,6 @@
 
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
-import { Home, Orders, Auth, Tables, Menu, Dashboard, Inventory } from "./pages";
+import { Home, Orders, Auth, Tables, Menu, Dashboard, Inventory,KitchenSection, GrillSection, DeliveryMetrics } from "./pages";
 import Header from "./components/shared/Header";
 import { useSelector } from "react-redux";
 import useLoadData from "./hooks/useLoadData";
@@ -52,6 +52,33 @@ function Layout() {
                  element={
                     <ProtectedRoute>
                         <Inventory />
+                    </ProtectedRoute>
+                } 
+                />
+
+                <Route
+                 path="/kitchensection" 
+                 element={
+                    <ProtectedRoute>
+                        <KitchenSection />
+                    </ProtectedRoute>
+                } 
+                />
+                <Route path="*" element={<div>Not Found</div>} />
+
+                <Route
+                 path="/grillsection" 
+                 element={
+                    <ProtectedRoute>
+                        <GrillSection />
+                    </ProtectedRoute>
+                } 
+                />
+                <Route
+                 path="/deliverymetrics" 
+                 element={
+                    <ProtectedRoute>
+                        <DeliveryMetrics />
                     </ProtectedRoute>
                 } 
                 />

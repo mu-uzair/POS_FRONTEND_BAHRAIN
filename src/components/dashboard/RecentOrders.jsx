@@ -345,13 +345,12 @@ const RecentOrders = () => {
                   <td className="p-4">{order.customerDetails?.name}</td>
                   <td className="p-4">
                     <select
-                      className={`bg-[#1a1a1a] text-[#f5f5f5] border border-gray-500 p-2 rounded-lg focus:outline-none ${
-                        order.orderStatus === "Ready"
-                          ? "text-green-500"
-                          : order.orderStatus === "Completed"
+                      className={`bg-[#1a1a1a] text-[#f5f5f5] border border-gray-500 p-2 rounded-lg focus:outline-none ${order.orderStatus === "Ready"
+                        ? "text-green-500"
+                        : order.orderStatus === "Completed"
                           ? "text-blue-500"
                           : "text-yellow-500"
-                      }`}
+                        }`}
                       value={order.orderStatus}
                       onChange={(e) =>
                         handleStatusChange({
@@ -380,7 +379,7 @@ const RecentOrders = () => {
                       "N/A"
                     )}
                   </td>
-                  <td className="p-4">Rs {order.bills?.totalWithTax}</td>
+                  <td className="p-4">BHD {order.bills?.totalWithTax}</td>
                   <td className="p-4 text-center">
                     <button className="text-blue-400 hover:text-blue-500 transition">
                       <GrUpdate size={20} />

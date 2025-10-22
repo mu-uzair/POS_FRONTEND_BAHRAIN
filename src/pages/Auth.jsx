@@ -30,7 +30,7 @@ const Auth = () => {
             <blockquote className="absolute bottom-10 px-8 mb-10 text-2xl italic text-white">
                 "Good food is not just about taste — it's about creating memories, sharing laughter, and bringing people closer, one delicious bite at a time."
                 <br />
-                <span className="block mt-4 text-yellow-400">- Founder of Savoury Bites</span>
+                <span className="block mt-4 text-yellow-400">- Founder of AL SYEDA</span>
             </blockquote>
 
             </div>
@@ -38,7 +38,7 @@ const Auth = () => {
             <div className="w-1/2 min-h-screen bg-[#1a1a1a] p-10">
             <div className="flex flex-col items-center gap-2">
                 <img src={logo} alt="Restro Logo " className="h-14 w-14 border-2 border-white rounded-full p-1"/>
-                <h1 className="text-lg font-semibold text-[#f5f5f5] tracking-wide">Savoury Bites</h1>
+                <h1 className="text-lg font-semibold text-[#f5f5f5] tracking-wide">AL SYEDA</h1>
             </div>
 
             <h2 className="text-4xl text-center mt-10 font-semibold text-yellow-400 mb-10">

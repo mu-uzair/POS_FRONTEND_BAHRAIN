@@ -71,7 +71,7 @@ const formattedOrderDateTime = orderDateTime.toLocaleString();
                                 <p>
                                     {item.quantity} x {item.name}
                                 </p>
-                                <p>Rs{item.price?.toFixed(2)}</p>
+                                <p>BHD{item.price?.toFixed(2)}</p>
                             </div>
                         ))}
                     </div>
@@ -88,7 +88,7 @@ const formattedOrderDateTime = orderDateTime.toLocaleString();
                     <div className="flex justify-between mb-2">
                         <p className="font-bold">Sales Tax ({salesTaxPercentage}%)</p>
                         <p className="font-bold">
-                            Rs{orderInfo?.bills?.tax?.toFixed(2)}
+                            BHD{orderInfo?.bills?.tax?.toFixed(2)}
                         </p>
                     </div>
 
@@ -97,7 +97,7 @@ const formattedOrderDateTime = orderDateTime.toLocaleString();
         Discount ({orderInfo?.bills.discountPercentage || 0}%)
     </p>
     <p className="font-bold">
-        - Rs {orderInfo?.bills.discountAmount?.toFixed(2) || 0}
+        - BHD {orderInfo?.bills.discountAmount?.toFixed(2) || 0}
     </p>
 </div>
 

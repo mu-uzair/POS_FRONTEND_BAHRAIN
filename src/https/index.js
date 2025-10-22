@@ -38,12 +38,29 @@ export const deleteTable = (tableId) => api.delete(`/api/table/${tableId}`);
 // Order Endpoints/Order
 export const addOrder = (data) => api.post("/api/order", data);
 export const getOrders = () => api.get("/api/order");
+export const getOrdersByStatus = (status) => api.get(`/api/order/status/${status}`);
+// in your https.js or API file
+export const getOrderById = (orderId) => {
+    return api.get(`/api/order/${orderId}`); // matches your backend route
+};
+
 export const updateOrderStatus = ({ orderId, orderStatus }) =>
     api.put(`/api/order/${orderId}`, { orderStatus });
+export const markSectionItemsReady = (orderId, section) =>
+    api.put(`/api/order/${orderId}/section-ready`, { section });
 export const deleteOrder = (orderId) => api.delete(`/api/order/${orderId}`);
 // For full order updates
 export const updateOrder = (orderId, orderData) =>
     api.put(`/api/order/by-order-id/${orderId}`, orderData);
+
+// export const assignDeliveryBoyToOrder = (orderId, deliveryBoyId) =>
+//   api.patch(`/api/orders/${orderId}/assign-delivery`, { deliveryBoyId });
+// ✅ FIXED ENDPOINT
+export const assignDeliveryBoyToOrder = (orderId, deliveryBoyId) =>
+  api.patch(`/api/order/${orderId}/assign-delivery`, { deliveryBoyId });
+
+
+
 
 
 // Category Endpoints
@@ -68,6 +85,17 @@ export const updateDish = (dishData) => {
 };
 export const deleteDish = (dishId) => api.delete(`/api/dish/${dishId}`);
 
+
+// Delivery Boy Endpoints
+// NOTE: We use 'patch' for update since it's typically for changing status (is_active) or details.
+export const addDeliveryBoy = (data) => api.post("/api/deliveryBoy", data);
+export const getDeliveryBoys = () => api.get("/api/deliveryBoy");
+
+
+// --- Customer Lookup ---
+// GET: Searches for a customer record by phone number
+export const searchCustomer = (phone) => api.get(`/api/customers/search?phone=${phone}`);
+export const addCustomer = (data) => api.post("/api/customers", data);
 
 
 // All Endpoints for Inventory System 

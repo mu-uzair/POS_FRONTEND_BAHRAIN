@@ -5,4 +5,7 @@ export {default as Tables} from './Tables.jsx'
 export {default as Menu} from './Menu.jsx'
 export {default as Dashboard} from './Dashboard.jsx'
 export {default as Inventory} from './Inventory.jsx'
+export {default as KitchenSection} from './KitchenSection.jsx'
+export {default as GrillSection} from './GrillSection.jsx'
+export {default as DeliveryMetrics} from './DeliveryMetrics.jsx'
   

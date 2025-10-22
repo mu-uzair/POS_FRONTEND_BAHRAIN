@@ -1,11 +1,9 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getTotalPrice } from '../../redux/slice/cartSlice';
 import { enqueueSnackbar } from 'notistack';
 import { useMutation } from '@tanstack/react-query';
-import { addOrder, updateOrder, updateTable } from '../../https';
+import { addOrder, updateOrder, updateTable, getOrderById } from '../../https';
 import { removeAllItems } from '../../redux/slice/cartSlice';
 import { removeCustomer } from '../../redux/slice/customerSlice';
 import { setEditingMode } from '../../redux/slice/editOrderSlice';
@@ -44,11 +42,11 @@ const BillInfo = () => {
 
         let taxRate;
         if (paymentMethod === 'Cash') {
-            taxRate = 15;
-        } else if (paymentMethod === 'Online') {
-            taxRate = 8;
+            taxRate = 10;
+        } else if (paymentMethod === 'Online' || paymentMethod === 'Benefit') {
+            taxRate = 10;
         } else {
-            taxRate = 0;
+            taxRate = 10;
         }
 
         const discountAmount = (total * discountPercentage) / 100;
@@ -67,8 +65,11 @@ const BillInfo = () => {
 
 
 
+    // checking why order is not placing 
 
     const handlePlaceOrder = async () => {
+        console.log('Customer Data:', customerData);
+        // --- General Validation Checks ---
         if (!paymentMethod) {
             enqueueSnackbar('Please select payment method!', { variant: 'warning' });
             return;
@@ -79,32 +80,58 @@ const BillInfo = () => {
             return;
         }
 
+        // --- DELIVERY VALIDATION (Uses fields from updated customerData) ---
+        if (customerData.orderType === 'Delivery') {
+            if (!customerData.deliveryAddress || customerData.deliveryAddress.trim() === '') {
+                enqueueSnackbar('Delivery address is required!', { variant: 'warning' });
+                return;
+            }
+            // This checks if the delivery boy has been assigned (null is the default state)
+            if (!customerData.deliveryBoyId) {
+                enqueueSnackbar('A delivery boy must be assigned!', { variant: 'warning' });
+                return;
+            }
+            // Ensure customer phone is present for delivery
+            if (!customerData.customerPhone || customerData.customerPhone.trim() === '') {
+                enqueueSnackbar('Customer phone number is required for delivery!', { variant: 'warning' });
+                return;
+            }
+        }
+        // --- END DELIVERY VALIDATION ---
+
         if (cartData.length === 0) {
             enqueueSnackbar('Please add items to the cart!', { variant: 'warning' });
             return;
         }
 
-        // Store the total value before emptying the cart
+        // Store total before clearing the cart
         setStoredTotal(total);
 
-        // Calculate discount amount
+        // Calculate discount and tax
         const discountAmount = (total * discountPercentage) / 100;
-
-        // Calculate tax and total with tax
         let taxRate;
-        if (paymentMethod === 'Cash') {
-            taxRate = 15;
-        } else if (paymentMethod === 'Online') {
-            taxRate = 8;
-        } else {
-            taxRate = 0;
-        }
+        if (paymentMethod === 'Cash') taxRate = 10;
+        else if (paymentMethod === 'Online' || paymentMethod === 'Benefit') taxRate = 10;
+        else taxRate = 0;
+
         const discountedTotal = total - discountAmount;
         const calculatedTax = (discountedTotal * taxRate) / 100;
         const totalWithTax = discountedTotal + calculatedTax;
 
+        // ✅ Map items to include section
+        const items = cartData.map(item => ({
+            menuItem: item.dishId || item.id,
+            name: item.name,
+            pricePerQuantity: item.pricePerQuantity || item.price,
+            quantity: item.quantity,
+            price: item.price,
+            section: item.section || null, // ✅ added safely
+        }));
+
+        // Base Order Data Payload
         const orderData = {
-            orderId: { orderId: customerData.orderId },
+            // orderId: { orderId: customerData.orderId },
+            orderId: customerData.orderId,
             customerDetails: {
                 name: customerData.customerName,
                 phone: customerData.customerPhone,
@@ -119,13 +146,20 @@ const BillInfo = () => {
                 discountPercentage: discountPercentage,
                 discountAmount: discountAmount,
             },
-            items: cartData,
+            items, // ✅ include mapped items with section
             paymentMethod: paymentMethod,
         };
 
+        // --- CONDITIONAL FIELD ADDITION ---
         if (customerData.orderType === 'Dine-in') {
             orderData.table = customerData.table.tableId;
         }
+        // ADDING REQUIRED DELIVERY FIELDS FROM REDUX STATE
+        else if (customerData.orderType === 'Delivery') {
+            orderData.deliveryAddress = customerData.deliveryAddress;
+            orderData.deliveryBoyId = customerData.deliveryBoyId;
+        }
+        // --- END CONDITIONAL FIELD ADDITION ---
 
         console.log('Order Data:', orderData);
 
@@ -133,149 +167,150 @@ const BillInfo = () => {
             await orderMutation.mutateAsync(orderData);
 
             if (customerData.orderType === 'Dine-in') {
-                await updateTableStatus(customerData.table.tableId, 'Booked');
+                await updateTable(customerData.table, 'Booked');
                 enqueueSnackbar('Order placed successfully and table status updated!', { variant: 'success' });
+            } else if (customerData.orderType === 'Delivery') {
+                enqueueSnackbar('Delivery order placed successfully!', { variant: 'success' });
+            } else {
+                // Fallback success message for Pickup or other types
+                enqueueSnackbar('Order placed successfully!', { variant: 'success' });
             }
         } catch (error) {
             console.error('Error placing order:', error);
+
+            // --- IMPROVED ERROR HANDLING ---
+            if (typeof axios !== 'undefined' && axios.isAxiosError(error) && error.response) {
+                const errorMessage = error.response.data.message || error.response.statusText || 'Server validation failed.';
+                enqueueSnackbar(`Failed to place order: ${errorMessage}`, { variant: 'error' });
+                console.error("Server Response Details:", error.response.data);
+            } else {
+                enqueueSnackbar(`Failed to place order: ${error.message}`, { variant: 'error' });
+            }
+            // --- END IMPROVED ERROR HANDLING ---
         }
     };
 
 
-    // const handleUpdateOrder = async () => {
-    //     try {
-    //         // Calculate values
-    //         const discountAmount = (total * discountPercentage) / 100;
-    //         const taxRate = paymentMethod === 'Cash' ? 15 : 8;
-    //         const discountedTotal = total - discountAmount;
-    //         const calculatedTax = (discountedTotal * taxRate) / 100;
-    //         const totalWithTax = discountedTotal + calculatedTax;
 
-    //         // Prepare items - ensure proper ID format
-    //         const items = cartData.map(item => ({
-    //             menuItem: item.id, // or new mongoose.Types.ObjectId(item.id) if needed
-    //             name: item.name,
-    //             price: item.price,
-    //             quantity: item.quantity
-    //         }));
 
-    //         // Build update payload
-    //         const updateData = {
-    //             customerDetails: {
-    //                 name: customerData.customerName || "Walk-In Customer",
-    //                 phone: customerData.customerPhone || "N/A",
-    //                 guests: customerData.guests || "0",
-    //                 orderType: customerData.orderType || "Take Away"
-    //             },
-    //             items,
-    //             bills: {
-    //                 total: total,
-    //                 tax: calculatedTax,
-    //                 totalWithTax: totalWithTax,
-    //                 discountPercentage: discountPercentage,
-    //                 discountAmount: discountAmount
-    //             },
-    //             paymentMethod: paymentMethod,
-    //             orderStatus: 'In Progress'
-    //         };
-
-    //         // Add table reference if exists
-    //         if (customerData.table?.tableId) {
-    //             updateData.table = customerData.table.tableId;
-    //         }
-
-    //         console.log('Final update payload:', JSON.stringify(updateData, null, 2));
-
-    //         // Execute update
-    //         const response = await updateOrderMutation.mutateAsync({
-    //             orderId: customerData.orderId,
-    //             updateData
-    //         });
-
-    //         enqueueSnackbar('Order updated successfully!', { variant: 'success' });
-    //         dispatch(isEditing(false));
-
-    //     } catch (error) {
-    //         console.error('Detailed update error:', {
-    //             message: error.message,
-    //             responseData: error.response?.data,
-    //             config: error.config,
-    //             stack: error.stack
-    //         });
-
-    //         enqueueSnackbar(
-    //             error.response?.data?.message || 'Failed to update order',
-    //             { variant: 'error' }
-    //         );
-    //     }
-
-        
-    // };
 
     const handleUpdateOrder = async () => {
-        try {
-            const discountAmount = (total * discountPercentage) / 100;
-            const taxRate = paymentMethod === 'Cash' ? 15 : 8;
-            const discountedTotal = total - discountAmount;
-            const calculatedTax = (discountedTotal * taxRate) / 100;
-            const totalWithTax = discountedTotal + calculatedTax;
-    
-            const items = cartData.map(item => ({
-                menuItem: item.id,
-                name: item.name,
-                price: item.price,
-                quantity: item.quantity
-            }));
-    
-            const updateData = {
-                customerDetails: {
-                    name: customerData.customerName || "Walk-In Customer",
-                    phone: customerData.customerPhone || "N/A",
-                    guests: customerData.guests || "0",
-                    orderType: customerData.orderType || "Take Away"
-                },
-                items,
-                bills: {
-                    total: total,
-                    tax: calculatedTax,
-                    totalWithTax: totalWithTax,
-                    discountPercentage: discountPercentage,
-                    discountAmount: discountAmount
-                },
-                paymentMethod: paymentMethod,
-                orderStatus: 'In Progress'
-            };
-    
-            if (customerData.table?.tableId) {
-                updateData.table = customerData.table.tableId;
+
+
+        // --- General Validation Checks ---
+        if (!paymentMethod) {
+            enqueueSnackbar('Please select payment method!', { variant: 'warning' });
+            return;
+        }
+
+        //   if (customerData.orderType === 'Dine-in' && !customerData.table) {
+        //     enqueueSnackbar('Please select a table!', { variant: 'warning' });
+        //     return;
+        //   }
+
+        // --- DELIVERY VALIDATION ---
+        if (customerData.orderType === 'Delivery') {
+            if (!customerData.deliveryAddress || customerData.deliveryAddress.trim() === '') {
+                enqueueSnackbar('Delivery address is required!', { variant: 'warning' });
+                return;
             }
-    
-            const response = await updateOrderMutation.mutateAsync({
+            if (!customerData.deliveryBoyId) {
+                enqueueSnackbar('A delivery boy must be assigned!', { variant: 'warning' });
+                return;
+            }
+            if (!customerData.customerPhone || customerData.customerPhone.trim() === '') {
+                enqueueSnackbar('Customer phone number is required for delivery!', { variant: 'warning' });
+                return;
+            }
+        }
+
+        // --- Cart Validation ---
+        if (cartData.length === 0) {
+            enqueueSnackbar('Please add items to the cart!', { variant: 'warning' });
+            return;
+        }
+
+        // --- Billing Calculations ---
+        const discountAmount = (total * discountPercentage) / 100;
+        const taxRate =
+            paymentMethod === 'Cash' ? 10 :
+                (paymentMethod === 'Online' || paymentMethod === 'Benefit' ? 10 : 10);
+
+        const discountedTotal = total - discountAmount;
+        const calculatedTax = (discountedTotal * taxRate) / 100;
+        const totalWithTax = discountedTotal + calculatedTax;
+
+        // ✅ Ensure rounding to 3 decimal places (for BHD)
+        const roundTo3 = num => parseFloat(num.toFixed(3));
+
+        // --- Map Items ---
+        const items = cartData.map(item => ({
+            menuItem: item.dishId || item.id || item._id || item.menuItem,
+            name: item.name || item.dishName,
+            pricePerQuantity: roundTo3(item.pricePerQuantity || item.price),
+            quantity: item.quantity,
+            price: roundTo3(item.price),
+            section: item.section || null,
+        }));
+
+        // --- Construct Update Payload ---
+        const updateData = {
+            customerDetails: {
+                name: customerData.customerName || "Walk-In Customer",
+                phone: customerData.customerPhone || "N/A",
+                guests: customerData.guests || 0,
+                orderType: customerData.orderType || "Take Away",
+            },
+            bills: {
+                total: roundTo3(total),
+                tax: roundTo3(calculatedTax),
+                totalWithTax: roundTo3(totalWithTax),
+                discountPercentage: roundTo3(discountPercentage),
+                discountAmount: roundTo3(discountAmount),
+            },
+            items,
+            paymentMethod,
+            orderStatus: 'In Progress',
+        };
+
+        // --- Attach Conditional Fields ---
+        if (customerData.orderType === 'Dine-in' && customerData.table?.tableId) {
+            updateData.table = customerData.table.tableId;
+        } else if (customerData.orderType === 'Delivery') {
+            updateData.deliveryAddress = customerData.deliveryAddress;
+            updateData.deliveryBoyId = customerData.deliveryBoyId;
+        }
+
+        console.log("Final Update Data:", updateData);
+
+        try {
+            await updateOrderMutation.mutateAsync({
                 orderId: customerData.orderId,
-                updateData
+                updateData,
             });
-    
-            // 🔥 Store updated data for printing
-            setStoredTotal(total); // so tax and discount can be re-calculated during print
+
+            // ✅ Preserve data for print or further actions
+            setStoredTotal(total);
             setPlacedOrderData({ _id: customerData.orderId, ...updateData });
-    
+
             enqueueSnackbar('Order updated successfully!', { variant: 'success' });
-            dispatch(isEditing(false));
-    
+            dispatch(setEditingMode(false));
         } catch (error) {
             console.error('Detailed update error:', {
                 message: error.message,
                 responseData: error.response?.data,
                 config: error.config,
-                stack: error.stack
+                stack: error.stack,
             });
-    
+
             enqueueSnackbar(
-                error.response?.data?.message || 'Failed to update order',
+                error.response?.data?.message || 'Failed to update order.',
                 { variant: 'error' }
             );
         }
     };
+
+
 
     // Update mutation
     const updateOrderMutation = useMutation({
@@ -283,6 +318,8 @@ const BillInfo = () => {
         onSuccess: (data) => {
             // Handle success (if you need to update local state)
             console.log('Updated order data:', data);
+            dispatch(removeAllItems());
+            dispatch(removeCustomer());
         },
         onError: (error) => {
             console.error('Update mutation error:', error);
@@ -345,11 +382,11 @@ const BillInfo = () => {
             // Calculate tax and total with tax
             let taxRate;
             if (paymentMethod === 'Cash') {
-                taxRate = 15;
-            } else if (paymentMethod === 'Online') {
-                taxRate = 8;
+                taxRate = 10;
+            } else if (paymentMethod === 'Online' || paymentMethod === 'Benefit') {
+                taxRate = 10;
             } else {
-                taxRate = 0;
+                taxRate = 10;
             }
             const discountedTotal = storedTotal - discountAmount;
             const calculatedTax = (discountedTotal * taxRate) / 100;
@@ -371,7 +408,7 @@ const BillInfo = () => {
             console.log('Updated Order Info:', updatedOrderInfo);
 
             setOrderInfo(updatedOrderInfo);
-            
+
             setShowInvoice(true);
         } else {
             enqueueSnackbar('Please place an order first!', { variant: 'warning' });
@@ -382,11 +419,11 @@ const BillInfo = () => {
         <>
             <div className="flex items-center justify-between px-5 mt-2">
                 <p className="text-xs text-[#ababab] font-medium mt-2">Items({cartData.length})</p>
-                <h1 className="text-[#f5f5f5] text-md font-bold">Rs {total.toFixed(2)}</h1>
+                <h1 className="text-[#f5f5f5] text-md font-bold">BHD {total.toFixed(2)}</h1>
             </div>
             <div className="flex items-center justify-between px-5 mt-2">
-                <p className="text-xs text-[#ababab] font-medium mt-2">Tax({paymentMethod === 'Cash' ? '15%' : '8%'})</p>
-                <h1 className="text-[#f5f5f5] text-md font-bold">Rs {tax.toFixed(2)}</h1>
+                <p className="text-xs text-[#ababab] font-medium mt-2">Tax({paymentMethod === 'Cash' ? '10%' : '10%'})</p>
+                <h1 className="text-[#f5f5f5] text-md font-bold">BHD {tax.toFixed(2)}</h1>
             </div>
             <div className="flex items-center justify-between px-5 mt-2">
                 <p className="text-xs text-[#ababab] font-medium mt-2">Discount</p>
@@ -401,7 +438,7 @@ const BillInfo = () => {
             </div>
             <div className="flex items-center justify-between px-5 mt-2">
                 <p className="text-xs text-[#ababab] font-medium mt-2">Total With Tax</p>
-                <h1 className="text-[#f5f5f5] text-md font-bold">Rs {totalPriceWithTax.toFixed(2)}</h1>
+                <h1 className="text-[#f5f5f5] text-md font-bold">BHD {totalPriceWithTax.toFixed(2)}</h1>
             </div>
 
             {/* <div className="flex items-center gap-3 px-5 mt-4">
@@ -421,20 +458,24 @@ const BillInfo = () => {
                 </button>
             </div> */}
 
-            <div className="flex items-center gap-3 px-5 mt-4">
+            <div className="flex flex-col sm:flex-row items-center gap-3 px-5 mt-4 w-full">
                 <button
                     onClick={() => setPaymentMethod('Cash')}
-                    className={`bg-[#1f1f1f] px-4 py-3 w-full rounded-lg text-[#ababab] font-semibold ${paymentMethod === 'Cash' ? 'bg-[#383737]' : ''
-                        }`}
+                    className={`flex-1 bg-[#1f1f1f] px-4 py-3 rounded-lg text-[#ababab] font-semibold transition-colors duration-150 ${paymentMethod === 'Cash' ? 'bg-[#383737] scale-105 shadow-md' : ''}`}
                 >
                     Cash
                 </button>
                 <button
                     onClick={() => setPaymentMethod('Online')}
-                    className={`bg-[#1f1f1f] px-4 py-3 w-full rounded-lg text-[#ababab] font-semibold ${paymentMethod === 'Online' ? 'bg-[#383737]' : ''
-                        }`}
+                    className={`flex-1 bg-[#1f1f1f] px-4 py-3 rounded-lg text-[#ababab] font-semibold transition-colors duration-150 ${paymentMethod === 'Online' ? 'bg-[#383737] scale-105 shadow-md' : ''}`}
                 >
                     Online
+                </button>
+                <button
+                    onClick={() => setPaymentMethod('Benefit')}
+                    className={`flex-1 bg-[#1f1f1f] px-4 py-3 rounded-lg text-[#ababab] font-semibold transition-colors duration-150 ${paymentMethod === 'Benefit' ? 'bg-[#383737] scale-105 shadow-md' : ''}`}
+                >
+                    Benefit
                 </button>
             </div>
 

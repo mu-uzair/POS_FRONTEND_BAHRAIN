@@ -59,7 +59,7 @@ const ProductsList = () => {
         </div>
         <div>
           <p className="text-[#ababab]">Total Stock Value</p>
-          <p className="text-[#f5f5f5] text-lg font-bold">Rs {totalStockValue.toFixed(2)}</p>
+          <p className="text-[#f5f5f5] text-lg font-bold">BHD {totalStockValue.toFixed(2)}</p>
         </div>
       </div>
 
@@ -112,7 +112,7 @@ const ProductsList = () => {
                     )}
                   </td>
                   <td className="p-4">{product.reorder_threshold}</td>
-                  <td className="p-4">Rs {product.cost_per_unit.toFixed(2)}</td>
+                  <td className="p-4">BHD {product.cost_per_unit.toFixed(2)}</td>
                   <td className="p-4">{product.vendor?.name || "Unknown"}</td>
                   <td className="p-4">{formatDateAndTme(product.createdAt)}</td>
                   <td className="p-4 text-center flex justify-center gap-2">
