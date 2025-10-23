@@ -381,36 +381,36 @@ const MenuContainer = () => {
 
 
 
-// Add to cart
-const handleAddToCart = (item) => {
-  const count = itemCounts[item._id] || 0;
-  if (count === 0) return;
+  // Add to cart
+  const handleAddToCart = (item) => {
+    const count = itemCounts[item._id] || 0;
+    if (count === 0) return;
 
-  const selectedVariation = selectedVariations[item._id] || item.variations?.find(v => v.isDefault);
-  if (!selectedVariation) {
-    enqueueSnackbar('Please select a variation first.', { variant: 'warning' });
-    return;
-  }
+    const selectedVariation = selectedVariations[item._id] || item.variations?.find(v => v.isDefault);
+    if (!selectedVariation) {
+      enqueueSnackbar('Please select a variation first.', { variant: 'warning' });
+      return;
+    }
 
-  // ✅ Use MongoDB _id as dishId (real reference)
-  const newObj = {
-    _id: item._id, // real MongoDB dish ID
-    dishName: item.dishName,
-    section: item.section || selectedVariation.section || null, // ✅ include section
-    variationName: selectedVariation.name,
-    pricePerQuantity: selectedVariation.price,
-    quantity: count,
-    price: selectedVariation.price * count,
+    // ✅ Use MongoDB _id as dishId (real reference)
+    const newObj = {
+      _id: item._id, // real MongoDB dish ID
+      dishName: item.dishName,
+      section: item.section || selectedVariation.section || null, // ✅ include section
+      variationName: selectedVariation.name,
+      pricePerQuantity: selectedVariation.price,
+      quantity: count,
+      price: selectedVariation.price * count,
+    };
+
+    dispatch(addItems(newObj));
+    enqueueSnackbar(`${item.dishName} (${selectedVariation.name}) added to cart!`, { variant: 'success' });
+
+    setItemCounts((prevCounts) => ({
+      ...prevCounts,
+      [item._id]: 0,
+    }));
   };
-
-  dispatch(addItems(newObj));
-  enqueueSnackbar(`${item.dishName} (${selectedVariation.name}) added to cart!`, { variant: 'success' });
-
-  setItemCounts((prevCounts) => ({
-    ...prevCounts,
-    [item._id]: 0,
-  }));
-};
 
 
 
@@ -418,7 +418,7 @@ const handleAddToCart = (item) => {
   return (
     <>
       {/* Menu Categories */}
-      <div className="grid grid-cols-4 gap-4 px-10 py-4 overflow-y-scroll h-[240px] hidden-scrollbar">
+      {/* <div className="grid grid-cols-4 gap-4 px-10 py-4 overflow-y-scroll h-[240px] hidden-scrollbar">
         {categories.length === 0 ? (
           <div className="col-span-4 text-center text-[#ababab] text-lg font-semibold">No categories found</div>
         ) : (
@@ -456,12 +456,75 @@ const handleAddToCart = (item) => {
             );
           })
         )}
-      </div>
+      </div> */}
+
+      <div className="h-[35vh] min-h-[250px] border-b-2 border-[#2a2a2a] flex flex-col     ">
+        <div className="px-4 sm:px-6 py-2 flex-shrink-0">
+          <h2 className="text-xl font-bold text-white">Menu Categories</h2>
+        </div>
+
+        {/* Scrollable Container with Hidden Scrollbar */}
+        <div className="flex-1 py-1 px-4 sm:px-6 pb-4 overflow-y-scroll overflow-x-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] ">
+
+          {categories.length === 0 ? (
+            <div className="text-center text-[#ababab] text-lg font-semibold py-8">
+              No categories found
+            </div>
+          ) : (
+            /* Responsive Grid for Categories: Max 5 on large screens */
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5">
+              {categories.map((category, index) => {
+                if (!category || !category._id) return null;
+                const isSelected = selectedCategory?._id === category._id;
+                const itemCount = categoryItemCounts[category._id] || 0;
+
+                return (
+                  <div
+                    key={category._id}
+                    className={`flex flex-col items-center justify-center text-center p-3 sm:p-4 rounded-xl cursor-pointer transition-all duration-200 h-full min-h-[100px] shadow-md ${isSelected ? 'ring-2 ring-yellow-500 scale-[1.03] shadow-yellow-500/40' : 'hover:scale-[1.01]'
+                      }`}
+                    style={{ backgroundColor: getBgColor(index) }}
+                    onClick={() => setSelectedCategory(category)}
+                  >
+                    {/* Category Image/Icon */}
+                    {category.imageUrl && /^https?:\/\//i.test(category.imageUrl.trim()) && (
+                      <div className="mb-2">
+                        <img
+                          src={category.imageUrl}
+                          alt={category.categoryName}
+                          /* Increased image size for better viewing */
+                          className="h-16 w-16 sm:h-25 sm:w-25 object-cover rounded-full border-2 border-white/50 bg-white"
+                          onError={e => { e.target.style.display = 'none'; }}
+                        />
+                      </div>
+                    )}
+
+                    {/* Category Name - FIX APPLIED HERE */}
+                    <h3 className="text-white text-sm sm:text-base font-bold line-clamp-2 mb-1 w-full px-1">
+                      {category.categoryName}
+                    </h3>
+
+                    {/* Item Count & Selector Icon */}
+                    <div className="flex items-center gap-2 mt-auto">
+                      <p className="text-white/80 text-xs font-medium">
+                        {itemCount} Items
+                      </p>
+                      {isSelected && (
+                        <GrRadialSelected className="text-white/80 flex-shrink-0" size={14} />
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
 
       <hr className="border-[#2a2a2a] border-t-2 mt-4" />
 
       {/* Dishes */}
-      <div className="grid grid-cols-4 gap-4 px-10 py-4 overflow-y-scroll h-auto hidden-scrollbar">
+      <div className="grid  grid-cols-1  md:grid-cols-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-10 py-4 overflow-y-scroll h-auto hidden-scrollbar">
         {filteredDishes.map((item) => {
           const variations = item.variations || [];
           const selectedVar = selectedVariations[item._id] || variations.find(v => v.isDefault);
@@ -488,11 +551,10 @@ const handleAddToCart = (item) => {
                     <button
                       key={variation.name}
                       onClick={() => handleVariationChange(item._id, variation)}
-                      className={`px-3 py-1 rounded-md text-sm font-medium transition-all border ${
-                        selectedVar?.name === variation.name
+                      className={`px-3 py-1 rounded-md text-sm font-medium transition-all border ${selectedVar?.name === variation.name
                           ? 'bg-yellow-500 text-black border-yellow-500'
                           : 'bg-[#2f2f2f] text-white border-[#3a3a3a] hover:bg-[#3a3a3a]'
-                      }`}
+                        }`}
                     >
                       {variation.name} - BHD {variation.price.toFixed(3)}
                     </button>
@@ -525,6 +587,7 @@ const handleAddToCart = (item) => {
           );
         })}
       </div>
+
     </>
   );
 };

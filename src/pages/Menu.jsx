@@ -30,7 +30,7 @@ const Menu = () => {
                 <div className="flex-[3] ">
 
 
-                    <div className="flex items-center justify-between px-10 py-4 mt-2">
+                    <div className="flex items-center justify-between px-10 py-2 mt-2">
                         <div className="flex items-center ">
                             <BackButton />
                             <h1 className="text-[#f5f5f5] text-2xl font-bold tracking-wider ">Menu</h1>
