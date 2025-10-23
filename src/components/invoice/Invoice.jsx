@@ -13,7 +13,7 @@ const Receipt = ({ orderInfo, setShowInvoice }) => {
     // const orderDateTime = new Date(orderInfo?.createdAt);
     // const formattedOrderDateTime = orderDateTime.toLocaleString();
     const orderDateTime = new Date(orderInfo?.createdAt || orderInfo?.updatedAt || Date.now());
-const formattedOrderDateTime = orderDateTime.toLocaleString();
+    const formattedOrderDateTime = orderDateTime.toLocaleString();
 
 
     // Determine sales tax percentage based on payment method
@@ -37,18 +37,18 @@ const formattedOrderDateTime = orderDateTime.toLocaleString();
                         <h2 className="text-xl font-bold">AL SAYEDA</h2>
                         <p>Address: Shop no.2 plot no.19-C, Rahat Commercial Lane-3 Phase VI, D.H.A, Karachi</p>
                         <p>Telp. +92 337 8018705</p>
-                         <p>
-                                <strong className="text-base">--- {orderInfo?.customerDetails?.orderType} ---</strong> 
-                            </p>
+                        <p>
+                            <strong className="text-base">--- {orderInfo?.customerDetails?.orderType} ---</strong>
+                        </p>
                         <div className="text-left mt-2">
                             {/* <p>
                                 <strong>Payment Method:</strong> {orderInfo?.paymentMethod}
                             </p> */}
-                           
+
                             <p className="text-xs font-medium mt-1">
                                 Invoice No: #{customerData.orderId || "N/A"}
                             </p>
-                            <p className="text-xs font-medium mt-1">    
+                            <p className="text-xs font-medium mt-1">
                                 Order Date: {formattedOrderDateTime}
                             </p>
                             {user && <p className="text-xs font-medium mt-1">User: {user.role} </p>}
@@ -71,11 +71,15 @@ const formattedOrderDateTime = orderDateTime.toLocaleString();
                             <div key={index} className="flex justify-between">
                                 <p>
                                     {item.quantity} x {item.name}
+                                    {item.variationName ? (
+                                        <span className="text-gray-500 text-xs"> ({item.variationName})</span>
+                                    ) : null}
                                 </p>
-                                <p>{item.price?.toFixed(2)}</p>
+                                <p>{Number(item.price)?.toFixed(3)}</p>
                             </div>
                         ))}
                     </div>
+
 
                     <div className="text-center my-2">
                         <p>----------------------------------</p>
@@ -83,24 +87,24 @@ const formattedOrderDateTime = orderDateTime.toLocaleString();
 
                     <div className="flex justify-between mb-2">
                         <p className="font-bold">Subtotal</p>
-                        <p className="font-bold">{orderInfo?.bills?.total?.toFixed(2)}</p>
+                        <p className="font-bold">{orderInfo?.bills?.total?.toFixed(3)}</p>
                     </div>
 
                     <div className="flex justify-between mb-2">
                         <p className="font-bold">VAT ({salesTaxPercentage}%)</p>
                         <p className="font-bold">
-                            {orderInfo?.bills?.tax?.toFixed(2)}
+                            {orderInfo?.bills?.tax?.toFixed(3)}
                         </p>
                     </div>
 
-<div className="flex justify-between">
-    <p className="font-bold">
-        Discount ({orderInfo?.bills.discountPercentage || 0}%)
-    </p>
-    <p className="font-bold">
-        -  {orderInfo?.bills.discountAmount?.toFixed(2) || 0}
-    </p>
-</div>
+                    <div className="flex justify-between">
+                        <p className="font-bold">
+                            Discount ({orderInfo?.bills.discountPercentage || 0}%)
+                        </p>
+                        <p className="font-bold">
+                            -  {orderInfo?.bills.discountAmount?.toFixed(3) || 0}
+                        </p>
+                    </div>
 
                     <div className="text-center my-2">
                         <p>----------------------------------</p>
@@ -109,7 +113,7 @@ const formattedOrderDateTime = orderDateTime.toLocaleString();
                     <div className="flex justify-between ">
                         <p className="font-bold">Total</p>
                         <p className="font-bold">
-                            {orderInfo?.bills?.totalWithTax?.toFixed(2)}
+                            {orderInfo?.bills?.totalWithTax?.toFixed(3)}
                         </p>
                     </div>
 
@@ -124,7 +128,7 @@ const formattedOrderDateTime = orderDateTime.toLocaleString();
                     <div className="text-center">
                         <p className="font-bold">THANK YOU!</p>
                     </div>
-                    
+
                     {/* Powered by Hasnova */}
                     <div className="text-center mt-4 text-xs text-gray-500">
                         <p>Powered by Hasnova</p>
@@ -183,7 +187,7 @@ const formattedOrderDateTime = orderDateTime.toLocaleString();
                     <div className="text-center">
                         <p className="font-bold">THANK YOU!</p>
                     </div>
-                    
+
                     {/* Powered by Hasnova */}
                     <div className="text-center mt-4 text-xs text-gray-500">
                         <p>Powered by Hasnova</p>

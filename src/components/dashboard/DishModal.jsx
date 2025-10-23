@@ -5,14 +5,14 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { IoClose, IoAddCircleOutline, IoRemoveCircleOutline } from 'react-icons/io5'; 
+import { IoClose, IoAddCircleOutline, IoRemoveCircleOutline } from 'react-icons/io5';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { getCategories, addDish } from '../../https'; 
+import { getCategories, addDish } from '../../https';
 import { useSnackbar } from 'notistack';
 
 const DishModal = ({ setIsDishModalOpen }) => {
     const { enqueueSnackbar } = useSnackbar();
-    
+
     const [dishData, setDishData] = useState({
         dishName: '',
         category: '',
@@ -70,7 +70,7 @@ const DishModal = ({ setIsDishModalOpen }) => {
 
     // --- Add Dish Mutation ---
     const dishMutation = useMutation({
-        mutationFn: addDish, 
+        mutationFn: addDish,
         onSuccess: (res) => {
             setIsDishModalOpen(false);
             const message = res?.data?.message || res.message || 'Dish added successfully!';
@@ -85,7 +85,7 @@ const DishModal = ({ setIsDishModalOpen }) => {
     // --- Submit Logic ---
     const handleSubmit = (e) => {
         e.preventDefault();
-        
+
         if (!dishData.dishName || !dishData.category) {
             enqueueSnackbar("Please fill in Dish Name and select a Category.", { variant: 'error' });
             return;
@@ -103,11 +103,16 @@ const DishModal = ({ setIsDishModalOpen }) => {
                     validationFailed = true;
                     return null;
                 }
-                const priceInSmallestUnit = Math.round(parseFloat(v.price).toFixed(3) * 1000);
+                // const priceInSmallestUnit = Math.round(parseFloat(v.price).toFixed(3) * 1000);
 
+                // return {
+                //     name: v.name.trim(),
+                //     price: priceInSmallestUnit,
+                //     isDefault: v.isDefault,
+                // };
                 return {
                     name: v.name.trim(),
-                    price: priceInSmallestUnit,
+                    price: parseFloat(parseFloat(v.price).toFixed(3)), // keep 3 decimals only
                     isDefault: v.isDefault,
                 };
             })
@@ -160,7 +165,7 @@ const DishModal = ({ setIsDishModalOpen }) => {
 
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    
+
                     {/* Dish Name */}
                     <div>
                         <label className="block text-[#ababab] mb-2 text-sm font-medium">Dish Name</label>
@@ -173,7 +178,7 @@ const DishModal = ({ setIsDishModalOpen }) => {
                             required
                         />
                     </div>
-                    
+
                     {/* Category */}
                     <div>
                         <label className="block text-[#ababab] mb-2 text-sm font-medium">Category</label>

@@ -557,6 +557,7 @@ const OrderCard = ({ order }) => {
       id: item.menuItem,
       dishId: item.menuItem,
       name: item.name,
+      variationName: item.variationName || null,
       price: item.pricePerQuantity || item.price,
       quantity: item.quantity || 1,
       section: item.section || null,

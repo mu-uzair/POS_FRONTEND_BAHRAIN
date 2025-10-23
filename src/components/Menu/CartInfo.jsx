@@ -53,9 +53,9 @@ if(scrolLRef.current){
                                         <RiDeleteBin2Fill
                                         onClick={()=>handleRemove(item.id)}
                                         className="text-[#ababab] cursor-pointer" size={20} />
-                                        <FaNotesMedical 
+                                        {/* <FaNotesMedical 
                                         onClick={()=>handleAdd(item)}
-                                        className="text-[#ababab] cursor-pointer" size={20} />
+                                        className="text-[#ababab] cursor-pointer" size={20} /> */}
                                     </div>
                                     <p className='text-[#f5f5f5] text-md font-bold'>BHD {item.price}</p>
                                 </div>

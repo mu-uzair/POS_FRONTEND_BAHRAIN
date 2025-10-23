@@ -30,6 +30,13 @@ const BillInfo = () => {
     const [discountPercentage, setDiscountPercentage] = useState(0);
     const [storedTotal, setStoredTotal] = useState(0);
 
+    // ✅ Round to 3 decimals consistently
+    const roundTo3 = (num) => {
+        const n = typeof num === "string" ? parseFloat(num) : Number(num || 0);
+        return Math.round(n * 1000) / 1000;
+    };
+
+
     // Add this function to update payment method in Redux
     const handlePaymentMethodChange = (method) => {
         dispatch(setPaymentMethod(method));
@@ -108,23 +115,23 @@ const BillInfo = () => {
         setStoredTotal(total);
 
         // Calculate discount and tax
-        const discountAmount = (total * discountPercentage) / 100;
+        const discountAmount = roundTo3((total * discountPercentage) / 100);
         let taxRate;
         if (paymentMethod === 'Cash') taxRate = 10;
         else if (paymentMethod === 'Online' || paymentMethod === 'Benefit') taxRate = 10;
         else taxRate = 0;
 
-        const discountedTotal = total - discountAmount;
-        const calculatedTax = (discountedTotal * taxRate) / 100;
-        const totalWithTax = discountedTotal + calculatedTax;
-
+        const discountedTotal = roundTo3(total - discountAmount);
+        const calculatedTax = roundTo3((discountedTotal * taxRate) / 100);
+        const totalWithTax = roundTo3(discountedTotal + calculatedTax);
         // ✅ Map items to include section
         const items = cartData.map(item => ({
             menuItem: item.dishId || item.id,
             name: item.name,
-            pricePerQuantity: item.pricePerQuantity || item.price,
+            variationName: item.variationName || null, // ✅ added
+            pricePerQuantity: roundTo3(item.pricePerQuantity || item.price),
             quantity: item.quantity,
-            price: item.price,
+            price: roundTo3(item.price),
             section: item.section || null, // ✅ added safely
         }));
 
@@ -140,11 +147,11 @@ const BillInfo = () => {
             },
             orderStatus: 'In Progress',
             bills: {
-                total: total,
-                tax: calculatedTax,
-                totalWithTax: totalWithTax,
-                discountPercentage: discountPercentage,
-                discountAmount: discountAmount,
+                total: roundTo3(total),
+                tax: roundTo3(calculatedTax),
+                totalWithTax: roundTo3(totalWithTax),
+                discountPercentage: roundTo3(discountPercentage),
+                discountAmount: roundTo3(discountAmount),
             },
             items, // ✅ include mapped items with section
             paymentMethod: paymentMethod,
@@ -231,22 +238,21 @@ const BillInfo = () => {
         }
 
         // --- Billing Calculations ---
-        const discountAmount = (total * discountPercentage) / 100;
+        const discountAmount = roundTo3((total * discountPercentage) / 100);
         const taxRate =
             paymentMethod === 'Cash' ? 10 :
                 (paymentMethod === 'Online' || paymentMethod === 'Benefit' ? 10 : 10);
 
-        const discountedTotal = total - discountAmount;
-        const calculatedTax = (discountedTotal * taxRate) / 100;
-        const totalWithTax = discountedTotal + calculatedTax;
-
-        // ✅ Ensure rounding to 3 decimal places (for BHD)
-        const roundTo3 = num => parseFloat(num.toFixed(3));
+        const discountedTotal = roundTo3(total - discountAmount);
+        const calculatedTax =  roundTo3((discountedTotal * taxRate) / 100);
+        const totalWithTax = roundTo3(discountedTotal + calculatedTax);
+        
 
         // --- Map Items ---
         const items = cartData.map(item => ({
             menuItem: item.dishId || item.id || item._id || item.menuItem,
             name: item.name || item.dishName,
+            variationName: item.variationName || null, // ✅ added
             pricePerQuantity: roundTo3(item.pricePerQuantity || item.price),
             quantity: item.quantity,
             price: roundTo3(item.price),
@@ -419,11 +425,11 @@ const BillInfo = () => {
         <>
             <div className="flex items-center justify-between px-5 mt-2">
                 <p className="text-xs text-[#ababab] font-medium mt-2">Items({cartData.length})</p>
-                <h1 className="text-[#f5f5f5] text-md font-bold">BHD {total.toFixed(2)}</h1>
+                <h1 className="text-[#f5f5f5] text-md font-bold">BHD {total.toFixed(3)}</h1>
             </div>
             <div className="flex items-center justify-between px-5 mt-2">
                 <p className="text-xs text-[#ababab] font-medium mt-2">Tax({paymentMethod === 'Cash' ? '10%' : '10%'})</p>
-                <h1 className="text-[#f5f5f5] text-md font-bold">BHD {tax.toFixed(2)}</h1>
+                <h1 className="text-[#f5f5f5] text-md font-bold">BHD {tax.toFixed(3)}</h1>
             </div>
             <div className="flex items-center justify-between px-5 mt-2">
                 <p className="text-xs text-[#ababab] font-medium mt-2">Discount</p>
@@ -438,7 +444,7 @@ const BillInfo = () => {
             </div>
             <div className="flex items-center justify-between px-5 mt-2">
                 <p className="text-xs text-[#ababab] font-medium mt-2">Total With Tax</p>
-                <h1 className="text-[#f5f5f5] text-md font-bold">BHD {totalPriceWithTax.toFixed(2)}</h1>
+                <h1 className="text-[#f5f5f5] text-md font-bold">BHD {totalPriceWithTax.toFixed(3)}</h1>
             </div>
 
             {/* <div className="flex items-center gap-3 px-5 mt-4">

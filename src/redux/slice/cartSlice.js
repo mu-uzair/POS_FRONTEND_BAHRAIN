@@ -116,38 +116,78 @@ const cartSlice = createSlice({
     //   }
     // },
 
+// addItems: (state, action) => {
+//   const incomingItem = action.payload;
+//   console.log('Adding to cart:', incomingItem);
+
+//   // 🧠 Create a unique key per variation (or fallback to "default")
+//   const variationKey =
+//     incomingItem.variationName?.toLowerCase?.() || "default";
+
+//   // 🔍 Check if the same dish *and* same variation already exist
+//   const existingItem = state.find(
+//     item =>
+//       (item.dishId === incomingItem._id || item.id === incomingItem._id) &&
+//       item.variationKey === variationKey
+//   );
+
+//   if (existingItem) {
+//     // Increment quantity safely
+//     existingItem.quantity += incomingItem.quantity || 1;
+//   } else {
+//     // 🆕 Add new unique item entry (even for same dish, different variation)
+//     state.push({
+//       id: `${incomingItem._id}-${variationKey}`, // unique per variation
+//       dishId: incomingItem._id,
+//       name: incomingItem.dishName || incomingItem.name,
+//       price: Number((incomingItem.pricePerQuantity || incomingItem.price).toFixed(3)), // keep 3 decimals
+//       section: incomingItem.section || null,
+//       variationKey,
+//       variationName: incomingItem.variationName || null,
+//       quantity: incomingItem.quantity || 1,
+//     });
+//   }
+// },
+
+
 addItems: (state, action) => {
-  const incomingItem = action.payload;
-  console.log('Adding to cart:', incomingItem);
+  const incoming = action.payload;
 
-  // 🧠 Create a unique key per variation (or fallback to "default")
-  const variationKey =
-    incomingItem.variationName?.toLowerCase?.() || "default";
+  // ✅ Normalize and ensure clean data
+  const variationKey = incoming.variationName?.toLowerCase?.().trim?.() || "default";
+  const incomingQty = Number(incoming.quantity) > 0 ? Number(incoming.quantity) : 1;
 
-  // 🔍 Check if the same dish *and* same variation already exist
+  // ✅ Try to find an existing item (same dish + same variation)
   const existingItem = state.find(
-    item =>
-      (item.dishId === incomingItem._id || item.id === incomingItem._id) &&
+    (item) =>
+      (item.dishId === incoming._id || item.id === incoming._id) &&
       item.variationKey === variationKey
   );
 
   if (existingItem) {
-    // Increment quantity safely
-    existingItem.quantity += incomingItem.quantity || 1;
+    // ✅ Increment only by the selected quantity
+    existingItem.quantity += incomingQty;
   } else {
-    // 🆕 Add new unique item entry (even for same dish, different variation)
+    // ✅ Add as a brand-new variation entry
     state.push({
-      id: `${incomingItem._id}-${variationKey}`, // unique per variation
-      dishId: incomingItem._id,
-      name: incomingItem.dishName || incomingItem.name,
-      price: Number((incomingItem.pricePerQuantity || incomingItem.price).toFixed(3)), // keep 3 decimals
-      section: incomingItem.section || null,
+      id: `${incoming._id}-${variationKey}`, // unique per variation
+      dishId: incoming._id,
+      name: incoming.dishName || incoming.name,
+      price: Number((incoming.pricePerQuantity || incoming.price).toFixed(3)),
+      section: incoming.section || null,
       variationKey,
-      variationName: incomingItem.variationName || null,
-      quantity: incomingItem.quantity || 1,
+      variationName: incoming.variationName || null,
+      quantity: incomingQty,
     });
   }
+
+  console.log(
+    `🛒 Added/Updated: ${incoming.name || incoming.dishName} (${variationKey}) → dishId: ${
+      incoming._id
+    }, qty: ${incomingQty}`
+  );
 },
+
 
 
         removeItem: (state, action) => {
