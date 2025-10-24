@@ -1028,110 +1028,221 @@ const GrillSection = () => {
         );
     }
 
+    // return (
+    //     <div className="bg-[#1f1f1f] h-[calc(100vh-5rem)] overflow-hidden text-white pb-20">
+    //         <div className="flex flex-col md:flex-row md:justify-between items-center py-6 px-4 bg-[#111827] shadow-lg border-b border-[#334155] sticky top-0 z-10">
+    //             <div className="flex flex-col items-center md:items-start mb-4 md:mb-0">
+    //                 <h1 className="text-4xl font-extrabold tracking-tight text-white mb-1">
+    //                     🔥 THE GRILL
+    //                 </h1>
+    //                 <div className="flex items-center space-x-3">
+    //                     <span className="text-base font-medium text-gray-400 uppercase">
+    //                         Grill Section
+    //                     </span>
+    //                     <span className={`text-xl font-bold px-3 py-1 rounded-full shadow-lg transition-colors ${
+    //                         grillOrders.length > 0 ? 'bg-red-600 text-white' : 'bg-green-600 text-white'
+    //                     }`}>
+    //                         {grillOrders.length} {grillOrders.length > 0 ? 'Pending' : 'Clear'}
+    //                     </span>
+    //                 </div>
+    //             </div>
+
+    //             <button
+    //                 onClick={handleToggleSound}
+    //                 className={`flex items-center space-x-2 py-2 px-4 rounded-full font-bold transition-all duration-300 shadow-md ${
+    //                     isSoundEnabled
+    //                         ? 'bg-green-700 hover:bg-green-600 text-white'
+    //                         : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+    //                 }`}
+    //                 title={isSoundEnabled ? "Notifications ON" : "Notifications OFF"}
+    //             >
+    //                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+    //                     {isSoundEnabled ? (
+    //                         <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+    //                     ) : (
+    //                         <path fillRule="evenodd" d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z" clipRule="evenodd" />
+    //                     )}
+    //                 </svg>
+    //                 <span className="hidden sm:inline">{isSoundEnabled ? 'Sound ON' : 'Sound OFF'}</span>
+    //             </button>
+    //         </div>
+
+    //         <div className="px-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 overflow-y-auto pb-28 pt-6">
+    //             {grillOrders.length === 0 ? (
+    //                 <div className="col-span-full flex flex-col justify-center items-center h-64 bg-[#1e293b] rounded-xl border border-[#334155] shadow-inner p-10">
+    //                     <svg className="w-12 h-12 text-green-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    //                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+    //                     </svg>
+    //                     <p className="text-gray-300 text-xl font-semibold">All clear!</p>
+    //                     <p className="text-gray-500">No active grill prep required.</p>
+    //                 </div>
+    //             ) : (
+    //                 grillOrders.map((order) => (
+    //                     <div
+    //                         key={order._id}
+    //                         className="bg-[#1e293b] p-5 rounded-xl shadow-lg border-2 border-[#dc2626] flex flex-col justify-between"
+    //                     >
+    //                         <div className="flex justify-between items-start mb-4 border-b border-[#334155] pb-3">
+    //                             <div>
+    //                                 <p className="text-gray-300 text-sm">Order Type / Table</p>
+    //                                 <p className="text-xl font-bold text-white">
+    //                                     {order.orderType}
+    //                                     {order.tableNo ? <span className="text-[#F6B100]"> • TBL {order.tableNo}</span> : ""}
+    //                                 </p>
+    //                             </div>
+    //                             <div className="text-right">
+    //                                 <p className="text-gray-400 text-sm">Time Elapsed</p>
+    //                                 <p className={`font-semibold text-lg ${
+    //                                     Math.floor((currentTime - new Date(order.createdAt).getTime()) / 60000) > 15 
+    //                                         ? 'text-red-500' 
+    //                                         : 'text-[#F6B100]'
+    //                                 }`}>
+    //                                     {getTimeElapsed(order.createdAt)}
+    //                                 </p>
+    //                             </div>
+    //                         </div>
+
+    //                         <div className="bg-[#0f172a] rounded-lg p-4 mb-5 flex-grow">
+    //                             {order.items.map((item, index) => (
+    //                                 <div key={index} className="mb-3 p-1 border-b border-gray-700 last:border-b-0">
+    //                                     <p className="text-white text-lg font-bold">
+    //                                         <span className="text-2xl text-red-500 mr-2">{item.quantity}x</span>
+    //                                         {item.name}
+    //                                     </p>
+    //                                     {item.notes && (
+    //                                         <p className="text-yellow-400 text-sm italic ml-8 mt-1">
+    //                                             ** Notes: {item.notes}
+    //                                         </p>
+    //                                     )}
+    //                                 </div>
+    //                             ))}
+    //                         </div>
+
+    //                         <button
+    //                             onClick={() => handleMarkReady(order._id)}
+    //                             className="bg-[#dc2626] hover:bg-[#b91c1c] text-white font-extrabold py-3 rounded-xl transition-all shadow-md hover:shadow-lg mt-4"
+    //                         >
+    //                             🔥 Mark Grill Items as READY
+    //                         </button>
+    //                     </div>
+    //                 ))
+    //             )}
+    //         </div>
+
+    //         <BottomNav />
+    //     </div>
+    // );
     return (
-        <div className="bg-[#1f1f1f] h-[calc(100vh-5rem)] overflow-hidden text-white pb-20">
-            <div className="flex flex-col md:flex-row md:justify-between items-center py-6 px-4 bg-[#111827] shadow-lg border-b border-[#334155] sticky top-0 z-10">
-                <div className="flex flex-col items-center md:items-start mb-4 md:mb-0">
-                    <h1 className="text-4xl font-extrabold tracking-tight text-white mb-1">
-                        🔥 THE GRILL
-                    </h1>
-                    <div className="flex items-center space-x-3">
-                        <span className="text-base font-medium text-gray-400 uppercase">
-                            Grill Section
-                        </span>
-                        <span className={`text-xl font-bold px-3 py-1 rounded-full shadow-lg transition-colors ${
-                            grillOrders.length > 0 ? 'bg-red-600 text-white' : 'bg-green-600 text-white'
-                        }`}>
-                            {grillOrders.length} {grillOrders.length > 0 ? 'Pending' : 'Clear'}
-                        </span>
-                    </div>
+    <div className="bg-[#1f1f1f] h-[calc(100vh-5rem)] flex flex-col text-white">
+        {/* Header - Fixed at top */}
+        <div className="flex flex-col md:flex-row md:justify-between items-center py-4 sm:py-6 px-3 sm:px-4 lg:px-6 bg-[#111827] shadow-lg border-b border-[#334155] flex-shrink-0 z-10">
+            <div className="flex flex-col items-center md:items-start mb-3 md:mb-0">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white mb-1">
+                    🔥 THE GRILL
+                </h1>
+                <div className="flex items-center space-x-2 sm:space-x-3">
+                    <span className="text-xs sm:text-sm lg:text-base font-medium text-gray-400 uppercase">
+                        Grill Section
+                    </span>
+                    <span className={`text-base sm:text-lg lg:text-xl font-bold px-2 sm:px-3 py-1 rounded-full shadow-lg transition-colors ${
+                        grillOrders.length > 0 ? 'bg-red-600 text-white' : 'bg-green-600 text-white'
+                    }`}>
+                        {grillOrders.length} {grillOrders.length > 0 ? 'Pending' : 'Clear'}
+                    </span>
                 </div>
-
-                <button
-                    onClick={handleToggleSound}
-                    className={`flex items-center space-x-2 py-2 px-4 rounded-full font-bold transition-all duration-300 shadow-md ${
-                        isSoundEnabled
-                            ? 'bg-green-700 hover:bg-green-600 text-white'
-                            : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                    }`}
-                    title={isSoundEnabled ? "Notifications ON" : "Notifications OFF"}
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
-                        {isSoundEnabled ? (
-                            <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
-                        ) : (
-                            <path fillRule="evenodd" d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z" clipRule="evenodd" />
-                        )}
-                    </svg>
-                    <span className="hidden sm:inline">{isSoundEnabled ? 'Sound ON' : 'Sound OFF'}</span>
-                </button>
             </div>
 
-            <div className="px-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 overflow-y-auto pb-28 pt-6">
-                {grillOrders.length === 0 ? (
-                    <div className="col-span-full flex flex-col justify-center items-center h-64 bg-[#1e293b] rounded-xl border border-[#334155] shadow-inner p-10">
-                        <svg className="w-12 h-12 text-green-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        <p className="text-gray-300 text-xl font-semibold">All clear!</p>
-                        <p className="text-gray-500">No active grill prep required.</p>
-                    </div>
-                ) : (
-                    grillOrders.map((order) => (
-                        <div
-                            key={order._id}
-                            className="bg-[#1e293b] p-5 rounded-xl shadow-lg border-2 border-[#dc2626] flex flex-col justify-between"
-                        >
-                            <div className="flex justify-between items-start mb-4 border-b border-[#334155] pb-3">
-                                <div>
-                                    <p className="text-gray-300 text-sm">Order Type / Table</p>
-                                    <p className="text-xl font-bold text-white">
-                                        {order.orderType}
-                                        {order.tableNo ? <span className="text-[#F6B100]"> • TBL {order.tableNo}</span> : ""}
-                                    </p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-gray-400 text-sm">Time Elapsed</p>
-                                    <p className={`font-semibold text-lg ${
-                                        Math.floor((currentTime - new Date(order.createdAt).getTime()) / 60000) > 15 
-                                            ? 'text-red-500' 
-                                            : 'text-[#F6B100]'
-                                    }`}>
-                                        {getTimeElapsed(order.createdAt)}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="bg-[#0f172a] rounded-lg p-4 mb-5 flex-grow">
-                                {order.items.map((item, index) => (
-                                    <div key={index} className="mb-3 p-1 border-b border-gray-700 last:border-b-0">
-                                        <p className="text-white text-lg font-bold">
-                                            <span className="text-2xl text-red-500 mr-2">{item.quantity}x</span>
-                                            {item.name}
-                                        </p>
-                                        {item.notes && (
-                                            <p className="text-yellow-400 text-sm italic ml-8 mt-1">
-                                                ** Notes: {item.notes}
-                                            </p>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-
-                            <button
-                                onClick={() => handleMarkReady(order._id)}
-                                className="bg-[#dc2626] hover:bg-[#b91c1c] text-white font-extrabold py-3 rounded-xl transition-all shadow-md hover:shadow-lg mt-4"
-                            >
-                                🔥 Mark Grill Items as READY
-                            </button>
-                        </div>
-                    ))
-                )}
-            </div>
-
-            <BottomNav />
+            <button
+                onClick={handleToggleSound}
+                className={`flex items-center space-x-2 py-2 px-3 sm:px-4 rounded-full font-bold transition-all duration-300 shadow-md text-sm sm:text-base ${
+                    isSoundEnabled
+                        ? 'bg-green-700 hover:bg-green-600 text-white'
+                        : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                }`}
+                title={isSoundEnabled ? "Notifications ON" : "Notifications OFF"}
+                aria-label={isSoundEnabled ? "Notifications ON" : "Notifications OFF"}
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6" viewBox="0 0 20 20" fill="currentColor">
+                    {isSoundEnabled ? (
+                        <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+                    ) : (
+                        <path fillRule="evenodd" d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z" clipRule="evenodd" />
+                    )}
+                </svg>
+                <span className="hidden sm:inline">{isSoundEnabled ? 'Sound ON' : 'Sound OFF'}</span>
+            </button>
         </div>
-    );
+
+        {/* Scrollable Content Area */}
+        <div className="flex-1 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div className="px-3 sm:px-4 lg:px-6 py-4 sm:py-6 pb-24 sm:pb-28">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+                    {grillOrders.length === 0 ? (
+                        <div className="col-span-full flex flex-col justify-center items-center h-48 sm:h-64 bg-[#1e293b] rounded-xl border border-[#334155] shadow-inner p-6 sm:p-10">
+                            <svg className="w-10 h-10 sm:w-12 sm:h-12 text-green-400 mb-3 sm:mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <p className="text-gray-300 text-lg sm:text-xl font-semibold">All clear!</p>
+                            <p className="text-gray-500 text-sm sm:text-base">No active grill prep required.</p>
+                        </div>
+                    ) : (
+                        grillOrders.map((order) => (
+                            <div
+                                key={order._id}
+                                className="bg-[#1e293b] p-4 sm:p-5 rounded-xl shadow-lg border-2 border-[#dc2626] flex flex-col justify-between"
+                            >
+                                <div className="flex justify-between items-start mb-3 sm:mb-4 border-b border-[#334155] pb-2 sm:pb-3">
+                                    <div>
+                                        <p className="text-gray-300 text-xs sm:text-sm">Order Type / Table</p>
+                                        <p className="text-lg sm:text-xl font-bold text-white">
+                                            {order.orderType}
+                                            {order.tableNo ? <span className="text-[#F6B100]"> • TBL {order.tableNo}</span> : ""}
+                                        </p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-gray-400 text-xs sm:text-sm">Time Elapsed</p>
+                                        <p className={`font-semibold text-base sm:text-lg ${
+                                            Math.floor((currentTime - new Date(order.createdAt).getTime()) / 60000) > 15 
+                                                ? 'text-red-500' 
+                                                : 'text-[#F6B100]'
+                                        }`}>
+                                            {getTimeElapsed(order.createdAt)}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="bg-[#0f172a] rounded-lg p-3 sm:p-4 mb-4 sm:mb-5 flex-grow">
+                                    {order.items.map((item, index) => (
+                                        <div key={index} className="mb-2 sm:mb-3 p-1 border-b border-gray-700 last:border-b-0">
+                                            <p className="text-white text-base sm:text-lg font-bold">
+                                                <span className="text-xl sm:text-2xl text-red-500 mr-1 sm:mr-2">{item.quantity}x</span>
+                                                {item.name}
+                                            </p>
+                                            {item.notes && (
+                                                <p className="text-yellow-400 text-xs sm:text-sm italic ml-6 sm:ml-8 mt-1">
+                                                    ** Notes: {item.notes}
+                                                </p>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <button
+                                    onClick={() => handleMarkReady(order._id)}
+                                    className="bg-[#dc2626] hover:bg-[#b91c1c] active:bg-[#991b1b] text-white font-extrabold py-2.5 sm:py-3 rounded-xl transition-all shadow-md hover:shadow-lg mt-3 sm:mt-4 text-sm sm:text-base"
+                                >
+                                    🔥 Mark Grill Items as READY
+                                </button>
+                            </div>
+                        ))
+                    )}
+                </div>
+            </div>
+        </div>
+
+        <BottomNav />
+    </div>
+);
 };
 
 export default GrillSection;

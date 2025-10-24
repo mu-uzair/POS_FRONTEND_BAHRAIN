@@ -57,7 +57,7 @@ if(scrolLRef.current){
                                         onClick={()=>handleAdd(item)}
                                         className="text-[#ababab] cursor-pointer" size={20} /> */}
                                     </div>
-                                    <p className='text-[#f5f5f5] text-md font-bold'>BHD {item.price}</p>
+                                    <p className='text-[#f5f5f5] text-md font-bold'>BHD {item.price.toFixed(3)}</p>
                                 </div>
                             </div>)
                     })}

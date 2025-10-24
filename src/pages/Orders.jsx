@@ -751,38 +751,178 @@ const Orders = () => {
         );
     }
 
-    return (
-        <section className="bg-[#1f1f1f] h-[calc(100vh-5rem)] overflow-hidden">
-            {/* Main Header Bar */}
-            <div className="flex items-center justify-between px-8 py-4 bg-[#1a1a1a] shadow-lg">
-                {/* Left: Title & Back Button */}
-                <div className="flex items-center gap-4">
-                    <BackButton />
-                    <h1 className="text-[#f5f5f5] text-3xl font-extrabold tracking-wide">
-                        Orders History
-                    </h1>
-                </div>
+    // return (
+    //     <section className="bg-[#1f1f1f] h-[calc(100vh-5rem)] overflow-hidden">
+    //         {/* Main Header Bar */}
+    //         <div className="flex items-center justify-between px-8 py-4 bg-[#1a1a1a] shadow-lg">
+    //             {/* Left: Title & Back Button */}
+    //             <div className="flex items-center gap-4">
+    //                 <BackButton />
+    //                 <h1 className="text-[#f5f5f5] text-3xl font-extrabold tracking-wide">
+    //                     Orders History
+    //                 </h1>
+    //             </div>
 
-                {/* Right: Total Filtered Amount */}
-                <div className="text-[#f5f5f5] text-xl font-bold p-3 rounded-xl bg-[#333333] shadow-inner flex items-center gap-2">
-                    <span className="text-sm font-medium text-[#ababab] uppercase">
-                        Total Amount:
-                    </span>
-                    <span className="text-3xl text-[#02ca3a]">
-                        BHD {totalFilteredAmount}
-                    </span>
-                </div>
+    //             {/* Right: Total Filtered Amount */}
+    //             <div className="text-[#f5f5f5] text-xl font-bold p-3 rounded-xl bg-[#333333] shadow-inner flex items-center gap-2">
+    //                 <span className="text-sm font-medium text-[#ababab] uppercase">
+    //                     Total Amount:
+    //                 </span>
+    //                 <span className="text-3xl text-[#02ca3a]">
+    //                     BHD {totalFilteredAmount}
+    //                 </span>
+    //             </div>
+    //         </div>
+
+    //         {/* Filter Bar */}
+    //         <div className="flex items-center justify-between px-8 py-3 border-b border-[#333333]">
+    //             {/* Status Filter */}
+    //             <div className="flex items-center bg-[#333333] p-1 rounded-xl shadow-md">
+    //                 {["All", "In Progress", "Ready", "Completed"].map((s) => (
+    //                     <button
+    //                         key={s}
+    //                         onClick={() => setStatus(s)}
+    //                         className={`text-sm font-semibold transition-all duration-200 ease-in-out px-4 py-2 rounded-lg ${
+    //                             status === s
+    //                                 ? "bg-[#02ca3a] text-black shadow-lg"
+    //                                 : "text-[#ababab] hover:bg-[#444444]"
+    //                         }`}
+    //                         aria-pressed={status === s}
+    //                     >
+    //                         {s}
+    //                     </button>
+    //                 ))}
+    //             </div>
+
+    //             {/* Date and Order Type Filters */}
+    //             <div className="flex items-center gap-6">
+    //                 {/* Date Filters */}
+    //                 <div className="flex items-center gap-3 p-2 bg-[#333333] rounded-xl">
+    //                     {["All", "Today", "Yesterday", "Custom"].map((d) => (
+    //                         <button
+    //                             key={d}
+    //                             onClick={() => {
+    //                                 setDateFilter(d);
+    //                                 if (d !== "Custom") setSelectedDate("");
+    //                             }}
+    //                             className={`text-sm font-medium px-4 py-1 rounded-lg transition-colors ${
+    //                                 dateFilter === d
+    //                                     ? "bg-[#444444] text-[#f5f5f5] shadow-inner"
+    //                                     : "text-[#ababab] hover:bg-[#444444]"
+    //                             }`}
+    //                             aria-pressed={dateFilter === d}
+    //                         >
+    //                             {d === "All" ? "All Dates" : d}
+    //                         </button>
+    //                     ))}
+    //                     {dateFilter === "Custom" && (
+    //                         <input
+    //                             type="date"
+    //                             value={selectedDate}
+    //                             onChange={(e) => setSelectedDate(e.target.value)}
+    //                             className="bg-[#444444] text-[#f5f5f5] rounded-lg px-3 py-1 text-sm border border-[#555555] focus:ring-2 focus:ring-[#02ca3a] focus:border-[#02ca3a] outline-none"
+    //                             aria-label="Select custom date"
+    //                         />
+    //                     )}
+    //                 </div>
+
+    //                 {/* Order Type Filters */}
+    //                 <div className="flex items-center gap-3 p-2 bg-[#333333] rounded-xl">
+    //                     {["All", "Dine-In", "Delivery", "Take Away"].map((type) => (
+    //                         <button
+    //                             key={type}
+    //                             onClick={() => setOrderType(type)}
+    //                             className={`text-sm font-medium px-4 py-1 rounded-lg transition-colors ${
+    //                                 orderType === type
+    //                                     ? "bg-[#444444] text-[#f5f5f5] shadow-inner"
+    //                                     : "text-[#ababab] hover:bg-[#444444]"
+    //                             }`}
+    //                             aria-pressed={orderType === type}
+    //                         >
+    //                             {type}
+    //                         </button>
+    //                     ))}
+    //                     <button
+    //                         className="bg-[#02ca3a] text-black font-semibold px-4 py-2 rounded-xl shadow-md hover:bg-[#03e94a] transition-all duration-200"
+    //                         onClick={() => navigate("/DeliveryMetrics")}
+    //                         aria-label="View delivery metrics"
+    //                     >
+    //                         Delivery Metrics
+    //                     </button>
+    //                 </div>
+    //             </div>
+    //         </div>
+
+    //         {/* Orders Grid */}
+    //         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 px-8 py-5 custom-scrollbar overflow-y-auto h-[calc(100vh-5rem-128px)]">
+    //             {sortedFilteredOrders.length > 0 ? (
+    //                 sortedFilteredOrders.map((order) => (
+    //                     <OrderCard key={order._id} order={order} />
+    //                 ))
+    //             ) : (
+    //                 <div className="col-span-full flex flex-col justify-center items-center h-full min-h-[300px]">
+    //                     <svg
+    //                         className="w-16 h-16 text-gray-600 mb-4"
+    //                         fill="none"
+    //                         stroke="currentColor"
+    //                         viewBox="0 0 24 24"
+    //                     >
+    //                         <path
+    //                             strokeLinecap="round"
+    //                             strokeLinejoin="round"
+    //                             strokeWidth="2"
+    //                             d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+    //                         />
+    //                     </svg>
+    //                     <p className="text-xl text-gray-500 font-medium">
+    //                         No orders match the current filters
+    //                     </p>
+    //                     <p className="text-sm text-gray-600 mt-2">
+    //                         Try adjusting your filter settings
+    //                     </p>
+    //                 </div>
+    //             )}
+    //         </div>
+
+    //         <BottomNav />
+    //     </section>
+    // );
+
+    // making it responsive for mobile and tablet
+
+    return (
+    <section className="bg-[#1f1f1f] min-h-screen pb-20 md:pb-24">
+        {/* Main Header Bar - Responsive */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-4 sm:px-6 lg:px-8 py-3 sm:py-4 bg-[#1a1a1a] shadow-lg gap-3 sm:gap-0">
+            {/* Left: Title & Back Button */}
+            <div className="flex items-center gap-3 sm:gap-4">
+                <BackButton />
+                <h1 className="text-[#f5f5f5] text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-wide">
+                    Orders History
+                </h1>
             </div>
 
-            {/* Filter Bar */}
-            <div className="flex items-center justify-between px-8 py-3 border-b border-[#333333]">
-                {/* Status Filter */}
-                <div className="flex items-center bg-[#333333] p-1 rounded-xl shadow-md">
+            {/* Right: Total Filtered Amount */}
+            <div className="text-[#f5f5f5] text-base sm:text-xl font-bold p-2 sm:p-3 rounded-xl bg-[#333333] shadow-inner flex items-center gap-2 w-full sm:w-auto">
+                <span className="text-xs sm:text-sm font-medium text-[#ababab] uppercase">
+                    Total Amount:
+                </span>
+                <span className="text-xl sm:text-2xl lg:text-3xl text-[#02ca3a]">
+                    BHD {totalFilteredAmount}
+                </span>
+            </div>
+        </div>
+
+        {/* Filter Bar - Responsive with scrolling on mobile */}
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between px-4 sm:px-6 lg:px-8 py-3 border-b border-[#333333] gap-3">
+            {/* Status Filter - Scrollable on mobile */}
+            <div className="w-full lg:w-auto overflow-x-auto scrollbar-hide">
+                <div className="flex items-center bg-[#333333] p-1 rounded-xl shadow-md min-w-max">
                     {["All", "In Progress", "Ready", "Completed"].map((s) => (
                         <button
                             key={s}
                             onClick={() => setStatus(s)}
-                            className={`text-sm font-semibold transition-all duration-200 ease-in-out px-4 py-2 rounded-lg ${
+                            className={`text-xs sm:text-sm font-semibold transition-all duration-200 ease-in-out px-3 sm:px-4 py-2 rounded-lg whitespace-nowrap ${
                                 status === s
                                     ? "bg-[#02ca3a] text-black shadow-lg"
                                     : "text-[#ababab] hover:bg-[#444444]"
@@ -793,11 +933,13 @@ const Orders = () => {
                         </button>
                     ))}
                 </div>
+            </div>
 
-                {/* Date and Order Type Filters */}
-                <div className="flex items-center gap-6">
-                    {/* Date Filters */}
-                    <div className="flex items-center gap-3 p-2 bg-[#333333] rounded-xl">
+            {/* Date and Order Type Filters */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 lg:gap-6 w-full lg:w-auto overflow-x-auto scrollbar-hide">
+                {/* Date Filters */}
+                <div className="w-full sm:w-auto overflow-x-auto scrollbar-hide">
+                    <div className="flex items-center gap-2 sm:gap-3 p-2 bg-[#333333] rounded-xl min-w-max">
                         {["All", "Today", "Yesterday", "Custom"].map((d) => (
                             <button
                                 key={d}
@@ -805,7 +947,7 @@ const Orders = () => {
                                     setDateFilter(d);
                                     if (d !== "Custom") setSelectedDate("");
                                 }}
-                                className={`text-sm font-medium px-4 py-1 rounded-lg transition-colors ${
+                                className={`text-xs sm:text-sm font-medium px-3 sm:px-4 py-1 rounded-lg transition-colors whitespace-nowrap ${
                                     dateFilter === d
                                         ? "bg-[#444444] text-[#f5f5f5] shadow-inner"
                                         : "text-[#ababab] hover:bg-[#444444]"
@@ -820,19 +962,21 @@ const Orders = () => {
                                 type="date"
                                 value={selectedDate}
                                 onChange={(e) => setSelectedDate(e.target.value)}
-                                className="bg-[#444444] text-[#f5f5f5] rounded-lg px-3 py-1 text-sm border border-[#555555] focus:ring-2 focus:ring-[#02ca3a] focus:border-[#02ca3a] outline-none"
+                                className="bg-[#444444] text-[#f5f5f5] rounded-lg px-2 sm:px-3 py-1 text-xs sm:text-sm border border-[#555555] focus:ring-2 focus:ring-[#02ca3a] focus:border-[#02ca3a] outline-none"
                                 aria-label="Select custom date"
                             />
                         )}
                     </div>
+                </div>
 
-                    {/* Order Type Filters */}
-                    <div className="flex items-center gap-3 p-2 bg-[#333333] rounded-xl">
+                {/* Order Type Filters */}
+                <div className="w-full sm:w-auto overflow-x-auto scrollbar-hide">
+                    <div className="flex items-center gap-2 sm:gap-3 p-2 bg-[#333333] rounded-xl min-w-max">
                         {["All", "Dine-In", "Delivery", "Take Away"].map((type) => (
                             <button
                                 key={type}
                                 onClick={() => setOrderType(type)}
-                                className={`text-sm font-medium px-4 py-1 rounded-lg transition-colors ${
+                                className={`text-xs sm:text-sm font-medium px-3 sm:px-4 py-1 rounded-lg transition-colors whitespace-nowrap ${
                                     orderType === type
                                         ? "bg-[#444444] text-[#f5f5f5] shadow-inner"
                                         : "text-[#ababab] hover:bg-[#444444]"
@@ -843,7 +987,7 @@ const Orders = () => {
                             </button>
                         ))}
                         <button
-                            className="bg-[#02ca3a] text-black font-semibold px-4 py-2 rounded-xl shadow-md hover:bg-[#03e94a] transition-all duration-200"
+                            className="bg-[#02ca3a] text-black font-semibold px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl shadow-md hover:bg-[#03e94a] transition-all duration-200 text-xs sm:text-sm whitespace-nowrap"
                             onClick={() => navigate("/DeliveryMetrics")}
                             aria-label="View delivery metrics"
                         >
@@ -852,41 +996,42 @@ const Orders = () => {
                     </div>
                 </div>
             </div>
+        </div>
 
-            {/* Orders Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 px-8 py-5 custom-scrollbar overflow-y-auto h-[calc(100vh-5rem-128px)]">
-                {sortedFilteredOrders.length > 0 ? (
-                    sortedFilteredOrders.map((order) => (
-                        <OrderCard key={order._id} order={order} />
-                    ))
-                ) : (
-                    <div className="col-span-full flex flex-col justify-center items-center h-full min-h-[300px]">
-                        <svg
-                            className="w-16 h-16 text-gray-600 mb-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-                            />
-                        </svg>
-                        <p className="text-xl text-gray-500 font-medium">
-                            No orders match the current filters
-                        </p>
-                        <p className="text-sm text-gray-600 mt-2">
-                            Try adjusting your filter settings
-                        </p>
-                    </div>
-                )}
-            </div>
+        {/* Orders Grid - Fixed height removed, added proper padding */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-5 px-4 sm:px-6 lg:px-8 py-4 sm:py-5 pb-24 md:pb-28 overflow-y-auto scrollbar-hide">
+            {sortedFilteredOrders.length > 0 ? (
+                sortedFilteredOrders.map((order) => (
+                    <OrderCard key={order._id} order={order} />
+                ))
+            ) : (
+                <div className="col-span-full flex flex-col justify-center items-center h-full min-h-[300px] sm:min-h-[400px]">
+                    <svg
+                        className="w-12 h-12 sm:w-16 sm:h-16 text-gray-600 mb-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                        />
+                    </svg>
+                    <p className="text-base sm:text-xl text-gray-500 font-medium text-center px-4">
+                        No orders match the current filters
+                    </p>
+                    <p className="text-xs sm:text-sm text-gray-600 mt-2 text-center px-4">
+                        Try adjusting your filter settings
+                    </p>
+                </div>
+            )}
+        </div>
 
-            <BottomNav />
-        </section>
-    );
+        <BottomNav />
+    </section>
+);
 };
 
 export default Orders;

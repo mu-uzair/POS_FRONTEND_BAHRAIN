@@ -590,42 +590,191 @@ const OrderCard = ({ order }) => {
     navigate("/Menu");
   };
 
+  // return (
+  //   <>
+  //     {/* 🧾 Order Card */}
+  //     <div className="w-full max-w-[450px] bg-[#262626] p-4 rounded-lg mb-15 h-auto max-h-[230px]">
+  //       <div className="flex items-center gap-5">
+  //         <button className="bg-[#f6b100] p-3 text-xl font-bold rounded-lg">
+  //           {getAvatarName(order.customerDetails.name)}
+  //         </button>
+  //         <div className="flex items-center justify-between w-full">
+  //           <div className="flex flex-col items-start gap-1">
+  //             <h1 className="text-[#f5f5f5] text-lg font-semibold tracking-wide">
+  //               {order.customerDetails.name}
+  //             </h1>
+  //             <p className="text-[#ababab] text-sm">
+  //               #{order.orderId} / {order.customerDetails.orderType}
+  //             </p>
+  //             {order.table && (
+  //               <p className="text-[#ababab] text-sm">
+  //                 Table <FaLongArrowAltRight className="text-[#ababab] ml-2 inline" />{" "}
+  //                 {order.table.tableNo}
+  //               </p>
+  //             )}
+  //           </div>
+
+  //           <div className="flex flex-col items-end gap-2">
+  //             <div className="flex gap-2">
+  //               <button
+  //                 onClick={handleEditOrder}
+  //                 className="bg-[#1a1a1a] text-blue-500 hover:text-blue-400 p-2 rounded-lg"
+  //                 title="Edit Order"
+  //               >
+  //                 <MdEdit size={20} />
+  //               </button>
+
+  //               <select
+  //                 className={`bg-[#1a1a1a] text-[#f5f5f5] border border-gray-500 p-2 rounded-lg focus:outline-none ${
+  //                   order.orderStatus === "Ready"
+  //                     ? "text-green-500"
+  //                     : order.orderStatus === "Completed"
+  //                     ? "text-blue-500"
+  //                     : "text-yellow-500"
+  //                 }`}
+  //                 value={order.orderStatus}
+  //                 onChange={(e) => handleStatusChange(e.target.value)}
+  //               >
+  //                 <option className="text-yellow-500" value="In Progress">
+  //                   In Progress
+  //                 </option>
+  //                 <option className="text-green-500" value="Ready">
+  //                   Ready
+  //                 </option>
+  //                 <option className="text-blue-500" value="Completed">
+  //                   Completed
+  //                 </option>
+  //                 <option className="text-red-500" value="delete">
+  //                   Delete Order
+  //                 </option>
+  //               </select>
+  //             </div>
+
+  //             <p className="text-[#ababab] text-sm">
+  //               {order.orderStatus === "Ready" ? (
+  //                 <>
+  //                   <FaCircle className="inline mr-2 text-green-600" />
+  //                   Order Ready
+  //                 </>
+  //               ) : order.orderStatus === "Completed" ? (
+  //                 <>
+  //                   <MdFileDownloadDone className="inline mr-2 text-blue-600" />
+  //                   Order Completed
+  //                 </>
+  //               ) : (
+  //                 <>
+  //                   <FaCircle className="inline mr-2 text-yellow-600" />
+  //                   Now Cooking
+  //                 </>
+  //               )}
+  //             </p>
+  //           </div>
+  //         </div>
+  //       </div>
+
+  //       <div className="flex justify-between items-center mt-4 text-[#ababab]">
+  //         <p>{formatDateAndTme(order.createdAt)}</p>
+  //         <p>{order.items.length} Items</p>
+  //       </div>
+  //       <hr className="text-[#f5f5f5] mt-4 border-t-1 border-gray-500" />
+
+  //       <div className="flex items-center justify-between mt-4">
+  //         <h1 className="text-[#f5f5f5] text-lg semi-bold">Total</h1>
+  //         <p className="text-[#f5f5f5] text-lg font-semi-bold">
+  //           BHD {order.bills.totalWithTax.toFixed(3)}
+  //         </p>
+  //       </div>
+  //     </div>
+
+  //     {/* 🔐 Password Modal */}
+  //     {showPasswordModal && (
+  //       <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  //         <div className="bg-white p-6 rounded-lg shadow-lg w-80">
+  //           <h3 className="text-lg font-semibold mb-2 text-gray-800">
+  //             Admin Password Required
+  //           </h3>
+  //           <p className="text-sm text-gray-600 mb-4">
+  //             Enter admin password to delete this order.
+  //           </p>
+
+  //           <input
+  //             type="password"
+  //             className="border border-gray-300 rounded w-full p-2 mb-4 focus:outline-none focus:ring focus:ring-red-300"
+  //             placeholder="Enter admin password"
+  //             value={adminPassword}
+  //             onChange={(e) => setAdminPassword(e.target.value)}
+  //           />
+
+  //           <div className="flex justify-end gap-3">
+  //             <button
+  //               onClick={() => {
+  //                 setShowPasswordModal(false);
+  //                 setAdminPassword("");
+  //               }}
+  //               className="px-3 py-1 rounded bg-gray-300 text-gray-800 hover:bg-gray-400"
+  //             >
+  //               Cancel
+  //             </button>
+  //             <button
+  //               onClick={handleConfirmDelete}
+  //               className="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700"
+  //             >
+  //               Confirm
+  //             </button>
+  //           </div>
+  //         </div>
+  //       </div>
+  //     )}
+  //   </>
+  // );
+
+  // responsive for mobile and tablet
   return (
-    <>
-      {/* 🧾 Order Card */}
-      <div className="w-full max-w-[450px] bg-[#262626] p-4 rounded-lg mb-15 h-auto max-h-[230px]">
-        <div className="flex items-center gap-5">
-          <button className="bg-[#f6b100] p-3 text-xl font-bold rounded-lg">
-            {getAvatarName(order.customerDetails.name)}
-          </button>
-          <div className="flex items-center justify-between w-full">
+  <>
+    {/* 🧾 Order Card - Responsive */}
+    <div className="w-full max-w-[450px] bg-[#262626] p-3 sm:p-4 rounded-lg mb-4 h-auto">
+      {/* Header Section */}
+      <div className="flex items-start gap-3 sm:gap-4 lg:gap-5">
+        {/* Avatar */}
+        <button className="bg-[#f6b100] p-2 sm:p-2.5 lg:p-3 text-base sm:text-lg lg:text-xl font-bold rounded-lg flex-shrink-0">
+          {getAvatarName(order.customerDetails.name)}
+        </button>
+
+        {/* Main Content Wrapper */}
+        <div className="flex-1 min-w-0">
+          {/* Customer Info & Actions Container */}
+          <div className="flex flex-col gap-3">
+            {/* Customer Info */}
             <div className="flex flex-col items-start gap-1">
-              <h1 className="text-[#f5f5f5] text-lg font-semibold tracking-wide">
+              <h1 className="text-[#f5f5f5] text-sm sm:text-base lg:text-lg font-semibold tracking-wide truncate w-full">
                 {order.customerDetails.name}
               </h1>
-              <p className="text-[#ababab] text-sm">
+              <p className="text-[#ababab] text-xs sm:text-sm">
                 #{order.orderId} / {order.customerDetails.orderType}
               </p>
               {order.table && (
-                <p className="text-[#ababab] text-sm">
-                  Table <FaLongArrowAltRight className="text-[#ababab] ml-2 inline" />{" "}
+                <p className="text-[#ababab] text-xs sm:text-sm flex items-center">
+                  Table 
+                  <FaLongArrowAltRight className="text-[#ababab] mx-1 sm:mx-2 inline" />
                   {order.table.tableNo}
                 </p>
               )}
             </div>
 
-            <div className="flex flex-col items-end gap-2">
-              <div className="flex gap-2">
+            {/* Actions & Status Section */}
+            <div className="flex flex-col gap-2">
+              {/* Action Buttons Row */}
+              <div className="flex gap-2 flex-wrap">
                 <button
                   onClick={handleEditOrder}
-                  className="bg-[#1a1a1a] text-blue-500 hover:text-blue-400 p-2 rounded-lg"
+                  className="bg-[#1a1a1a] text-blue-500 hover:text-blue-400 p-2 rounded-lg flex-shrink-0"
                   title="Edit Order"
                 >
-                  <MdEdit size={20} />
+                  <MdEdit size={18} className="sm:w-5 sm:h-5" />
                 </button>
 
                 <select
-                  className={`bg-[#1a1a1a] text-[#f5f5f5] border border-gray-500 p-2 rounded-lg focus:outline-none ${
+                  className={`bg-[#1a1a1a] text-[#f5f5f5] border border-gray-500 px-2 py-2 rounded-lg focus:outline-none text-xs sm:text-sm flex-1 min-w-[120px] ${
                     order.orderStatus === "Ready"
                       ? "text-green-500"
                       : order.orderStatus === "Completed"
@@ -650,83 +799,88 @@ const OrderCard = ({ order }) => {
                 </select>
               </div>
 
-              <p className="text-[#ababab] text-sm">
+              {/* Status Indicator */}
+              <p className="text-[#ababab] text-xs sm:text-sm flex items-center">
                 {order.orderStatus === "Ready" ? (
                   <>
-                    <FaCircle className="inline mr-2 text-green-600" />
-                    Order Ready
+                    <FaCircle className="inline mr-1 sm:mr-2 text-green-600 text-[8px] sm:text-xs flex-shrink-0" />
+                    <span>Order Ready</span>
                   </>
                 ) : order.orderStatus === "Completed" ? (
                   <>
-                    <MdFileDownloadDone className="inline mr-2 text-blue-600" />
-                    Order Completed
+                    <MdFileDownloadDone className="inline mr-1 sm:mr-2 text-blue-600 text-sm sm:text-base flex-shrink-0" />
+                    <span>Order Completed</span>
                   </>
                 ) : (
                   <>
-                    <FaCircle className="inline mr-2 text-yellow-600" />
-                    Now Cooking
+                    <FaCircle className="inline mr-1 sm:mr-2 text-yellow-600 text-[8px] sm:text-xs flex-shrink-0" />
+                    <span>Now Cooking</span>
                   </>
                 )}
               </p>
             </div>
           </div>
         </div>
-
-        <div className="flex justify-between items-center mt-4 text-[#ababab]">
-          <p>{formatDateAndTme(order.createdAt)}</p>
-          <p>{order.items.length} Items</p>
-        </div>
-        <hr className="text-[#f5f5f5] mt-4 border-t-1 border-gray-500" />
-
-        <div className="flex items-center justify-between mt-4">
-          <h1 className="text-[#f5f5f5] text-lg semi-bold">Total</h1>
-          <p className="text-[#f5f5f5] text-lg font-semi-bold">
-            BHD {order.bills.totalWithTax.toFixed(3)}
-          </p>
-        </div>
       </div>
 
-      {/* 🔐 Password Modal */}
-      {showPasswordModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-80">
-            <h3 className="text-lg font-semibold mb-2 text-gray-800">
-              Admin Password Required
-            </h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Enter admin password to delete this order.
-            </p>
+      {/* Footer Info */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-3 sm:mt-4 text-[#ababab] gap-1 sm:gap-0">
+        <p className="text-xs sm:text-sm">{formatDateAndTme(order.createdAt)}</p>
+        <p className="text-xs sm:text-sm">{order.items.length} Items</p>
+      </div>
 
-            <input
-              type="password"
-              className="border border-gray-300 rounded w-full p-2 mb-4 focus:outline-none focus:ring focus:ring-red-300"
-              placeholder="Enter admin password"
-              value={adminPassword}
-              onChange={(e) => setAdminPassword(e.target.value)}
-            />
+      <hr className="text-[#f5f5f5] mt-3 sm:mt-4 border-t border-gray-500" />
 
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => {
-                  setShowPasswordModal(false);
-                  setAdminPassword("");
-                }}
-                className="px-3 py-1 rounded bg-gray-300 text-gray-800 hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirmDelete}
-                className="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700"
-              >
-                Confirm
-              </button>
-            </div>
+      {/* Total Section */}
+      <div className="flex items-center justify-between mt-3 sm:mt-4">
+        <h1 className="text-[#f5f5f5] text-base sm:text-lg font-semibold">Total</h1>
+        <p className="text-[#f5f5f5] text-base sm:text-lg font-semibold">
+          BHD {order.bills.totalWithTax.toFixed(3)}
+        </p>
+      </div>
+    </div>
+
+    {/* 🔐 Password Modal - Responsive */}
+    {showPasswordModal && (
+      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg w-full max-w-[320px] sm:max-w-[400px]">
+          <h3 className="text-base sm:text-lg font-semibold mb-2 text-gray-800">
+            Admin Password Required
+          </h3>
+          <p className="text-xs sm:text-sm text-gray-600 mb-4">
+            Enter admin password to delete this order.
+          </p>
+
+          <input
+            type="password"
+            className="border border-gray-300 rounded w-full p-2 sm:p-2.5 mb-4 text-sm sm:text-base focus:outline-none focus:ring focus:ring-red-300"
+            placeholder="Enter admin password"
+            value={adminPassword}
+            onChange={(e) => setAdminPassword(e.target.value)}
+          />
+
+          <div className="flex justify-end gap-2 sm:gap-3">
+            <button
+              onClick={() => {
+                setShowPasswordModal(false);
+                setAdminPassword("");
+              }}
+              className="px-3 sm:px-4 py-1.5 sm:py-2 rounded bg-gray-300 text-gray-800 hover:bg-gray-400 text-sm sm:text-base transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleConfirmDelete}
+              className="px-3 sm:px-4 py-1.5 sm:py-2 rounded bg-red-600 text-white hover:bg-red-700 text-sm sm:text-base transition-colors"
+            >
+              Confirm
+            </button>
           </div>
         </div>
-      )}
-    </>
-  );
+      </div>
+    )}
+  </>
+);
 };
 
 export default OrderCard;

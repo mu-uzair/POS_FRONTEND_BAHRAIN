@@ -379,19 +379,21 @@ const DeliveryMetrics = () => {
       </div>
     );
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0d0d0d] via-[#1a1a1a] to-[#0d0d0d] text-gray-200 px-8 py-10 font-inter">
-      <header className="mb-10">
-        <h2 className="text-4xl font-extrabold tracking-tight text-white mb-2">
+//   
+
+return (
+    <div className="min-h-screen bg-gradient-to-br from-[#0d0d0d] via-[#1a1a1a] to-[#0d0d0d] text-gray-200 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 font-inter pb-24 md:pb-28">
+      <header className="mb-6 sm:mb-8 lg:mb-10">
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white mb-2">
           Delivery Metrics Dashboard
         </h2>
-        <p className="text-gray-400">
+        <p className="text-sm sm:text-base text-gray-400">
           Real-time insights and analytics for all delivery operations.
         </p>
       </header>
 
       {/* === METRIC CARDS === */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6 mb-8 sm:mb-10 lg:mb-12">
         <MetricCard
           title="Active Delivery Boys"
           value={activeDeliveryBoys.length}
@@ -417,112 +419,129 @@ const DeliveryMetrics = () => {
       {/* === ACTIVE ORDERS === */}
       <SectionCard title="🚴 Active Deliveries">
         {activeOrders.length > 0 ? (
-          <Table
-            headers={[
-              "Order ID",
-              "Customer",
-              "Current Rider",
-              "Change Rider",
-              "Status",
-            ]}
-          >
-            {activeOrders.map((order) => (
-              <tr
-                key={order._id}
-                className="border-b border-gray-700 hover:bg-[#1f1f1f]/70 transition-colors"
-              >
-                <td className="py-3 px-4 font-medium text-gray-300">
-                  {order.orderId || order._id.slice(-6)}
-                </td>
-                <td className="py-3 px-4">{order.customerDetails?.name}</td>
-                <td className="py-3 px-4">
-                  {order.deliveryBoyId?.name || "Unassigned"}
-                </td>
-                <td className="py-3 px-4">
-                  <select
-                    value={order.deliveryBoyId?._id || ""}
-                    onChange={(e) =>
-                      handleAssign(order._id, e.target.value)
-                    }
-                    className="bg-[#111] border border-gray-600 rounded-lg p-1.5 text-sm focus:ring-2 focus:ring-[#3B82F6] outline-none text-gray-200"
-                  >
-                    <option value="">Select Rider</option>
-                    {deliveryBoys.map((boy) => (
-                      <option key={boy._id} value={boy._id}>
-                        {boy.name}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td className="py-3 px-4">{order.orderStatus}</td>
-              </tr>
-            ))}
-          </Table>
+          <div className="overflow-x-auto -mx-2 sm:mx-0">
+            <Table
+              headers={[
+                "Order ID",
+                "Customer",
+                "Current Rider",
+                "Change Rider",
+                "Status",
+              ]}
+            >
+              {activeOrders.map((order) => (
+                <tr
+                  key={order._id}
+                  className="border-b border-gray-700 hover:bg-[#1f1f1f]/70 transition-colors"
+                >
+                  <td className="py-3 px-2 sm:px-4 font-medium text-gray-300 text-xs sm:text-sm whitespace-nowrap">
+                    {order.orderId || order._id.slice(-6)}
+                  </td>
+                  <td className="py-3 px-2 sm:px-4 text-xs sm:text-sm">
+                    <div className="max-w-[100px] sm:max-w-none truncate">
+                      {order.customerDetails?.name}
+                    </div>
+                  </td>
+                  <td className="py-3 px-2 sm:px-4 text-xs sm:text-sm">
+                    <div className="max-w-[100px] sm:max-w-none truncate">
+                      {order.deliveryBoyId?.name || "Unassigned"}
+                    </div>
+                  </td>
+                  <td className="py-3 px-2 sm:px-4">
+                    <select
+                      value={order.deliveryBoyId?._id || ""}
+                      onChange={(e) =>
+                        handleAssign(order._id, e.target.value)
+                      }
+                      className="bg-[#111] border border-gray-600 rounded-lg p-1 sm:p-1.5 text-xs sm:text-sm focus:ring-2 focus:ring-[#3B82F6] outline-none text-gray-200 w-full min-w-[100px] sm:min-w-[120px]"
+                    >
+                      <option value="">Select Rider</option>
+                      {deliveryBoys.map((boy) => (
+                        <option key={boy._id} value={boy._id}>
+                          {boy.name}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="py-3 px-2 sm:px-4 text-xs sm:text-sm whitespace-nowrap">
+                    <span className="hidden sm:inline">{order.orderStatus}</span>
+                    <span className="sm:hidden">
+                      {order.orderStatus === "In Progress" ? "Progress" : order.orderStatus}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </Table>
+          </div>
         ) : (
-          <p className="text-gray-400">No active deliveries currently.</p>
+          <p className="text-gray-400 text-sm sm:text-base">No active deliveries currently.</p>
         )}
       </SectionCard>
 
       {/* === RIDER PERFORMANCE === */}
       <SectionCard title="🏁 Rider Performance">
         {riderStats.length > 0 ? (
-          <Table headers={["Rider Name", "Completed Orders"]}>
-            {riderStats.map((rider, i) => (
-              <tr
-                key={i}
-                className="border-b border-gray-700 hover:bg-[#1f1f1f]/70 transition"
-              >
-                <td className="py-3 px-4 font-medium">{rider.name}</td>
-                <td className="py-3 px-4">{rider.count}</td>
-              </tr>
-            ))}
-          </Table>
+          <div className="overflow-x-auto -mx-2 sm:mx-0">
+            <Table headers={["Rider Name", "Completed Orders"]}>
+              {riderStats.map((rider, i) => (
+                <tr
+                  key={i}
+                  className="border-b border-gray-700 hover:bg-[#1f1f1f]/70 transition"
+                >
+                  <td className="py-3 px-2 sm:px-4 font-medium text-sm sm:text-base">{rider.name}</td>
+                  <td className="py-3 px-2 sm:px-4 text-sm sm:text-base">{rider.count}</td>
+                </tr>
+              ))}
+            </Table>
+          </div>
         ) : (
-          <p className="text-gray-400">No completed deliveries yet.</p>
+          <p className="text-gray-400 text-sm sm:text-base">No completed deliveries yet.</p>
         )}
       </SectionCard>
     </div>
   );
 };
 
-// === METRIC CARD ===
+// === METRIC CARD === (Responsive)
 const MetricCard = ({ title, value, color }) => (
   <div
-    className="p-6 rounded-2xl shadow-lg backdrop-blur-lg bg-[#1a1a1a]/70 border border-gray-700 hover:shadow-[#3b82f650] transition transform hover:-translate-y-1"
-    style={{ borderTop: `4px solid ${color}` }}
+    className="p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl shadow-lg backdrop-blur-lg bg-[#1a1a1a]/70 border border-gray-700 hover:shadow-[#3b82f650] transition transform hover:-translate-y-1"
+    style={{ borderTop: `3px solid ${color}`, borderTopWidth: window.innerWidth >= 640 ? '4px' : '3px' }}
   >
-    <p className="text-sm text-gray-400 mb-1">{title}</p>
-    <p className="text-3xl font-extrabold" style={{ color }}>
+    <p className="text-xs sm:text-sm text-gray-400 mb-1">{title}</p>
+    <p className="text-xl sm:text-2xl lg:text-3xl font-extrabold" style={{ color }}>
       {value}
     </p>
   </div>
 );
 
-// === SECTION WRAPPER ===
+// === SECTION WRAPPER === (Responsive)
 const SectionCard = ({ title, children }) => (
-  <div className="bg-[#141414]/90 p-6 rounded-2xl shadow-xl mb-10 border border-gray-800 backdrop-blur-md">
-    <h3 className="text-[#02ca3a] text-xl font-semibold mb-4">{title}</h3>
+  <div className="bg-[#141414]/90 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl shadow-xl mb-6 sm:mb-8 lg:mb-10 border border-gray-800 backdrop-blur-md">
+    <h3 className="text-[#02ca3a] text-lg sm:text-xl font-semibold mb-3 sm:mb-4">{title}</h3>
     {children}
   </div>
 );
 
-// === TABLE COMPONENT ===
+// === TABLE COMPONENT === (Responsive)
 const Table = ({ headers, children }) => (
-  <table className="w-full text-left border-collapse">
-    <thead>
-      <tr className="border-b border-gray-700 bg-[#111]/70">
-        {headers.map((h, i) => (
-          <th
-            key={i}
-            className="py-3 px-4 text-sm font-medium text-gray-400 uppercase tracking-wider"
-          >
-            {h}
-          </th>
-        ))}
-      </tr>
-    </thead>
-    <tbody className="divide-y divide-gray-800">{children}</tbody>
-  </table>
+  <div className="min-w-full">
+    <table className="w-full text-left border-collapse min-w-[600px]">
+      <thead>
+        <tr className="border-b border-gray-700 bg-[#111]/70">
+          {headers.map((h, i) => (
+            <th
+              key={i}
+              className="py-2 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-medium text-gray-400 uppercase tracking-wider whitespace-nowrap"
+            >
+              {h}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-gray-800">{children}</tbody>
+    </table>
+  </div>
 );
 
 export default DeliveryMetrics;
