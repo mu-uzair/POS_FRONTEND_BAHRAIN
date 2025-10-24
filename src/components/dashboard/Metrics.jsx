@@ -297,7 +297,7 @@ const getDailyRevenueData = (orders) => {
         .sort()
         .map(date => ({
             date: date,
-            Revenue: parseFloat(dailyRevenue[date].toFixed(2)),
+            Revenue: parseFloat(dailyRevenue[date].toFixed(3)),
         }));
 };
 
@@ -319,7 +319,7 @@ const getRevenueByOrderType = (orders) => {
 
     return Object.keys(revenueByType).map((type, index) => ({
         type: type,
-        Revenue: parseFloat(revenueByType[type].toFixed(2)),
+        Revenue: parseFloat(revenueByType[type].toFixed(3)),
         color: COLORS[index % COLORS.length]
     }));
 };
@@ -364,7 +364,7 @@ const RevenueLineChart = ({ data }) => (
                 <YAxis stroke="#ababab" tick={{ fontSize: 10 }} domain={[0, 'auto']} />
                 <Tooltip
                     contentStyle={{ backgroundColor: '#1f1f1f', border: '1px solid #02ca3a', color: '#f5f5f5' }}
-                    formatter={(value) => [`BHD ${value.toFixed(2)}`, 'Revenue']}
+                    formatter={(value) => [`BHD ${value.toFixed(3)}`, 'Revenue']}
                 />
                 <Legend iconType="circle" wrapperStyle={{ paddingTop: '10px' }} payload={[{ value: 'Revenue', type: 'line', color: '#02ca3a' }]} />
                 <Line type="monotone" dataKey="Revenue" stroke="#02ca3a" strokeWidth={2} dot={false} />
@@ -395,7 +395,7 @@ const OrderTypePieChart = ({ data }) => (
                 </Pie>
                 <Tooltip
                     contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid #F6B100', color: '#f5f5f5' }}
-                    formatter={(value, name, props) => [`BHD ${value.toFixed(2)}`, props.payload.type]}
+                    formatter={(value, name, props) => [`BHD ${value.toFixed(3)}`, props.payload.type]}
                 />
                 <Legend layout="vertical" verticalAlign="middle" align="right" wrapperStyle={{ paddingLeft: '10px' }} />
             </PieChart>
@@ -493,8 +493,8 @@ const MetricsContent = () => {
 
     // --- METRICS DISPLAY DATA (Same as before) ---
     const dynamicMetrics = [
-        { title: "Revenue", value: `BHD ${revenue.toFixed(2)}`, color: "#22C55E" },
-        { title: "Avg Order Value", value: `BHD ${avgOrderValue.toFixed(2)}`, color: "#3B82F6" },
+        { title: "Revenue", value: `BHD ${revenue.toFixed(3)}`, color: "#22C55E" },
+        { title: "Avg Order Value", value: `BHD ${avgOrderValue.toFixed(3)}`, color: "#3B82F6" },
         { title: "Total Orders", value: totalOrders, color: "#7F56D9" },
         { title: "Active Orders", value: activeOrders, color: "#F59E0B" },
         { title: "Ready Orders", value: readyOrders.length, color: "#10B981" },

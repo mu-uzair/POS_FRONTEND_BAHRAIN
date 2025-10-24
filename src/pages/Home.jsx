@@ -65,7 +65,7 @@ const Home = () => {
                     <Minicard
                         title="Total Earnings"
                         icon={<BsCashCoin />}
-                        number={totalRevenue.toFixed(2)} // Display total revenue
+                        number={totalRevenue.toFixed(3)} // Display total revenue
                         footernum={1.6} // You can calculate this dynamically if needed
                         showDatePicker // Enable date picker for this card
                         showTotalEarnings={showTotalEarnings}

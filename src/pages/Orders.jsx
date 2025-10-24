@@ -736,7 +736,7 @@ const Orders = () => {
         return sortedFilteredOrders.reduce((sum, order) => {
             const amount = order.bills?.totalWithTax || 0;
             return sum + amount;
-        }, 0).toFixed(2);
+        }, 0).toFixed(3);
     }, [sortedFilteredOrders]);
 
     // Loading state

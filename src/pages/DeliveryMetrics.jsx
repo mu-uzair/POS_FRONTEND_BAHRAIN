@@ -409,7 +409,7 @@ const DeliveryMetrics = () => {
         />
         <MetricCard
           title="Revenue Generated"
-          value={`BHD ${totalRevenue.toFixed(2)}`}
+          value={`BHD ${totalRevenue.toFixed(3)}`}
           color="#22C55E"
         />
       </div>
