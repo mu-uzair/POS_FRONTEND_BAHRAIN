@@ -98,6 +98,12 @@ export const deleteDish = (dishId) => api.delete(`/api/dish/${dishId}`);
 // NOTE: We use 'patch' for update since it's typically for changing status (is_active) or details.
 export const addDeliveryBoy = (data) => api.post("/api/deliveryBoy", data);
 export const getDeliveryBoys = () => api.get("/api/deliveryBoy");
+// Update a delivery boy's details
+export const updateDeliveryBoy = (id, data) => api.patch(`/api/deliveryBoy/${id}`, data);
+// Delete a delivery boy by ID
+export const deleteDeliveryBoy = (id) => api.delete(`/api/deliveryBoy/${id}`);
+
+
 
 
 // --- Customer Lookup ---

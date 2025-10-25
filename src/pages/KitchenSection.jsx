@@ -1259,6 +1259,7 @@ const KitchenSection = () => {
                         item.section &&
                         item.section.toLowerCase() === "kitchen" &&
                         item.status !== "Ready"
+                        
                 );
 
                 if (!kitchenItems || kitchenItems.length === 0) return null;
@@ -1270,6 +1271,7 @@ const KitchenSection = () => {
                     createdAt: order.createdAt,
                     status: order.orderStatus,
                     items: kitchenItems,
+
                 };
             })
             .filter(Boolean);
@@ -1421,7 +1423,7 @@ const KitchenSection = () => {
                                     <div key={index} className="mb-3 p-1 border-b border-gray-700 last:border-b-0">
                                         <p className="text-white text-lg font-bold">
                                             <span className="text-xl text-red-500 mr-2">{item.quantity}x</span>
-                                            {item.name}
+                                            {item.name}  {item.variationName ? ` (${item.variationName})` : ''}
                                         </p>
                                         {item.notes && (
                                             <p className="text-yellow-400 text-sm italic ml-8 mt-1">
