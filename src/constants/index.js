@@ -432,3 +432,9 @@ export const orders = [
     total: 220.0,
   },
 ];
+
+export const roundBhd = (value) => {
+  if (isNaN(value)) return 0;
+  const rounded = Math.round(value / 0.05) * 0.05;
+  return parseFloat(rounded.toFixed(3));
+};

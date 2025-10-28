@@ -94,3 +94,8 @@ export const formatDateAndTimeNew = (date) => {
         return "Invalid Date";
     }
 };
+export const roundBhd = (value) => {
+  if (isNaN(value)) return 0;
+  const rounded = Math.round(value / 0.05) * 0.05;
+  return parseFloat(rounded.toFixed(3));
+};

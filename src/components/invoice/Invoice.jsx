@@ -46,7 +46,7 @@ const Receipt = ({ orderInfo, setShowInvoice }) => {
                             </p> */}
 
                             <p className="text-xs font-medium mt-1">
-                                Invoice No: #{customerData.orderId || "N/A"}
+                                Invoice No: #{customerData.orderNumber || "N/A"}
                             </p>
                             <p className="text-xs font-medium mt-1">
                                 Order Date: {formattedOrderDateTime}

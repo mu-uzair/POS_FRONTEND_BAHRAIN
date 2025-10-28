@@ -160,16 +160,27 @@ import CustomerInfo from '../components/Menu/CustomerInfo';
 import CartInfo from '../components/Menu/CartInfo';
 import BillInfo from '../components/Menu/BillInfo';
 
-const Menu = () => {
-    const customerData = useSelector(state => state.customer);
-    const cartItems = useSelector(state => state.cart?.cart || []); // ✅ Fixed: Added fallback for undefined
-    const [isCartOpen, setIsCartOpen] = useState(false);
+// const Menu = () => {
+//     const customerData = useSelector(state => state.customer);
+//     const cartItems = useSelector(state => state.cart?.cart || []); // ✅ Fixed: Added fallback for undefined
+//     const [isCartOpen, setIsCartOpen] = useState(false);
     
-    // Calculate total items in cart - ✅ Fixed: Added safety check
-    const totalItems = Array.isArray(cartItems) 
-        ? cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0) 
-        : 0;
+//     // Calculate total items in cart - ✅ Fixed: Added safety check
+//     const totalItems = Array.isArray(cartItems) 
+//         ? cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0) 
+//         : 0;
 
+
+const emptyArray = []; // ✅ Memoized fallback
+
+const Menu = () => {
+  const customerData = useSelector(state => state.customer);
+  const cartItems = useSelector(state => state.cart?.cart ?? emptyArray); // ✅ No new array each render
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  
+  const totalItems = Array.isArray(cartItems)
+    ? cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0)
+    : 0;
     return (
         <div>
             <section className="bg-[#1f1f1f] h-[calc(100vh-5rem)] overflow-hidden flex flex-col lg:flex-row gap-3">

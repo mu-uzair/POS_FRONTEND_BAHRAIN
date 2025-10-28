@@ -166,3 +166,33 @@ export const getMetrics = async () => {
 
 
 
+
+
+// Inventory Category Endpoints
+// export const addInventoryCategory = (data) => api.post("/api/category", data);
+export const addInventoryCategory = (data) => api.post("/api/inventory-category", data);
+
+
+export const getAllInventoryCategories = () =>
+  api.get("/api/inventory-category").then(res => res.data.data);
+
+export const getInventoryCategoryById = (id) =>
+  api.get(`/api/inventory-category/${id}`).then(res => res.data.data);
+
+export const updateInventoryCategory = (categoryData) => {
+  const { _id, ...rest } = categoryData;
+  return api.put(`/api/inventory-category/${_id}`, rest);
+};
+
+export const deleteInventoryCategory = (id) =>
+  api.delete(`/api/inventory-category/${id}`);
+
+
+// Dish Recipe Endpoints
+export const addDishRecipe = (data) => api.post("/api/dishRecipe", data);
+export const getAllDishRecipes = () => api.get("/api/dishRecipe");
+export const getDishRecipeById = (id) => api.get(`/api/dishRecipe/${id}`);
+export const getRecipeByDishAndVariation = (dishId, variationName) =>
+  api.get(`/api/dishRecipe/by/dish-variation?dishId=${dishId}&variationName=${variationName}`);
+export const updateDishRecipe = (id, data) => api.put(`/api/dishRecipe/${id}`, data);
+export const deleteDishRecipe = (id) => api.delete(`/api/dishRecipe/${id}`);
