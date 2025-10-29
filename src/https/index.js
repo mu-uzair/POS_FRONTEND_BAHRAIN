@@ -56,6 +56,8 @@ export const deleteOrder = (orderId, password = null) =>
     data: { password }, // axios allows sending body with DELETE this way
   });
 
+  export const verifyAdminPassword = (password) => 
+  api.post("/api/user", { password });
 
 // For full order updates
 export const updateOrder = (orderId, orderData) =>
@@ -196,3 +198,16 @@ export const getRecipeByDishAndVariation = (dishId, variationName) =>
   api.get(`/api/dishRecipe/by/dish-variation?dishId=${dishId}&variationName=${variationName}`);
 export const updateDishRecipe = (id, data) => api.put(`/api/dishRecipe/${id}`, data);
 export const deleteDishRecipe = (id) => api.delete(`/api/dishRecipe/${id}`);
+
+
+
+// Recipe Transaction Endpoints
+export const getAllRecipeTransactions = () => api.get("/api/recipeTransactions");
+export const getRecipeTransactionById = (id) => api.get(`/api/recipeTransaction/${id}`);
+export const rollbackRecipeStock = (id) => api.post(`/api/recipeTransactions/${id}/rollback`);
+export const deleteRecipeTransaction = (id) => api.delete(`/api/recipeTransaction/${id}`);
+
+export const adjustStockByRecipeApi = ({ recipeId, quantity }) => 
+    api.post(`/api/dishRecipe/${recipeId}/stock-out`, {
+        qtyOfDishes: quantity,
+    });

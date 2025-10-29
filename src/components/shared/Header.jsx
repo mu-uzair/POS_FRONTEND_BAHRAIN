@@ -125,6 +125,8 @@ const Header = () => {
         mutationFn: () => logout(),
         onSuccess: (data) => {
             console.log(data);
+             // Clear localStorage
+    localStorage.removeItem("user");
             dispatch(removeUser());
             navigate("/auth");
         },
