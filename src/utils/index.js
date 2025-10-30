@@ -99,3 +99,19 @@ export const roundBhd = (value) => {
   const rounded = Math.round(value / 0.05) * 0.05;
   return parseFloat(rounded.toFixed(3));
 };
+
+// utils/index.js
+
+export const generateUniqueOrderNo = () => {
+  const usedNos = JSON.parse(localStorage.getItem("usedOrderNos") || "[]");
+  let newNo;
+
+  do {
+    newNo = Math.floor(1000 + Math.random() * 9000); // e.g., 1024
+  } while (usedNos.includes(newNo));
+
+  usedNos.push(newNo);
+  localStorage.setItem("usedOrderNos", JSON.stringify(usedNos));
+
+  return `ORD-${newNo}`;
+};

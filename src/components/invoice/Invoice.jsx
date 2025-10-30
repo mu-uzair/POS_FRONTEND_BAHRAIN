@@ -35,8 +35,8 @@ const Receipt = ({ orderInfo, setShowInvoice }) => {
                             className="mx-auto w-24 h-auto object-contain mb-3 logo-print"
                         />
                         <h2 className="text-xl font-bold">AL SAYEDA</h2>
-                        <p>Address: Shop no.2 plot no.19-C, Rahat Commercial Lane-3 Phase VI, D.H.A, Karachi</p>
-                        <p>Telp. +92 337 8018705</p>
+                        <p>Buildng #115 Road #33 Block #432 KARBABAD</p>
+                        <p>Telp. +973 66667974 / 66667123</p>
                         <p>
                             <strong className="text-base">--- {orderInfo?.customerDetails?.orderType} ---</strong>
                         </p>
@@ -46,7 +46,10 @@ const Receipt = ({ orderInfo, setShowInvoice }) => {
                             </p> */}
 
                             <p className="text-xs font-medium mt-1">
-                                Invoice No: #{customerData.orderNumber || "N/A"}
+                                Invoice No: #{customerData.orderId || "N/A"}
+                            </p>
+                            <p className="text-xs font-medium mt-1">
+                                Order  No: #{customerData.orderNo || "N/A"}
                             </p>
                             <p className="text-xs font-medium mt-1">
                                 Order Date: {formattedOrderDateTime}

@@ -1875,6 +1875,7 @@ const OrderCard = ({ order }) => {
     dispatch(setEditingMode(true));
 
     const itemsForCart = order.items.map((item) => ({
+      orderNo: order.orderNo || null,
       id: item.menuItem,
       dishId: item.menuItem,
       name: item.name,
@@ -1892,6 +1893,7 @@ const OrderCard = ({ order }) => {
         orderType: order.customerDetails?.orderType,
         paymentMethod: order.paymentMethod || "Online",
         orderId: order.orderId || order._id,
+        orderNo : order.orderNo || null,
         table: order.table || null,
       })
     );
@@ -1997,6 +1999,9 @@ const OrderCard = ({ order }) => {
                 </h1>
                 <p className="text-[#ababab] text-xs sm:text-sm">
                   #{order.orderId} / {order.customerDetails.orderType}
+                </p>
+                <p className="text-[#ababab] text-xs sm:text-sm">
+                  #{order.orderNo} 
                 </p>
                 {order.table && (
                   <p className="text-[#ababab] text-xs sm:text-sm flex items-center">

@@ -18,6 +18,10 @@ const CustomerInfo = () => {
                          
                                 #{customerData.orderId || "N/A"} / {customerData.orderType}
                             </p>
+                            <p className='text-xs text-[#ababab] font-medium mt-1'>
+                         
+                                #{customerData.orderNo || "N/A"} 
+                            </p>
                             <p className='text-xs text-[#ababab] font-medium mt-2'>
                               {/* {formatDate(dateTime)}, 05:34 PM */}
                               {formatDateAndTimeNew(customerData.orderPlacedAt)}
