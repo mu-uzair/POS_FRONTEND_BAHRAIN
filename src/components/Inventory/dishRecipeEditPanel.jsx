@@ -883,7 +883,7 @@ import {
   // Only adjustStockByRecipeApi is needed for stock actions
   adjustStockByRecipeApi, 
 } from "../../https";
-import { enqueueSnackbar } from "notistack";
+import { enqueueSnackbar,closeSnackbar } from "notistack";
 import { FiTrash2, FiChevronDown, FiChevronUp, FiX  } from "react-icons/fi";
 import { CiInboxOut } from "react-icons/ci";
 import { LuWarehouse } from "react-icons/lu"; 
@@ -957,8 +957,8 @@ const DishRecipeEditPanel = () => {
 
   // --- HANDLERS (Rollback handlers removed) ---
 
-  // Handle deleting a recipe (UNCHANGED)
-  const handleDeleteRecord = (id) => {
+ // Handle deleting a recipe (FIXED)
+const handleDeleteRecord = (id) => {
     enqueueSnackbar(
         `Are you sure you want to delete this dish recipe?`,
         {
@@ -968,7 +968,8 @@ const DishRecipeEditPanel = () => {
                 <button 
                     onClick={() => {
                         deleteRecipeMutation.mutate(id);
-                        enqueueSnackbar.closeSnackbar(snackbarId);
+                        // 🛑 THE FIX: Use the destructured closeSnackbar function
+                        closeSnackbar(snackbarId); 
                     }}
                     className="text-white font-bold underline ml-4"
                 >
@@ -977,7 +978,8 @@ const DishRecipeEditPanel = () => {
             ),
         }
     );
-  };
+};
+
 
   // Get dish name by ID (UNCHANGED)
   const getDishName = (dishId) => {

@@ -2283,7 +2283,7 @@ const EditPanel = () => {
       )}
 
       {/* TABLES SECTION */}
-      {selectedOption === "tables" && (
+      {/* {selectedOption === "tables" && (
         <div className="overflow-x-auto">
           {tablesLoading ? (
             <div className="text-center text-[#ababab] py-8">Loading tables...</div>
@@ -2382,7 +2382,136 @@ const EditPanel = () => {
             </>
           )}
         </div>
-      )}
+      )} */}
+
+{/* TABLES SECTION */}
+{selectedOption === "tables" && (
+  <div className="overflow-x-auto">
+    {tablesLoading ? (
+      <div className="text-center text-[#ababab] py-8">Loading tables...</div>
+    ) : (
+      <>
+        <div className="hidden sm:block">
+          <table className="w-full text-left text-[#f5f5f5]">
+            <thead className="bg-[#333] text-[#ababab] text-sm">
+              <tr>
+                <th className="p-3 sm:p-4">Table Number</th>
+                <th className="p-3 sm:p-4">Seats</th>
+                {/* NEW: Status Header */}
+                <th className="p-3 sm:p-4">Status</th>
+                <th className="p-3 sm:p-4 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tablesData?.data?.data?.map((table) => (
+                <tr key={table._id} className="border-b border-gray-600 hover:bg-[#333] transition-colors">
+                  <td className="p-3 sm:p-4">
+                    <input
+                      type="number"
+                      defaultValue={table.tableNo}
+                      onChange={(e) => handleEditField("table", table._id, "tableNo", e.target.value)}
+                      className="bg-[#1a1a1a] text-[#f5f5f5] px-3 py-2 rounded-lg w-full border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    />
+                  </td>
+                  <td className="p-3 sm:p-4">
+                    <input
+                      type="number"
+                      defaultValue={table.seats}
+                      onChange={(e) => handleEditField("table", table._id, "seats", e.target.value)}
+                      className="bg-[#1a1a1a] text-[#f5f5f5] px-3 py-2 rounded-lg w-full border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    />
+                  </td>
+                  {/* NEW: Status Dropdown for Desktop */}
+                  <td className="p-3 sm:p-4">
+                    <select
+                      defaultValue={table.status}
+                      onChange={(e) => handleEditField("table", table._id, "status", e.target.value)}
+                      className="bg-[#1a1a1a] text-[#f5f5f5] px-3 py-2 rounded-lg w-full border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      aria-label="Table Status"
+                    >
+                      <option value="Available">Available</option>
+                      <option value="Booked">Booked</option>
+                    </select>
+                  </td>
+                  <td className="p-3 sm:p-4 text-center">
+                    <div className="flex gap-2 justify-center">
+                      <button
+                        onClick={() => handleUpdate("table", table._id)}
+                        className="bg-blue-500 text-white px-3 py-1.5 rounded-lg hover:bg-blue-600 transition-colors duration-200 text-sm font-medium"
+                      >
+                        Update
+                      </button>
+                      <button
+                        onClick={() => handleDeleteRecord("table", table._id)}
+                        className="bg-red-500 text-white px-3 py-1.5 rounded-lg hover:bg-red-600 transition-colors duration-200 text-sm font-medium"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="sm:hidden space-y-4">
+          {tablesData?.data?.data?.map((table) => (
+            <div key={table._id} className="bg-[#1a1a1a] p-4 rounded-lg border border-gray-600">
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-[#ababab] text-xs mb-1">Table Number</label>
+                  <input
+                    type="number"
+                    defaultValue={table.tableNo}
+                    onChange={(e) => handleEditField("table", table._id, "tableNo", e.target.value)}
+                    className="bg-[#262626] text-[#f5f5f5] px-3 py-2 rounded-lg w-full border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[#ababab] text-xs mb-1">Seats</label>
+                  <input
+                    type="number"
+                    defaultValue={table.seats}
+                    onChange={(e) => handleEditField("table", table._id, "seats", e.target.value)}
+                    className="bg-[#262626] text-[#f5f5f5] px-3 py-2 rounded-lg w-full border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+                {/* NEW: Status Dropdown for Mobile */}
+                <div>
+                  <label className="block text-[#ababab] text-xs mb-1">Status</label>
+                  <select
+                    defaultValue={table.status}
+                    onChange={(e) => handleEditField("table", table._id, "status", e.target.value)}
+                    className="bg-[#262626] text-[#f5f5f5] px-3 py-2 rounded-lg w-full border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    aria-label="Table Status"
+                  >
+                    <option value="Available">Available</option>
+                    <option value="Booked">Booked</option>
+                  </select>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleUpdate("table", table._id)}
+                    className="flex-1 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors duration-200 font-medium"
+                  >
+                    Update
+                  </button>
+                  <button
+                    onClick={() => handleDeleteRecord("table", table._id)}
+                    className="flex-1 bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition-colors duration-200 font-medium"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </>
+    )}
+  </div>
+)}
 
       {/* DELIVERY BOYS SECTION */}
       {selectedOption === "deliveryBoys" && (

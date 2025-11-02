@@ -27,9 +27,19 @@ export const getTable = () => api.get("/api/table");
 // Status & Order update
 export const updateTable = ({ tableId, ...tableData }) => api.put(`/api/table/${tableId}/status`, tableData);
 
-// Table data (seats & tableNumber) update
+// // Table data (seats & tableNumber) update
+// export const updateTableData = (tableData) => {
+//     const { _id, ...rest } = tableData;
+//     return api.put(`/api/table/${_id}/data`, rest);
+// };
+
+// Table data (seats, tableNo, and now status) update
 export const updateTableData = (tableData) => {
-    const { _id, ...rest } = tableData;
+    // _id is destructured out, and 'rest' contains all other fields: 
+    // { tableNo: 10, seats: 6, status: "Booked" }
+    const { _id, ...rest } = tableData; 
+    
+    // The 'rest' object is sent as the request body, which now includes 'status'
     return api.put(`/api/table/${_id}/data`, rest);
 };
 

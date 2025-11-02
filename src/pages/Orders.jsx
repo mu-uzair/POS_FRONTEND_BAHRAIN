@@ -617,7 +617,7 @@ const Orders = () => {
 
     // Filter states
     const [status, setStatus] = useState("In Progress");
-    const [dateFilter, setDateFilter] = useState("All");
+    const [dateFilter, setDateFilter] = useState("Today");
     const [selectedDate, setSelectedDate] = useState("");
     const [orderType, setOrderType] = useState("All");
 

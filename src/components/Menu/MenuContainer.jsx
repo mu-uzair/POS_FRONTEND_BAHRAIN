@@ -722,71 +722,123 @@ const MenuContainer = () => {
     <div className="h-full flex flex-col">
       {/* Categories Section */}
       <div className="h-[35vh] min-h-[250px] border-b-2 border-[#2a2a2a] flex flex-col flex-shrink-0">
-        <div className="px-4 sm:px-6 py-2 flex-shrink-0">
-          <h2 className="text-xl font-bold text-white">Menu Categories</h2>
-        </div>
+  <div className="px-4 sm:px-6 py-2 flex-shrink-0">
+    <h2 className="text-xl font-bold text-white">Menu Categories</h2>
+  </div>
 
-        {/* Scrollable Container with Hidden Scrollbar */}
-        <div className="flex-1 py-1 px-4 sm:px-6 pb-4 overflow-y-scroll overflow-x-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          {categories.length === 0 ? (
-            <div className="text-center text-[#ababab] text-lg font-semibold py-8">
-              No categories found
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5">
-              {categories.map((category, index) => {
-                if (!category || !category._id) return null;
-                const isSelected = selectedCategory?._id === category._id;
-                const itemCount = categoryItemCounts[category._id] || 0;
-
-                return (
-                  <div
-                    key={category._id}
-                    className={`flex flex-col items-center justify-center text-center p-3 sm:p-4 rounded-xl cursor-pointer transition-all duration-200 h-full min-h-[100px] shadow-md ${
-                      isSelected
-                        ? 'ring-2 ring-yellow-500 scale-[1.03] shadow-yellow-500/40'
-                        : 'hover:scale-[1.01]'
-                    }`}
-                    style={{ backgroundColor: getBgColor(index) }}
-                    onClick={() => setSelectedCategory(category)}
-                  >
-                    {/* Category Image/Icon */}
-                    {category.imageUrl && /^https?:\/\//i.test(category.imageUrl.trim()) && (
-                      <div className="mb-2">
-                        <img
-                          src={category.imageUrl}
-                          alt={category.categoryName}
-                          className="h-16 w-16 sm:h-25 sm:w-25 object-cover rounded-full border-2 border-white/50 bg-white"
-                          onError={e => {
-                            e.target.style.display = 'none';
-                          }}
-                        />
-                      </div>
-                    )}
-
-                    {/* Category Name */}
-                    <h3 className="text-white text-sm sm:text-base font-bold line-clamp-2 mb-1 w-full px-1">
-                      {category.categoryName}
-                    </h3>
-
-                    {/* Item Count & Selector Icon */}
-                    <div className="flex items-center gap-2 mt-auto">
-                      <p className="text-white/80 text-xs font-medium">{itemCount} Items</p>
-                      {isSelected && (
-                        <GrRadialSelected className="text-white/80 flex-shrink-0" size={14} />
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+  {/* Scrollable Container with Hidden Scrollbar */}
+  <div className="flex-1 py-1 px-4 sm:px-6 pb-4 overflow-y-scroll overflow-x-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+    {categories.length === 0 ? (
+      <div className="text-center text-[#ababab] text-lg font-semibold py-8">
+        No categories found
       </div>
+    ) : (
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5">
+        {categories.map((category, index) => {
+          if (!category || !category._id) return null;
+          const isSelected = selectedCategory?._id === category._id;
+          const itemCount = categoryItemCounts[category._id] || 0;
+          const hasImage = category.imageUrl && /^https?:\/\//i.test(category.imageUrl.trim());
 
+          return (
+            <div
+              key={category._id}
+              className={`relative flex flex-col justify-end p-3 sm:p-4 rounded-xl cursor-pointer transition-all duration-300 h-full min-h-[120px] sm:min-h-[140px] overflow-hidden group ${
+                isSelected
+                  ? 'ring-2 ring-yellow-400 scale-[1.03] shadow-2xl shadow-yellow-500/50'
+                  : 'hover:scale-[1.02] hover:shadow-xl shadow-lg'
+              }`}
+              onClick={() => setSelectedCategory(category)}
+            >
+              {/* Background Image or Color */}
+              {hasImage ? (
+                <>
+                  {/* Dark gradient background with subtle pattern */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a1a] via-[#252525] to-[#1a1a1a]"></div>
+                  
+                  {/* Full image visible, no cropping */}
+                  <img
+                    src={category.imageUrl}
+                    alt={category.categoryName}
+                    className="absolute inset-0 w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
+                    onError={e => {
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                  
+                  {/* Enhanced gradient overlay with better depth */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
+                  
+                  {/* Subtle shine effect on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/0 to-transparent group-hover:via-white/5 transition-all duration-500"></div>
+                </>
+              ) : (
+                <>
+                  {/* Fallback Color Background with gradient */}
+                  <div
+                    className="absolute inset-0"
+                    style={{ 
+                      background: `linear-gradient(135deg, ${getBgColor(index)} 0%, ${getBgColor(index)}dd 100%)`
+                    }}
+                  ></div>
+                  
+                  {/* Subtle overlay for depth */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-transparent"></div>
+                </>
+              )}
+
+              {/* Content Overlay */}
+              <div className="relative z-10">
+                {/* Category Name with better spacing */}
+                <h3 
+                  className={`text-sm sm:text-base font-bold line-clamp-2 mb-2 ${
+                    hasImage 
+                      ? 'text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]' 
+                      : 'text-white drop-shadow-lg'
+                  }`}
+                >
+                  {category.categoryName}
+                </h3>
+
+                {/* Item Count & Selector - Enhanced Badge */}
+                <div className="flex items-center gap-2">
+                  <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full transition-all duration-300 ${
+                    hasImage 
+                      ? 'bg-black/70 backdrop-blur-md border border-white/10' 
+                      : 'bg-white/25 backdrop-blur-sm border border-white/20'
+                  } ${isSelected ? 'ring-1 ring-yellow-400/50' : ''}`}>
+                    <p className="text-white text-xs font-semibold">
+                      {itemCount} Items
+                    </p>
+                    {isSelected && (
+                      <GrRadialSelected className="text-yellow-400 flex-shrink-0 animate-pulse" size={12} />
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Enhanced Selected Border with Glow */}
+              {isSelected && (
+                <>
+                  <div className="absolute inset-0 rounded-xl ring-2 ring-yellow-400 pointer-events-none"></div>
+                  <div className="absolute inset-0 rounded-xl ring-1 ring-yellow-300/50 blur-sm pointer-events-none"></div>
+                </>
+              )}
+              
+              {/* Subtle border for all cards */}
+              {!isSelected && (
+                <div className="absolute inset-0 rounded-xl ring-1 ring-white/5 pointer-events-none"></div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    )}
+  </div>
+</div>
       <hr className="border-[#2a2a2a] border-t-2" />
 
-      {/* Dishes Section */}
+{/* Dishes Section */}
       <div className="flex-1 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <div className="px-10 py-4 pb-18">
           <div className="grid grid-cols-1 md:grid-cols-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -797,56 +849,69 @@ const MenuContainer = () => {
               return (
                 <div
                   key={item._id}
-                  className="flex flex-col items-start justify-between p-4 rounded-lg h-auto cursor-pointer transition-transform hover:scale-104 hover:bg-[#2a2a2a] bg-[#1a1a1a]"
+                  className="relative flex flex-col items-start justify-between p-4 rounded-xl h-auto cursor-pointer transition-all duration-300 bg-gradient-to-br from-[#1a1a1a] via-[#252525] to-[#1a1a1a] hover:scale-[1.02] hover:shadow-xl shadow-lg group overflow-hidden border-2 border-[#2a2a2a] hover:border-[#3a3a3a]"
                 >
-                  <div className="flex items-start justify-between w-full mb-2">
-                    <h1 className="text-[#f5f5f5] text-lg font-semibold">{item.dishName}</h1>
-                    <button
-                      onClick={() => handleAddToCart(item)}
-                      className="text-[#02ca3a] cursor-pointer"
-                    >
-                      <GiShoppingCart size={30} />
-                    </button>
-                  </div>
+                  {/* Enhanced visible border with glow effect */}
+                  <div className="absolute inset-0 rounded-xl ring-1 ring-white/10 pointer-events-none group-hover:ring-white/20 transition-all duration-300"></div>
+                  
+                  {/* Subtle shine effect on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/0 to-transparent group-hover:via-white/5 transition-all duration-500 rounded-xl"></div>
 
-                  {/* Variation Selector */}
-                  {variations.length > 0 && (
-                    <div className="flex flex-wrap gap-2 my-2">
-                      {variations.map((variation) => (
-                        <button
-                          key={variation.name}
-                          onClick={() => handleVariationChange(item._id, variation)}
-                          className={`px-3 py-1 rounded-md text-sm font-medium transition-all border ${
-                            selectedVar?.name === variation.name
-                              ? 'bg-yellow-500 text-black border-yellow-500'
-                              : 'bg-[#2f2f2f] text-white border-[#3a3a3a] hover:bg-[#3a3a3a]'
-                          }`}
-                        >
-                          {variation.name} - BHD {variation.price.toFixed(3)}
-                        </button>
-                      ))}
+                  <div className="relative z-10 w-full">
+                    {/* Header with Title and Cart Button */}
+                    <div className="flex items-start justify-between w-full mb-3">
+                      <h1 className="text-[#f5f5f5] text-lg font-bold drop-shadow-sm pr-2 line-clamp-2">
+                        {item.dishName}
+                      </h1>
+                      <button
+                        onClick={() => handleAddToCart(item)}
+                        className="text-[#02ca3a] hover:text-[#03e844] transition-all duration-300 hover:scale-110 flex-shrink-0"
+                      >
+                        <GiShoppingCart size={28} />
+                      </button>
                     </div>
-                  )}
 
-                  {/* Quantity Controls */}
-                  <div className="flex items-center justify-between w-full mt-2">
-                    <p className="text-[#f5f5f5] text-xl font-bold">
-                      {selectedVar ? `BHD ${selectedVar.price.toFixed(3)}` : 'N/A'}
-                    </p>
-                    <div className="flex items-center justify-between bg-[#1f1f1f] px-4 py-3 rounded-lg gap-6">
-                      <button
-                        onClick={() => decrement(item._id)}
-                        className="text-yellow-500 text-2xl cursor-pointer"
-                      >
-                        &minus;
-                      </button>
-                      <span className="text-white">{itemCounts[item._id] || 0}</span>
-                      <button
-                        onClick={() => increment(item._id)}
-                        className="text-yellow-500 text-2xl cursor-pointer"
-                      >
-                        &#43;
-                      </button>
+                    {/* Variation Selector */}
+                    {variations.length > 0 && (
+                      <div className="flex flex-wrap gap-2 my-3">
+                        {variations.map((variation) => (
+                          <button
+                            key={variation.name}
+                            onClick={() => handleVariationChange(item._id, variation)}
+                            className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all duration-300 border backdrop-blur-sm ${
+                              selectedVar?.name === variation.name
+                                ? 'bg-yellow-500 text-black border-yellow-400 shadow-lg shadow-yellow-500/30 scale-105'
+                                : 'bg-[#2f2f2f]/80 text-white border-[#3a3a3a] hover:bg-[#3a3a3a] hover:border-[#4a4a4a] hover:scale-105'
+                            }`}
+                          >
+                            {variation.name} - BHD {variation.price.toFixed(3)}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Price and Quantity Controls */}
+                    <div className="flex items-center justify-between w-full mt-4 pt-3 border-t border-[#3a3a3a]">
+                      <p className="text-[#f5f5f5] text-xl font-bold drop-shadow-sm">
+                        {selectedVar ? `BHD ${selectedVar.price.toFixed(3)}` : 'N/A'}
+                      </p>
+                      <div className="flex items-center justify-between bg-black/40 backdrop-blur-md px-4 py-2.5 rounded-lg gap-6 border-2 border-[#3a3a3a] shadow-inner">
+                        <button
+                          onClick={() => decrement(item._id)}
+                          className="text-yellow-500 hover:text-yellow-400 text-2xl cursor-pointer transition-all duration-200 hover:scale-125 active:scale-95"
+                        >
+                          &minus;
+                        </button>
+                        <span className="text-white font-bold text-lg min-w-[20px] text-center">
+                          {itemCounts[item._id] || 0}
+                        </span>
+                        <button
+                          onClick={() => increment(item._id)}
+                          className="text-yellow-500 hover:text-yellow-400 text-2xl cursor-pointer transition-all duration-200 hover:scale-125 active:scale-95"
+                        >
+                          &#43;
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -858,5 +923,4 @@ const MenuContainer = () => {
     </div>
   );
 };
-
 export default MenuContainer;
