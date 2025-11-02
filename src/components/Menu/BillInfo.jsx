@@ -781,6 +781,8 @@
 
 
 import React, { useState, useEffect } from "react";
+import { sendToPrinters } from "../../https/printBridge";
+
 import { useDispatch, useSelector } from "react-redux";
 import { getTotalPrice } from "../../redux/slice/cartSlice";
 import { enqueueSnackbar } from "notistack";
@@ -1016,35 +1018,78 @@ const BillInfo = () => {
     if (value >= 0 && value <= 100) setDiscountPercentage(value);
   };
 
-  // ✅ Handle Print
-  const handlePrintButton = () => {
-    if (placedOrderData) {
-      const discountAmount = (storedTotal * discountPercentage) / 100;
-      const taxRate = 10;
-      const discountedTotal = storedTotal - discountAmount;
-      const calculatedTax = (discountedTotal * taxRate) / 100;
-      const totalWithTax = roundBhd(discountedTotal + calculatedTax);
+  // // ✅ Handle Print
+  // const handlePrintButton = () => {
+  //   if (placedOrderData) {
+  //     const discountAmount = (storedTotal * discountPercentage) / 100;
+  //     const taxRate = 10;
+  //     const discountedTotal = storedTotal - discountAmount;
+  //     const calculatedTax = (discountedTotal * taxRate) / 100;
+  //     const totalWithTax = roundBhd(discountedTotal + calculatedTax);
 
-      const updatedOrderInfo = {
-        ...placedOrderData,
-        bills: {
-          ...placedOrderData.bills,
-          total: storedTotal,
-          tax: calculatedTax,
-          totalWithTax,
-          discountPercentage,
-          discountAmount,
-        },
-      };
+  //     const updatedOrderInfo = {
+  //       ...placedOrderData,
+  //       bills: {
+  //         ...placedOrderData.bills,
+  //         total: storedTotal,
+  //         tax: calculatedTax,
+  //         totalWithTax,
+  //         discountPercentage,
+  //         discountAmount,
+  //       },
+  //     };
 
-      setOrderInfo(updatedOrderInfo);
-      setShowInvoice(true);
-    } else {
-      enqueueSnackbar("Please place or update an order first!", {
-        variant: "warning",
+  //     setOrderInfo(updatedOrderInfo);
+  //     setShowInvoice(true);
+  //   } else {
+  //     enqueueSnackbar("Please place or update an order first!", {
+  //       variant: "warning",
+  //     });
+  //   }
+  // };
+
+
+
+  const handlePrintButton = async () => {
+  if (placedOrderData) {
+    const discountAmount = (storedTotal * discountPercentage) / 100;
+    const taxRate = 10;
+    const discountedTotal = storedTotal - discountAmount;
+    const calculatedTax = (discountedTotal * taxRate) / 100;
+    const totalWithTax = roundBhd(discountedTotal + calculatedTax);
+
+    const updatedOrderInfo = {
+      ...placedOrderData,
+      bills: {
+        ...placedOrderData.bills,
+        total: storedTotal,
+        tax: calculatedTax,
+        totalWithTax,
+        discountPercentage,
+        discountAmount,
+      },
+    };
+
+    setOrderInfo(updatedOrderInfo);
+    setShowInvoice(true);
+
+    // 🖨️ Send to printer bridge
+    try {
+      const res = await sendToPrinters(updatedOrderInfo);
+      console.log("✅ Print sent:", res);
+      enqueueSnackbar("Receipt sent to printers!", { variant: "success" });
+    } catch (error) {
+      console.error("Print Error:", error);
+      enqueueSnackbar("Failed to send to printer bridge!", {
+        variant: "error",
       });
     }
-  };
+  } else {
+    enqueueSnackbar("Please place or update an order first!", {
+      variant: "warning",
+    });
+  }
+};
 
   return (
     <>
