@@ -175,6 +175,7 @@ const emptyArray = []; // ✅ Memoized fallback
 
 const Menu = () => {
   const customerData = useSelector(state => state.customer);
+  console.log("customerData in Menu:", customerData);
   const cartItems = useSelector(state => state.cart?.cart ?? emptyArray); // ✅ No new array each render
   const [isCartOpen, setIsCartOpen] = useState(false);
   

@@ -195,21 +195,215 @@
 // export default customerSlice.reducer;
 
 
+// import { createSlice } from "@reduxjs/toolkit";
+
+// // --- Helper function ---
+// const generateUniqueOrderNo = () => {
+//   const usedNos = JSON.parse(localStorage.getItem("usedOrderNos") || "[]");
+//   let newNo;
+
+//   do {
+//     newNo = Math.floor(1000 + Math.random() * 9000);
+//   } while (usedNos.includes(newNo));
+
+//   usedNos.push(newNo);
+//   localStorage.setItem("usedOrderNos", JSON.stringify(usedNos));
+
+//   return `ORD-${newNo}`;
+// };
+
+// const initialState = {
+//   orderId: "",
+//   orderNo: "",
+//   customerName: "",
+//   customerPhone: "",
+//   guests: 0,
+//   table: null,
+//   orderPlacedAt: "",
+//   orderType: "",
+//   paymentMethod: "",
+//   deliveryAddress: "",
+//   deliveryBoyId: null,
+// };
+
+// const customerSlice = createSlice({
+//   name: "customer",
+//   initialState,
+//   reducers: {
+//     setCustomer: (state, action) => {
+//       const { name, phone, guests, orderType, paymentMethod, orderId, orderNo,isEdit } = action.payload;
+
+      
+//   // ✅ If it's a new order (not editing), generate a new unique orderNo
+//   if (!isEdit) {
+//     state.orderNo = generateUniqueOrderNo();
+//   } else if (orderNo) {
+//     // ✅ If editing and backend sent orderNo, keep it
+//     state.orderNo = orderNo;
+//   }
+
+//       state.orderId = orderId || `${Date.now()}`;
+//       state.customerName = name || "";
+//       state.customerPhone = phone || "";
+//       state.guests = guests || 0;
+//       state.orderPlacedAt = new Date().toISOString();
+//       state.orderType = orderType || "";
+//       state.paymentMethod = paymentMethod || "";
+//       state.table = null;
+
+//       // ✅ Only generate if not already set (prevents regeneration on edit)
+//       state.orderNo = orderNo || state.orderNo || generateUniqueOrderNo();
+
+//       if (orderType !== "Delivery") {
+//         state.deliveryAddress = "";
+//         state.deliveryBoyId = null;
+//       }
+//     },
+
+//     setDeliveryInfo: (state, action) => {
+//       const { address, deliveryBoyId } = action.payload;
+//       state.deliveryAddress = address || "";
+//       state.deliveryBoyId = deliveryBoyId || null;
+//       if (action.payload.phone) state.customerPhone = action.payload.phone;
+//       if (action.payload.name) state.customerName = action.payload.name;
+//     },
+
+//     removeCustomer: (state) => {
+//       Object.assign(state, initialState); // resets everything
+//     },
+
+//     updateTable: (state, action) => {
+//       state.table = action.payload.table;
+//     },
+//   },
+// });
+
+// export const { setCustomer, setDeliveryInfo, removeCustomer, updateTable } = customerSlice.actions;
+// export default customerSlice.reducer;
+
+
+// import { createSlice } from "@reduxjs/toolkit";
+
+// // --- Generate Unique 5-digit Order Number (Multi-Device Safe) ---
+// const generateUniqueOrderNo = () => {
+//   // Use timestamp (last 3 digits) + random (2 digits) for uniqueness
+//   const timestamp = Date.now();
+//   const timePart = parseInt(timestamp.toString().slice(-3)); // Last 3 digits of timestamp (0-999)
+//   const randomPart = Math.floor(10 + Math.random() * 90); // Random 2 digits (10-99)
+  
+//   // Combine to create 5-digit number
+//   const orderNum = (timePart * 100 + randomPart).toString().padStart(5, '0');
+  
+//   return `ORD-${orderNum}`;
+// };
+
+// const initialState = {
+//   orderId: "",
+//   orderNo: "",
+//   customerName: "",
+//   customerPhone: "",
+//   guests: 0,
+//   table: null,
+//   orderPlacedAt: "",
+//   orderType: "",
+//   paymentMethod: "",
+//   deliveryAddress: "",
+//   deliveryBoyId: null,
+// };
+
+// const customerSlice = createSlice({
+//   name: "customer",
+//   initialState,
+//   reducers: {
+//     setCustomer: (state, action) => {
+//       const { name, phone, guests, orderType, paymentMethod, orderId, orderNo, isEdit,table } = action.payload;
+
+//       // ✅ If it's a new order (not editing), generate a new unique orderNo
+//       if (!isEdit) {
+//         state.orderNo = generateUniqueOrderNo();
+//       } else if (orderNo) {
+//         // ✅ If editing and backend sent orderNo, keep it
+//         state.orderNo = orderNo;
+//       }
+
+//       state.orderId = orderId || `${Date.now()}`;
+//       state.customerName = name || "";
+//       state.customerPhone = phone || "";
+//       state.guests = guests || 0;
+//       state.orderPlacedAt = new Date().toISOString();
+//       state.orderType = orderType || "";
+//       state.paymentMethod = paymentMethod || "";
+//       // state.table = null;
+//       state.table = table || null;
+
+//       if (orderType !== "Delivery") {
+//         state.deliveryAddress = "";
+//         state.deliveryBoyId = null;
+//       }
+//     },
+
+//     setDeliveryInfo: (state, action) => {
+//       const { address, deliveryBoyId } = action.payload;
+//       state.deliveryAddress = address || "";
+//       state.deliveryBoyId = deliveryBoyId || null;
+//       if (action.payload.phone) state.customerPhone = action.payload.phone;
+//       if (action.payload.name) state.customerName = action.payload.name;
+//     },
+
+//     removeCustomer: (state) => {
+//       Object.assign(state, initialState);
+//     },
+
+//     updateTable: (state, action) => {
+//       state.table = action.payload.table;
+//     },
+//   },
+// });
+
+// export const { setCustomer, setDeliveryInfo, removeCustomer, updateTable } = customerSlice.actions;
+// export default customerSlice.reducer;
+
+
 import { createSlice } from "@reduxjs/toolkit";
 
-// --- Helper function ---
-const generateUniqueOrderNo = () => {
-  const usedNos = JSON.parse(localStorage.getItem("usedOrderNos") || "[]");
-  let newNo;
+// --- Get current counter value without incrementing ---
+const getCurrentCounter = () => {
+  const today = new Date().toDateString();
+  const storedDate = localStorage.getItem("orderDate");
+  let storedCounter = parseInt(localStorage.getItem("orderCounter") || "0");
+  
+  // If it's a new day, counter should be 0
+  if (storedDate !== today) {
+    return 0;
+  }
+  
+  return storedCounter;
+};
 
-  do {
-    newNo = Math.floor(1000 + Math.random() * 9000);
-  } while (usedNos.includes(newNo));
+// --- Get Preview Order Number (Next order number without saving) ---
+const getPreviewOrderNo = () => {
+  const currentCounter = getCurrentCounter();
+  const nextNumber = currentCounter + 1;
+  return `ORD-${nextNumber}`;
+};
 
-  usedNos.push(newNo);
-  localStorage.setItem("usedOrderNos", JSON.stringify(usedNos));
-
-  return `ORD-${newNo}`;
+// --- Confirm and Increment Counter (Call after successful order placement) ---
+const confirmOrderNo = () => {
+  const today = new Date().toDateString();
+  const storedDate = localStorage.getItem("orderDate");
+  let storedCounter = parseInt(localStorage.getItem("orderCounter") || "0");
+  
+  // If it's a new day, reset
+  if (storedDate !== today) {
+    storedCounter = 0;
+    localStorage.setItem("orderDate", today);
+  }
+  
+  // Increment and save
+  storedCounter += 1;
+  localStorage.setItem("orderCounter", storedCounter.toString());
+  
+  console.log("✅ Order confirmed! Counter incremented to:", storedCounter);
 };
 
 const initialState = {
@@ -231,16 +425,17 @@ const customerSlice = createSlice({
   initialState,
   reducers: {
     setCustomer: (state, action) => {
-      const { name, phone, guests, orderType, paymentMethod, orderId, orderNo,isEdit } = action.payload;
+      const { name, phone, guests, orderType, paymentMethod, orderId, orderNo, isEdit, table } = action.payload;
 
-      
-  // ✅ If it's a new order (not editing), generate a new unique orderNo
-  if (!isEdit) {
-    state.orderNo = generateUniqueOrderNo();
-  } else if (orderNo) {
-    // ✅ If editing and backend sent orderNo, keep it
-    state.orderNo = orderNo;
-  }
+      // ✅ If it's a new order (not editing), generate preview order number
+      if (!isEdit) {
+        state.orderNo = getPreviewOrderNo();
+        console.log("🆕 New order created with orderNo:", state.orderNo);
+      } else if (orderNo) {
+        // ✅ If editing, keep the existing orderNo from backend
+        state.orderNo = orderNo;
+        console.log("✏️ Editing existing order:", state.orderNo);
+      }
 
       state.orderId = orderId || `${Date.now()}`;
       state.customerName = name || "";
@@ -249,15 +444,18 @@ const customerSlice = createSlice({
       state.orderPlacedAt = new Date().toISOString();
       state.orderType = orderType || "";
       state.paymentMethod = paymentMethod || "";
-      state.table = null;
-
-      // ✅ Only generate if not already set (prevents regeneration on edit)
-      state.orderNo = orderNo || state.orderNo || generateUniqueOrderNo();
+      state.table = table || null;
 
       if (orderType !== "Delivery") {
         state.deliveryAddress = "";
         state.deliveryBoyId = null;
       }
+    },
+
+    // ✅ Call this action AFTER order is successfully placed/saved to backend
+    confirmOrder: (state) => {
+      confirmOrderNo();
+      console.log("Order confirmed, counter incremented");
     },
 
     setDeliveryInfo: (state, action) => {
@@ -269,14 +467,22 @@ const customerSlice = createSlice({
     },
 
     removeCustomer: (state) => {
-      Object.assign(state, initialState); // resets everything
+      console.log("🧹 Clearing customer data");
+      Object.assign(state, initialState);
     },
 
     updateTable: (state, action) => {
       state.table = action.payload.table;
     },
+
+    // Optional: Reset order counter manually
+    resetOrderCounter: () => {
+      localStorage.setItem("orderCounter", "0");
+      localStorage.setItem("orderDate", new Date().toDateString());
+      console.log("🔄 Order counter reset to 0");
+    },
   },
 });
 
-export const { setCustomer, setDeliveryInfo, removeCustomer, updateTable } = customerSlice.actions;
+export const { setCustomer, confirmOrder, setDeliveryInfo, removeCustomer, updateTable, resetOrderCounter } = customerSlice.actions;
 export default customerSlice.reducer;

@@ -1874,6 +1874,18 @@ const OrderCard = ({ order }) => {
   const proceedWithEdit = () => {
     dispatch(setEditingMode(true));
 
+
+    // --- FIX: STRUCTURE THE TABLE DATA FOR REDUX STATE ---
+    const tableDataForRedux = order.table 
+        ? { 
+            // Map the server's ID field (likely _id) to your Redux's tableId
+            tableId: order.table._id || order.table, 
+            // Map the server's table number field to your Redux's tableNo
+            tableNo: order.table.tableNo || null, 
+          } 
+        : null;
+console.log("Table Data for Redux:", tableDataForRedux);
+
     const itemsForCart = order.items.map((item) => ({
       orderNo: order.orderNo || null,
       id: item.menuItem,
@@ -1883,6 +1895,7 @@ const OrderCard = ({ order }) => {
       price: item.pricePerQuantity || item.price,
       quantity: item.quantity || 1,
       section: item.section || null,
+      // tableNo: order.table ? order.table.tableNo : null,
     }));
 
     dispatch(
@@ -1894,7 +1907,9 @@ const OrderCard = ({ order }) => {
         paymentMethod: order.paymentMethod || "Online",
         orderId: order.orderId || order._id,
         orderNo : order.orderNo || null,
-        table: order.table || null,
+        // table: order.table || null,
+        table: tableDataForRedux,
+         isEdit: true, 
       })
     );
 
