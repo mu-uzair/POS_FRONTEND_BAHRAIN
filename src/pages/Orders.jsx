@@ -972,7 +972,7 @@ const Orders = () => {
                 {/* Order Type Filters */}
                 <div className="w-full sm:w-auto overflow-x-auto scrollbar-hide">
                     <div className="flex items-center gap-2 sm:gap-3 p-2 bg-[#333333] rounded-xl min-w-max">
-                        {["All", "Dine-In", "Delivery", "Take Away"].map((type) => (
+                        {["All", "Dine-in", "Delivery", "Take Away"].map((type) => (
                             <button
                                 key={type}
                                 onClick={() => setOrderType(type)}
