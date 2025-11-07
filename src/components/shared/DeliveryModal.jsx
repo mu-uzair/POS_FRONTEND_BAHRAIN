@@ -692,7 +692,7 @@ const DeliveryModal = ({ isOpen, onClose, onCreateDelivery }) => {
     if (!formData.phone) return;
 
     const delayDebounce = setTimeout(() => {
-      if (formData.phone.length >= 10) {
+      if (formData.phone.length >= 1) {
         handleSearchCustomer(formData.phone);
       }
     }, 600);
@@ -701,33 +701,72 @@ const DeliveryModal = ({ isOpen, onClose, onCreateDelivery }) => {
   }, [formData.phone]);
 
   // ✅ Search customer API call
+  // const handleSearchCustomer = async (phone) => {
+  //   try {
+  //     setSearching(true);
+  //     const res = await searchCustomer(phone);
+  //     if (res?.data?.data) {
+  //       const customer = res.data.data;
+  //       setFormData((prev) => ({
+  //         ...prev,
+  //         name: customer.name || "",
+  //         address: customer.address || "",
+  //       }));
+  //       enqueueSnackbar("Existing customer found — data filled automatically.", {
+  //         variant: "info",
+  //       });
+  //     } else {
+  //       setFormData((prev) => ({
+  //         ...prev,
+  //         name: "",
+  //         address: "",
+  //       }));
+  //     }
+  //   } catch (err) {
+  //     console.error("Error searching customer:", err);
+  //   } finally {
+  //     setSearching(false);
+  //   }
+  // };
+
   const handleSearchCustomer = async (phone) => {
-    try {
-      setSearching(true);
-      const res = await searchCustomer(phone);
-      if (res?.data?.data) {
-        const customer = res.data.data;
-        setFormData((prev) => ({
-          ...prev,
-          name: customer.name || "",
-          address: customer.address || "",
-        }));
-        enqueueSnackbar("Existing customer found — data filled automatically.", {
-          variant: "info",
-        });
-      } else {
-        setFormData((prev) => ({
-          ...prev,
-          name: "",
-          address: "",
-        }));
-      }
-    } catch (err) {
-      console.error("Error searching customer:", err);
-    } finally {
-      setSearching(false);
+  try {
+    setSearching(true);
+    const res = await searchCustomer(phone);
+
+    let customer = null;
+
+    // ✅ handle both object and array responses
+    if (Array.isArray(res?.data?.data) && res.data.data.length > 0) {
+      customer = res.data.data[0];
+    } else if (res?.data?.data && typeof res.data.data === "object") {
+      customer = res.data.data;
     }
-  };
+console.log("Search Customer Response:", res);
+    if (customer) {
+      setFormData((prev) => ({
+        ...prev,
+        name: customer.name || "",
+        address: customer.address || "",
+      }));
+
+      enqueueSnackbar("Existing customer found — data filled automatically.", {
+        variant: "info",
+      });
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        name: "",
+        address: "",
+      }));
+    }
+  } catch (err) {
+    console.error("Error searching customer:", err);
+  } finally {
+    setSearching(false);
+  }
+};
+
 
   // ✅ Input change handler
   const handleInputChange = (e) => {
