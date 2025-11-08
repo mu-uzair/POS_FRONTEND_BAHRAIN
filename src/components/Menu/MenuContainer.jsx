@@ -978,7 +978,7 @@ const MenuContainer = () => {
       </div>
       {isCustomDishModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-[#1f1f1f] p-6 rounded-xl w-[90%] sm:w-[400px]">
+          <div className="bg-[#1f1f1f] p-5 rounded-xl w-[90%] sm:w-[400px]">
             <h2 className="text-xl font-bold mb-4 text-white">Add Custom Dish</h2>
             <input
               type="text"
