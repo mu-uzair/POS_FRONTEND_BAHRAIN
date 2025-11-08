@@ -84,7 +84,7 @@ export const formatDateAndTimeNew = (date) => {
             hour: "2-digit",
             minute: "2-digit",
             hour12: true,
-            timeZone: "Asia/Karachi",
+            timeZone: "Asia/Bahrain",
         });
 
         // Replace the comma with a space
