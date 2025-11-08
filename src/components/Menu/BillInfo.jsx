@@ -1300,77 +1300,195 @@ const BillInfo = () => {
     }
   };
 
-  return (
-    <>
-      <div className="flex items-center justify-between px-5 mt-2">
-        <p className="text-xs text-[#ababab] font-medium mt-2">
+  // return (
+  //   <>
+  //     <div className="flex items-center justify-between px-5 mt-2">
+  //       <p className="text-xs text-[#ababab] font-medium mt-2">
+  //         Items({cartData.length})
+  //       </p>
+  //       <h1 className="text-[#f5f5f5] text-md font-bold">
+  //         BHD {total.toFixed(3)}
+  //       </h1>
+  //     </div>
+  //     <div className="flex items-center justify-between px-5 mt-2">
+  //       <p className="text-xs text-[#ababab] font-medium mt-2">
+  //         Tax({paymentMethod === "Cash" ? "10%" : "10%"})
+  //       </p>
+  //       <h1 className="text-[#f5f5f5] text-md font-bold">
+  //         BHD {tax.toFixed(3)}
+  //       </h1>
+  //     </div>
+  //     <div className="flex items-center justify-between px-5 mt-2">
+  //       <p className="text-xs text-[#ababab] font-medium mt-2">Discount</p>
+  //       <div className="flex items-center gap-2">
+  //         {/* <input
+  //           type="number"
+  //           value={discountPercentage}
+  //           onChange={handleDiscountChange}
+  //           className="text-[#f5f5f5] text-md font-bold bg-transparent border border-[#555] rounded-lg px-2 py-1 w-20"
+  //         /> */}
+  //         <input
+  //           type="number"
+  //           value={discountPercentage > 0 ? discountPercentage : ""}
+  //           onChange={handleDiscountChange}
+  //           placeholder="0" // Set placeholder to indicate the expected input
+  //           className="text-[#f5f5f5] text-md font-bold bg-transparent border border-[#555] rounded-lg px-2 py-1 w-20 text-center"
+  //         />
+  //       </div>
+  //     </div>
+  //     <div className="flex items-center justify-between px-5 mt-2">
+  //       <p className="text-xs text-[#ababab] font-medium mt-2">Total With Tax</p>
+  //       <h1 className="text-[#f5f5f5] text-md font-bold">
+  //         BHD {totalPriceWithTax.toFixed(3)}
+  //       </h1>
+  //     </div>
+
+  //     <div className="flex flex-col sm:flex-row items-center gap-3 px-5 mt-4 w-full">
+  //       <button
+  //         onClick={() => setPaymentMethod("Cash")}
+  //         className={`flex-1 bg-[#1f1f1f] px-4 py-3 rounded-lg text-[#ababab] font-semibold transition-colors duration-150 ${paymentMethod === "Cash" ? "bg-[#383737] scale-105 shadow-md" : ""
+  //           }`}
+  //       >
+  //         Cash
+  //       </button>
+  //       <button
+  //         onClick={() => setPaymentMethod("Online")}
+  //         className={`flex-1 bg-[#1f1f1f] px-4 py-3 rounded-lg text-[#ababab] font-semibold transition-colors duration-150 ${paymentMethod === "Online" ? "bg-[#383737] scale-105 shadow-md" : ""
+  //           }`}
+  //       >
+  //         Online
+  //       </button>
+  //       <button
+  //         onClick={() => setPaymentMethod("Benefit")}
+  //         className={`flex-1 bg-[#1f1f1f] px-4 py-3 rounded-lg text-[#ababab] font-semibold transition-colors duration-150 ${paymentMethod === "Benefit" ? "bg-[#383737] scale-105 shadow-md" : ""
+  //           }`}
+  //       >
+  //         Benefit
+  //       </button>
+  //     </div>
+
+  //     <div className="flex items-center gap-3 px-5 mt-4">
+  //       <button
+  //         onClick={handlePrintButton}
+  //         className="bg-[#025cca] px-4 py-3 w-full rounded-lg text-[#f5f5f5] font-semibold text-lg"
+  //       >
+  //         Print Receipt
+  //       </button>
+
+  //       <button
+  //         onClick={isEditing ? handleUpdateOrder : handlePlaceOrder}
+  //         disabled={cartData.length === 0}
+  //         className="bg-[#f6b100] px-4 py-3 w-full rounded-lg text-[#1f1f1f] font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+  //       >
+  //         {isEditing ? "Update Order" : "Place Order"}
+  //       </button>
+  //     </div>
+
+  //     {customerData.orderType === "Delivery" && (
+  //       <div className="px-5 mt-3">
+  //         <button
+  //           onClick={() => setIsDeliveryModalOpen(true)}
+  //           className="bg-[#ff6b35] px-4 py-3 w-full rounded-lg text-[#f5f5f5] font-semibold text-lg hover:bg-[#ff5520] transition-colors"
+  //         >
+  //           📍 Enter Delivery Details
+  //         </button>
+  //       </div>
+  //     )}
+
+  //     {showInvoice && (
+  //       <Invoice orderInfo={orderInfo} setShowInvoice={setShowInvoice} />
+  //     )}
+
+  //     <DeliveryModal
+  //       isOpen={isDeliveryModalOpen}
+  //       onClose={() => setIsDeliveryModalOpen(false)}
+  //       onCreateDelivery={handleDeliveryOrder}
+  //       existingData={customerData}
+  //     />
+  //   </>
+  // );
+
+   return (
+    <div className="space-y-2 lg:space-y-2 xl:space-y-2.5 ">
+      {/* Items Total */}
+      <div className="flex items-center justify-between">
+        <p className="text-xs lg:text-[10px] xl:text-xs 2xl:text-xs text-[#ababab] font-medium">
           Items({cartData.length})
         </p>
-        <h1 className="text-[#f5f5f5] text-md font-bold">
+        <h1 className="text-[#f5f5f5] text-sm lg:text-xs xl:text-sm 2xl:text-md font-bold">
           BHD {total.toFixed(3)}
         </h1>
       </div>
-      <div className="flex items-center justify-between px-5 mt-2">
-        <p className="text-xs text-[#ababab] font-medium mt-2">
+
+      {/* Tax */}
+      <div className="flex items-center justify-between">
+        <p className="text-xs lg:text-[10px] xl:text-xs 2xl:text-xs text-[#ababab] font-medium">
           Tax({paymentMethod === "Cash" ? "10%" : "10%"})
         </p>
-        <h1 className="text-[#f5f5f5] text-md font-bold">
+        <h1 className="text-[#f5f5f5] text-sm lg:text-xs xl:text-sm 2xl:text-md font-bold">
           BHD {tax.toFixed(3)}
         </h1>
       </div>
-      <div className="flex items-center justify-between px-5 mt-2">
-        <p className="text-xs text-[#ababab] font-medium mt-2">Discount</p>
+
+      {/* Discount */}
+      <div className="flex items-center justify-between">
+        <p className="text-xs lg:text-[10px] xl:text-xs 2xl:text-xs text-[#ababab] font-medium">
+          Discount
+        </p>
         <div className="flex items-center gap-2">
-          {/* <input
-            type="number"
-            value={discountPercentage}
-            onChange={handleDiscountChange}
-            className="text-[#f5f5f5] text-md font-bold bg-transparent border border-[#555] rounded-lg px-2 py-1 w-20"
-          /> */}
           <input
             type="number"
             value={discountPercentage > 0 ? discountPercentage : ""}
             onChange={handleDiscountChange}
-            placeholder="0" // Set placeholder to indicate the expected input
-            className="text-[#f5f5f5] text-md font-bold bg-transparent border border-[#555] rounded-lg px-2 py-1 w-20 text-center"
+            placeholder="0"
+            className="text-[#f5f5f5] text-sm lg:text-xs xl:text-sm 2xl:text-md font-bold bg-transparent border border-[#555] rounded-lg px-2 py-1 lg:py-0.5 xl:py-1 w-16 lg:w-14 xl:w-16 2xl:w-20 text-center focus:border-[#f6b100] focus:outline-none transition-colors"
           />
         </div>
       </div>
-      <div className="flex items-center justify-between px-5 mt-2">
-        <p className="text-xs text-[#ababab] font-medium mt-2">Total With Tax</p>
-        <h1 className="text-[#f5f5f5] text-md font-bold">
+
+      {/* Total With Tax */}
+      <div className="flex items-center justify-between pb-2.5 lg:pb-2 xl:pb-2.5 border-b border-[#2a2a2a]">
+        <p className="text-xs lg:text-[10px] xl:text-xs 2xl:text-xs text-[#ababab] font-medium">
+          Total With Tax
+        </p>
+        <h1 className="text-[#f5f5f5] text-sm lg:text-xs xl:text-sm 2xl:text-md font-bold">
           BHD {totalPriceWithTax.toFixed(3)}
         </h1>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-center gap-3 px-5 mt-4 w-full">
+      {/* Payment Method Buttons */}
+      <div className="flex flex-col sm:flex-row items-center gap-2 lg:gap-1.5 xl:gap-2 2xl:gap-2.5 w-full pt-2.5 lg:pt-2 xl:pt-2.5">
         <button
           onClick={() => setPaymentMethod("Cash")}
-          className={`flex-1 bg-[#1f1f1f] px-4 py-3 rounded-lg text-[#ababab] font-semibold transition-colors duration-150 ${paymentMethod === "Cash" ? "bg-[#383737] scale-105 shadow-md" : ""
-            }`}
+          className={`flex-1 w-full bg-[#1f1f1f] px-2.5 py-2 lg:px-2 lg:py-1.5 xl:px-2.5 xl:py-2 2xl:px-3 2xl:py-2.5 rounded-lg text-[#ababab] text-xs lg:text-[10px] xl:text-xs 2xl:text-sm font-semibold transition-all duration-150 hover:bg-[#2a2a2a] ${
+            paymentMethod === "Cash" ? "bg-[#383737] scale-105 shadow-md ring-2 ring-yellow-500/50" : ""
+          }`}
         >
           Cash
         </button>
         <button
           onClick={() => setPaymentMethod("Online")}
-          className={`flex-1 bg-[#1f1f1f] px-4 py-3 rounded-lg text-[#ababab] font-semibold transition-colors duration-150 ${paymentMethod === "Online" ? "bg-[#383737] scale-105 shadow-md" : ""
-            }`}
+          className={`flex-1 w-full bg-[#1f1f1f] px-2.5 py-2 lg:px-2 lg:py-1.5 xl:px-2.5 xl:py-2 2xl:px-3 2xl:py-2.5 rounded-lg text-[#ababab] text-xs lg:text-[10px] xl:text-xs 2xl:text-sm font-semibold transition-all duration-150 hover:bg-[#2a2a2a] ${
+            paymentMethod === "Online" ? "bg-[#383737] scale-105 shadow-md ring-2 ring-yellow-500/50" : ""
+          }`}
         >
           Online
         </button>
         <button
           onClick={() => setPaymentMethod("Benefit")}
-          className={`flex-1 bg-[#1f1f1f] px-4 py-3 rounded-lg text-[#ababab] font-semibold transition-colors duration-150 ${paymentMethod === "Benefit" ? "bg-[#383737] scale-105 shadow-md" : ""
-            }`}
+          className={`flex-1 w-full bg-[#1f1f1f] px-2.5 py-2 lg:px-2 lg:py-1.5 xl:px-2.5 xl:py-2 2xl:px-3 2xl:py-2.5 rounded-lg text-[#ababab] text-xs lg:text-[10px] xl:text-xs 2xl:text-sm font-semibold transition-all duration-150 hover:bg-[#2a2a2a] ${
+            paymentMethod === "Benefit" ? "bg-[#383737] scale-105 shadow-md ring-2 ring-yellow-500/50" : ""
+          }`}
         >
           Benefit
         </button>
       </div>
 
-      <div className="flex items-center gap-3 px-5 mt-4">
+      {/* Action Buttons */}
+      <div className="flex items-center gap-2 lg:gap-1.5 xl:gap-2 2xl:gap-2.5 pt-2.5 lg:pt-2 xl:pt-2.5 pb-12">
         <button
           onClick={handlePrintButton}
-          className="bg-[#025cca] px-4 py-3 w-full rounded-lg text-[#f5f5f5] font-semibold text-lg"
+          className="bg-[#025cca] px-2.5 py-2.5 lg:px-2 lg:py-2 xl:px-2.5 xl:py-2.5 2xl:px-3 2xl:py-3 w-full rounded-lg text-[#f5f5f5] font-semibold text-sm lg:text-xs xl:text-sm 2xl:text-base hover:bg-[#0147a3] transition-colors"
         >
           Print Receipt
         </button>
@@ -1378,34 +1496,37 @@ const BillInfo = () => {
         <button
           onClick={isEditing ? handleUpdateOrder : handlePlaceOrder}
           disabled={cartData.length === 0}
-          className="bg-[#f6b100] px-4 py-3 w-full rounded-lg text-[#1f1f1f] font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-[#f6b100] px-2.5 py-2.5 lg:px-2 lg:py-2 xl:px-2.5 xl:py-2.5 2xl:px-3 2xl:py-3 w-full rounded-lg text-[#1f1f1f] font-semibold text-sm lg:text-xs xl:text-sm 2xl:text-base disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#e5a200] transition-colors"
         >
           {isEditing ? "Update Order" : "Place Order"}
         </button>
       </div>
 
+      {/* Delivery Button - Conditional */}
       {customerData.orderType === "Delivery" && (
-        <div className="px-5 mt-3">
+        <div className="pt-2.5 lg:pt-2 xl:pt-2.5 pb-12">
           <button
             onClick={() => setIsDeliveryModalOpen(true)}
-            className="bg-[#ff6b35] px-4 py-3 w-full rounded-lg text-[#f5f5f5] font-semibold text-lg hover:bg-[#ff5520] transition-colors"
+            className="bg-[#ff6b35] px-2.5 py-2.5 lg:px-2 lg:py-2 xl:px-2.5 xl:py-2.5 2xl:px-3 2xl:py-3 w-full rounded-lg text-[#f5f5f5] font-semibold text-sm lg:text-xs xl:text-sm 2xl:text-base hover:bg-[#ff5520] transition-colors flex items-center justify-center gap-2"
           >
-            📍 Enter Delivery Details
+            <span>📍</span> Enter Delivery Details
           </button>
         </div>
       )}
 
+      {/* Invoice Modal */}
       {showInvoice && (
         <Invoice orderInfo={orderInfo} setShowInvoice={setShowInvoice} />
       )}
 
+      {/* Delivery Modal */}
       <DeliveryModal
         isOpen={isDeliveryModalOpen}
         onClose={() => setIsDeliveryModalOpen(false)}
         onCreateDelivery={handleDeliveryOrder}
         existingData={customerData}
       />
-    </>
+    </div>
   );
 };
 

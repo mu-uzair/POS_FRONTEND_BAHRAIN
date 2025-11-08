@@ -773,267 +773,509 @@ const MenuContainer = () => {
     }));
   };
 
+// // menu container code 
+//   return (
+//     <div className="h-full flex flex-col">
+//       {/* Categories Section */}
+//       {/* Categories Section (Shortened) */}
+//       <div className="h-[25vh] min-h-[200px] border-b-2 border-[#2a2a2a] flex flex-col flex-shrink-0">
+//         <div className="px-4 sm:px-6 py-2 flex-shrink-0">
+//           <h2 className="text-xl font-bold text-white">Menu Categories</h2>
+//         </div>
 
-  return (
-    <div className="h-full flex flex-col">
-      {/* Categories Section */}
-      {/* Categories Section (Shortened) */}
-      <div className="h-[20vh] min-h-[200px] border-b-2 border-[#2a2a2a] flex flex-col flex-shrink-0">
-        <div className="px-4 sm:px-6 py-2 flex-shrink-0">
-          <h2 className="text-xl font-bold text-white">Menu Categories</h2>
-        </div>
+//         {/* Scrollable Container with Hidden Scrollbar */}
+//         <div className="flex-1 py-1 px-4 sm:px-6 pb-4 overflow-y-scroll overflow-x-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+//           {categories.length === 0 ? (
+//             <div className="text-center text-[#ababab] text-lg font-semibold py-8">
+//               No categories found
+//             </div>
+//           ) : (
+//             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5">
+//               {categories.map((category, index) => {
+//                 if (!category || !category._id) return null;
+//                 const isSelected = selectedCategory?._id === category._id;
+//                 const itemCount = categoryItemCounts[category._id] || 0;
+//                 const hasImage = category.imageUrl && /^https?:\/\//i.test(category.imageUrl.trim());
 
-        {/* Scrollable Container with Hidden Scrollbar */}
-        <div className="flex-1 py-1 px-4 sm:px-6 pb-4 overflow-y-scroll overflow-x-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          {categories.length === 0 ? (
-            <div className="text-center text-[#ababab] text-lg font-semibold py-8">
-              No categories found
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5">
-              {categories.map((category, index) => {
-                if (!category || !category._id) return null;
-                const isSelected = selectedCategory?._id === category._id;
-                const itemCount = categoryItemCounts[category._id] || 0;
-                const hasImage = category.imageUrl && /^https?:\/\//i.test(category.imageUrl.trim());
+//                 return (
+//                   <div
+//                     key={category._id}
+//                     // --- MODIFIED CLASSES FOR SHORTENING ---
+//                     // Reduced padding (p-2/p-3) and minimum height (min-h-[80px]/sm:min-h-[100px])
+//                     className={`relative flex flex-col justify-end p-2 sm:p-3 rounded-xl cursor-pointer transition-all duration-300 h-full min-h-[80px] sm:min-h-[100px] overflow-hidden group ${isSelected
+//                         ? 'ring-2 ring-yellow-400 scale-[1.03] shadow-2xl shadow-yellow-500/50'
+//                         : 'hover:scale-[1.02] hover:shadow-xl shadow-lg'
+//                       }`}
+//                     onClick={() => setSelectedCategory(category)}
+//                   >
+//                     {/* Background Image or Color (Unchanged logic) */}
+//                     {hasImage ? (
+//                       <>
+//                         {/* Dark gradient background with subtle pattern */}
+//                         <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a1a] via-[#252525] to-[#1a1a1a]"></div>
 
-                return (
-                  <div
-                    key={category._id}
-                    // --- MODIFIED CLASSES FOR SHORTENING ---
-                    // Reduced padding (p-2/p-3) and minimum height (min-h-[80px]/sm:min-h-[100px])
-                    className={`relative flex flex-col justify-end p-2 sm:p-3 rounded-xl cursor-pointer transition-all duration-300 h-full min-h-[80px] sm:min-h-[100px] overflow-hidden group ${isSelected
-                        ? 'ring-2 ring-yellow-400 scale-[1.03] shadow-2xl shadow-yellow-500/50'
-                        : 'hover:scale-[1.02] hover:shadow-xl shadow-lg'
-                      }`}
-                    onClick={() => setSelectedCategory(category)}
-                  >
-                    {/* Background Image or Color (Unchanged logic) */}
-                    {hasImage ? (
-                      <>
-                        {/* Dark gradient background with subtle pattern */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a1a] via-[#252525] to-[#1a1a1a]"></div>
+//                         {/* Full image visible, no cropping */}
+//                         <img
+//                           src={category.imageUrl}
+//                           alt={category.categoryName}
+//                           className="absolute inset-0 w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
+//                           onError={e => {
+//                             e.target.style.display = 'none';
+//                           }}
+//                         />
 
-                        {/* Full image visible, no cropping */}
-                        <img
-                          src={category.imageUrl}
-                          alt={category.categoryName}
-                          className="absolute inset-0 w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
-                          onError={e => {
-                            e.target.style.display = 'none';
-                          }}
-                        />
+//                         {/* Enhanced gradient overlay with better depth */}
+//                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
 
-                        {/* Enhanced gradient overlay with better depth */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
+//                         {/* Subtle shine effect on hover */}
+//                         <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/0 to-transparent group-hover:via-white/5 transition-all duration-500"></div>
+//                       </>
+//                     ) : (
+//                       <>
+//                         {/* Fallback Color Background with gradient */}
+//                         <div
+//                           className="absolute inset-0"
+//                           style={{
+//                             background: `linear-gradient(135deg, ${getBgColor(index)} 0%, ${getBgColor(index)}dd 100%)`
+//                           }}
+//                         ></div>
 
-                        {/* Subtle shine effect on hover */}
-                        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/0 to-transparent group-hover:via-white/5 transition-all duration-500"></div>
-                      </>
-                    ) : (
-                      <>
-                        {/* Fallback Color Background with gradient */}
-                        <div
-                          className="absolute inset-0"
-                          style={{
-                            background: `linear-gradient(135deg, ${getBgColor(index)} 0%, ${getBgColor(index)}dd 100%)`
-                          }}
-                        ></div>
+//                         {/* Subtle overlay for depth */}
+//                         <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-transparent"></div>
+//                       </>
+//                     )}
 
-                        {/* Subtle overlay for depth */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-transparent"></div>
-                      </>
-                    )}
+//                     {/* Content Overlay */}
+//                     <div className="relative z-10">
+//                       {/* Category Name (Reduced margin and smaller text on sm) */}
+//                       <h3
+//                         className={`text-sm sm:text-sm font-bold line-clamp-2 mb-1 ${ // mb-2 changed to mb-1
+//                           hasImage
+//                             ? 'text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]'
+//                             : 'text-white drop-shadow-lg'
+//                           }`}
+//                       >
+//                         {category.categoryName}
+//                       </h3>
 
-                    {/* Content Overlay */}
-                    <div className="relative z-10">
-                      {/* Category Name (Reduced margin and smaller text on sm) */}
-                      <h3
-                        className={`text-sm sm:text-sm font-bold line-clamp-2 mb-1 ${ // mb-2 changed to mb-1
-                          hasImage
-                            ? 'text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]'
-                            : 'text-white drop-shadow-lg'
-                          }`}
-                      >
-                        {category.categoryName}
-                      </h3>
+//                       {/* Item Count & Selector - Enhanced Badge (Reduced padding) */}
+//                       <div className="flex items-center gap-2">
+//                         <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full transition-all duration-300 ${ // px-2.5/py-1.5 changed to px-2/py-1
+//                           hasImage
+//                             ? 'bg-black/70 backdrop-blur-md border border-white/10'
+//                             : 'bg-white/25 backdrop-blur-sm border border-white/20'
+//                           } ${isSelected ? 'ring-1 ring-yellow-400/50' : ''}`}>
+//                           <p className="text-white text-xs font-semibold">
+//                             {itemCount} Items
+//                           </p>
+//                           {isSelected && (
+//                             <GrRadialSelected className="text-yellow-400 flex-shrink-0 animate-pulse" size={12} />
+//                           )}
+//                         </div>
+//                       </div>
+//                     </div>
 
-                      {/* Item Count & Selector - Enhanced Badge (Reduced padding) */}
-                      <div className="flex items-center gap-2">
-                        <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full transition-all duration-300 ${ // px-2.5/py-1.5 changed to px-2/py-1
-                          hasImage
-                            ? 'bg-black/70 backdrop-blur-md border border-white/10'
-                            : 'bg-white/25 backdrop-blur-sm border border-white/20'
-                          } ${isSelected ? 'ring-1 ring-yellow-400/50' : ''}`}>
-                          <p className="text-white text-xs font-semibold">
-                            {itemCount} Items
-                          </p>
-                          {isSelected && (
-                            <GrRadialSelected className="text-yellow-400 flex-shrink-0 animate-pulse" size={12} />
-                          )}
-                        </div>
-                      </div>
-                    </div>
+//                     {/* Enhanced Selected Border with Glow */}
+//                     {isSelected && (
+//                       <>
+//                         <div className="absolute inset-0 rounded-xl ring-2 ring-yellow-400 pointer-events-none"></div>
+//                         <div className="absolute inset-0 rounded-xl ring-1 ring-yellow-300/50 blur-sm pointer-events-none"></div>
+//                       </>
+//                     )}
 
-                    {/* Enhanced Selected Border with Glow */}
-                    {isSelected && (
-                      <>
-                        <div className="absolute inset-0 rounded-xl ring-2 ring-yellow-400 pointer-events-none"></div>
-                        <div className="absolute inset-0 rounded-xl ring-1 ring-yellow-300/50 blur-sm pointer-events-none"></div>
-                      </>
-                    )}
+//                     {/* Subtle border for all cards */}
+//                     {!isSelected && (
+//                       <div className="absolute inset-0 rounded-xl ring-1 ring-white/5 pointer-events-none"></div>
+//                     )}
+//                   </div>
+//                 );
+//               })}
+//             </div>
+//           )}
+//         </div>
+//       </div>
+//       <hr className="border-[#2a2a2a] border-t-2" />
 
-                    {/* Subtle border for all cards */}
-                    {!isSelected && (
-                      <div className="absolute inset-0 rounded-xl ring-1 ring-white/5 pointer-events-none"></div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+//       {/* Dishes Section */}
+//       <div className="flex-1 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+//         <div className="px-10 py-4 pb-18">
+//           <div className="grid grid-cols-1 md:grid-cols-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+//             {filteredDishes.map((item) => {
+//               const variations = item.variations || [];
+//               const selectedVar = selectedVariations[item._id] || variations.find(v => v.isDefault);
+
+//               return (
+//                 <div
+//                   key={item._id}
+//                   className="relative flex flex-col items-start justify-between p-4 rounded-xl h-auto cursor-pointer transition-all duration-300 bg-gradient-to-br from-[#1a1a1a] via-[#252525] to-[#1a1a1a] hover:scale-[1.02] hover:shadow-xl shadow-lg group overflow-hidden border-2 border-[#2a2a2a] hover:border-[#3a3a3a]"
+//                 >
+//                   {/* Enhanced visible border with glow effect */}
+//                   <div className="absolute inset-0 rounded-xl ring-1 ring-white/10 pointer-events-none group-hover:ring-white/20 transition-all duration-300"></div>
+
+//                   {/* Subtle shine effect on hover */}
+//                   <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/0 to-transparent group-hover:via-white/5 transition-all duration-500 rounded-xl"></div>
+
+//                   <div className="relative z-10 w-full">
+//                     {/* Header with Title and Cart Button */}
+//                     <div className="flex items-start justify-between w-full mb-3">
+//                       <h1 className="text-[#f5f5f5] text-lg font-bold drop-shadow-sm pr-2 line-clamp-2">
+//                         {item.dishName}
+//                       </h1>
+//                       <button
+//                         onClick={() => handleAddToCart(item)}
+//                         className="text-[#02ca3a] hover:text-[#03e844] transition-all duration-300 hover:scale-110 flex-shrink-0"
+//                       >
+//                         <GiShoppingCart size={28} />
+//                       </button>
+//                     </div>
+
+//                     {/* Variation Selector */}
+//                     {variations.length > 0 && (
+//                       <div className="flex flex-wrap gap-2 my-3">
+//                         {variations.map((variation) => (
+//                           <button
+//                             key={variation.name}
+//                             onClick={() => handleVariationChange(item._id, variation)}
+//                             className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all duration-300 border backdrop-blur-sm ${selectedVar?.name === variation.name
+//                                 ? 'bg-yellow-500 text-black border-yellow-400 shadow-lg shadow-yellow-500/30 scale-105'
+//                                 : 'bg-[#2f2f2f]/80 text-white border-[#3a3a3a] hover:bg-[#3a3a3a] hover:border-[#4a4a4a] hover:scale-105'
+//                               }`}
+//                           >
+//                             {variation.name} - BHD {variation.price.toFixed(3)}
+//                           </button>
+//                         ))}
+//                       </div>
+//                     )}
+
+//                     {/* Price and Quantity Controls */}
+//                     <div className="flex items-center justify-between w-full mt-4 pt-3 border-t border-[#3a3a3a]">
+//                       <p className="text-[#f5f5f5] text-xl font-bold drop-shadow-sm">
+//                         {selectedVar ? `BHD ${selectedVar.price.toFixed(3)}` : 'N/A'}
+//                       </p>
+//                       <div className="flex items-center justify-between bg-black/40 backdrop-blur-md px-4 py-2.5 rounded-lg gap-6 border-2 border-[#3a3a3a] shadow-inner">
+//                         <button
+//                           onClick={() => decrement(item._id)}
+//                           className="text-yellow-500 hover:text-yellow-400 text-2xl cursor-pointer transition-all duration-200 hover:scale-125 active:scale-95"
+//                         >
+//                           &minus;
+//                         </button>
+//                         <span className="text-white font-bold text-lg min-w-[20px] text-center">
+//                           {itemCounts[item._id] || 0}
+//                         </span>
+//                         <button
+//                           onClick={() => increment(item._id)}
+//                           className="text-yellow-500 hover:text-yellow-400 text-2xl cursor-pointer transition-all duration-200 hover:scale-125 active:scale-95"
+//                         >
+//                           &#43;
+//                         </button>
+//                       </div>
+//                     </div>
+//                   </div>
+//                 </div>
+//               );
+//             })}
+//           </div>
+//         </div>
+//       </div>
+//       {isCustomDishModalOpen && (
+//         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+//           <div className="bg-[#1f1f1f] p-5 rounded-xl w-[90%] sm:w-[400px]">
+//             <h2 className="text-xl font-bold mb-4 text-white">Add Custom Dish</h2>
+//             <input
+//               type="text"
+//               placeholder="Dish Name"
+//               value={customDishName}
+//               onChange={(e) => setCustomDishName(e.target.value)}
+//               className="w-full mb-3 px-3 py-2 rounded-lg bg-[#2a2a2a] text-white"
+//             />
+//             <input
+//               type="number"
+//               placeholder="Price"
+//               value={customDishPrice}
+//               onChange={(e) => setCustomDishPrice(e.target.value)}
+//               className="w-full mb-4 px-3 py-2 rounded-lg bg-[#2a2a2a] text-white"
+//             />
+//             <div className="flex justify-end gap-3">
+//               <button
+//                 onClick={() => setIsCustomDishModalOpen(false)}
+//                 className="px-4 py-2 bg-gray-500 rounded-lg text-white"
+//               >
+//                 Cancel
+//               </button>
+//               <button
+//                 onClick={() => {
+//                   if (!customDishName || !customDishPrice) {
+//                     enqueueSnackbar("Please enter name and price!", { variant: "warning" });
+//                     return;
+//                   }
+//                   const count = itemCounts[selectedCustomDish._id] || 1;
+//                   const newObj = {
+//                     _id: selectedCustomDish._id,
+//                     dishName: customDishName,
+//                     section: selectedCustomDish.section || null,
+//                     variationName: "Custom",
+//                     pricePerQuantity: parseFloat(customDishPrice),
+//                     quantity: count,
+//                     price: parseFloat(customDishPrice) * count,
+//                   };
+//                   dispatch(addItems(newObj));
+//                   enqueueSnackbar(`${customDishName} added to cart!`, { variant: "success" });
+//                   setIsCustomDishModalOpen(false);
+//                   setItemCounts((prev) => ({ ...prev, [selectedCustomDish._id]: 0 }));
+//                 }}
+//                 className="px-4 py-2 bg-yellow-500 rounded-lg text-black font-semibold"
+//               >
+//                 Add to Cart
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+
+//     </div>
+
+//   );
+
+return (
+  <div className="h-full flex flex-col">
+    {/* Categories Section */}
+    <div className="h-[22vh] lg:h-[20vh] xl:h-[22vh] 2xl:h-[24vh] min-h-[160px] lg:min-h-[140px] xl:min-h-[160px] 2xl:min-h-[180px] border-b-2 border-[#2a2a2a] flex flex-col flex-shrink-0">
+      <div className="px-4 sm:px-6 lg:px-3 xl:px-4 2xl:px-6 py-2 lg:py-1.5 xl:py-2 flex-shrink-0">
+        <h2 className="text-xl lg:text-base xl:text-lg 2xl:text-xl font-bold text-white">Menu Categories</h2>
       </div>
-      <hr className="border-[#2a2a2a] border-t-2" />
 
-      {/* Dishes Section */}
-      <div className="flex-1 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-        <div className="px-10 py-4 pb-18">
-          <div className="grid grid-cols-1 md:grid-cols-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {filteredDishes.map((item) => {
-              const variations = item.variations || [];
-              const selectedVar = selectedVariations[item._id] || variations.find(v => v.isDefault);
+      {/* Scrollable Categories */}
+      <div className="flex-1 py-1 px-4 sm:px-6 lg:px-3 xl:px-4 2xl:px-6 pb-3 lg:pb-2 xl:pb-3 overflow-y-scroll overflow-x-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        {categories.length === 0 ? (
+          <div className="text-center text-[#ababab] text-lg lg:text-base xl:text-lg font-semibold py-6 lg:py-4 xl:py-6">
+            No categories found
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3 lg:gap-2 xl:gap-3 2xl:gap-4 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+            {categories.map((category, index) => {
+              if (!category || !category._id) return null;
+              const isSelected = selectedCategory?._id === category._id;
+              const itemCount = categoryItemCounts[category._id] || 0;
+              const hasImage = category.imageUrl && /^https?:\/\//i.test(category.imageUrl.trim());
 
               return (
                 <div
-                  key={item._id}
-                  className="relative flex flex-col items-start justify-between p-4 rounded-xl h-auto cursor-pointer transition-all duration-300 bg-gradient-to-br from-[#1a1a1a] via-[#252525] to-[#1a1a1a] hover:scale-[1.02] hover:shadow-xl shadow-lg group overflow-hidden border-2 border-[#2a2a2a] hover:border-[#3a3a3a]"
+                  key={category._id}
+                  className={`relative flex flex-col justify-end p-2 lg:p-1.5 xl:p-2 2xl:p-3 rounded-xl cursor-pointer transition-all duration-300 h-full min-h-[70px] lg:min-h-[60px] xl:min-h-[70px] 2xl:min-h-[80px] overflow-hidden group ${
+                    isSelected
+                      ? 'ring-2 ring-yellow-400 scale-[1.03] shadow-2xl shadow-yellow-500/50'
+                      : 'hover:scale-[1.02] hover:shadow-xl shadow-lg'
+                  }`}
+                  onClick={() => setSelectedCategory(category)}
                 >
-                  {/* Enhanced visible border with glow effect */}
-                  <div className="absolute inset-0 rounded-xl ring-1 ring-white/10 pointer-events-none group-hover:ring-white/20 transition-all duration-300"></div>
+                  {hasImage ? (
+                    <>
+                      <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a1a] via-[#252525] to-[#1a1a1a]"></div>
+                      <img
+                        src={category.imageUrl}
+                        alt={category.categoryName}
+                        className="absolute inset-0 w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
+                        onError={e => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
+                      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/0 to-transparent group-hover:via-white/5 transition-all duration-500"></div>
+                    </>
+                  ) : (
+                    <>
+                      <div
+                        className="absolute inset-0"
+                        style={{
+                          background: `linear-gradient(135deg, ${getBgColor(index)} 0%, ${getBgColor(index)}dd 100%)`
+                        }}
+                      ></div>
+                      <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-transparent"></div>
+                    </>
+                  )}
 
-                  {/* Subtle shine effect on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/0 to-transparent group-hover:via-white/5 transition-all duration-500 rounded-xl"></div>
+                  <div className="relative z-10">
+                    <h3
+                      className={`text-xs lg:text-[11px] xl:text-xs 2xl:text-sm font-bold line-clamp-2 mb-1 ${
+                        hasImage
+                          ? 'text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]'
+                          : 'text-white drop-shadow-lg'
+                      }`}
+                    >
+                      {category.categoryName}
+                    </h3>
 
-                  <div className="relative z-10 w-full">
-                    {/* Header with Title and Cart Button */}
-                    <div className="flex items-start justify-between w-full mb-3">
-                      <h1 className="text-[#f5f5f5] text-lg font-bold drop-shadow-sm pr-2 line-clamp-2">
-                        {item.dishName}
-                      </h1>
-                      <button
-                        onClick={() => handleAddToCart(item)}
-                        className="text-[#02ca3a] hover:text-[#03e844] transition-all duration-300 hover:scale-110 flex-shrink-0"
-                      >
-                        <GiShoppingCart size={28} />
-                      </button>
-                    </div>
-
-                    {/* Variation Selector */}
-                    {variations.length > 0 && (
-                      <div className="flex flex-wrap gap-2 my-3">
-                        {variations.map((variation) => (
-                          <button
-                            key={variation.name}
-                            onClick={() => handleVariationChange(item._id, variation)}
-                            className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all duration-300 border backdrop-blur-sm ${selectedVar?.name === variation.name
-                                ? 'bg-yellow-500 text-black border-yellow-400 shadow-lg shadow-yellow-500/30 scale-105'
-                                : 'bg-[#2f2f2f]/80 text-white border-[#3a3a3a] hover:bg-[#3a3a3a] hover:border-[#4a4a4a] hover:scale-105'
-                              }`}
-                          >
-                            {variation.name} - BHD {variation.price.toFixed(3)}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Price and Quantity Controls */}
-                    <div className="flex items-center justify-between w-full mt-4 pt-3 border-t border-[#3a3a3a]">
-                      <p className="text-[#f5f5f5] text-xl font-bold drop-shadow-sm">
-                        {selectedVar ? `BHD ${selectedVar.price.toFixed(3)}` : 'N/A'}
-                      </p>
-                      <div className="flex items-center justify-between bg-black/40 backdrop-blur-md px-4 py-2.5 rounded-lg gap-6 border-2 border-[#3a3a3a] shadow-inner">
-                        <button
-                          onClick={() => decrement(item._id)}
-                          className="text-yellow-500 hover:text-yellow-400 text-2xl cursor-pointer transition-all duration-200 hover:scale-125 active:scale-95"
-                        >
-                          &minus;
-                        </button>
-                        <span className="text-white font-bold text-lg min-w-[20px] text-center">
-                          {itemCounts[item._id] || 0}
-                        </span>
-                        <button
-                          onClick={() => increment(item._id)}
-                          className="text-yellow-500 hover:text-yellow-400 text-2xl cursor-pointer transition-all duration-200 hover:scale-125 active:scale-95"
-                        >
-                          &#43;
-                        </button>
+                    <div className="flex items-center gap-1.5 lg:gap-1 xl:gap-1.5">
+                      <div className={`flex items-center gap-1 px-1.5 py-0.5 lg:px-1 lg:py-0.5 xl:px-1.5 xl:py-0.5 2xl:px-2 2xl:py-1 rounded-full transition-all duration-300 ${
+                        hasImage
+                          ? 'bg-black/70 backdrop-blur-md border border-white/10'
+                          : 'bg-white/25 backdrop-blur-sm border border-white/20'
+                      } ${isSelected ? 'ring-1 ring-yellow-400/50' : ''}`}>
+                        <p className="text-white text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs font-semibold">
+                          {itemCount} Items
+                        </p>
+                        {isSelected && (
+                          <GrRadialSelected className="text-yellow-400 flex-shrink-0 animate-pulse" size={10} />
+                        )}
                       </div>
                     </div>
                   </div>
+
+                  {isSelected && (
+                    <>
+                      <div className="absolute inset-0 rounded-xl ring-2 ring-yellow-400 pointer-events-none"></div>
+                      <div className="absolute inset-0 rounded-xl ring-1 ring-yellow-300/50 blur-sm pointer-events-none"></div>
+                    </>
+                  )}
+
+                  {!isSelected && (
+                    <div className="absolute inset-0 rounded-xl ring-1 ring-white/5 pointer-events-none"></div>
+                  )}
                 </div>
               );
             })}
           </div>
+        )}
+      </div>
+    </div>
+    <hr className="border-[#2a2a2a] border-t-2" />
+
+    {/* Dishes Section */}
+    <div className="flex-1 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div className="px-4 sm:px-6 lg:px-3 xl:px-4 2xl:px-6 py-3 lg:py-2 xl:py-3 2xl:py-4 pb-16 lg:pb-12 xl:pb-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3 lg:gap-2 xl:gap-3 2xl:gap-4">
+          {filteredDishes.map((item) => {
+            const variations = item.variations || [];
+            const selectedVar = selectedVariations[item._id] || variations.find(v => v.isDefault);
+
+            return (
+              <div
+                key={item._id}
+                className="relative flex flex-col items-start justify-between p-3 lg:p-2.5 xl:p-3 2xl:p-4 rounded-xl h-auto cursor-pointer transition-all duration-300 bg-gradient-to-br from-[#1a1a1a] via-[#252525] to-[#1a1a1a] hover:scale-[1.02] hover:shadow-xl shadow-lg group overflow-hidden border-2 border-[#2a2a2a] hover:border-[#3a3a3a]"
+              >
+                <div className="absolute inset-0 rounded-xl ring-1 ring-white/10 pointer-events-none group-hover:ring-white/20 transition-all duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/0 to-transparent group-hover:via-white/5 transition-all duration-500 rounded-xl"></div>
+
+                <div className="relative z-10 w-full">
+                  {/* Header */}
+                  <div className="flex items-start justify-between w-full mb-2 lg:mb-1.5 xl:mb-2">
+                    <h1 className="text-[#f5f5f5] text-base lg:text-sm xl:text-base 2xl:text-lg font-bold drop-shadow-sm pr-2 line-clamp-2">
+                      {item.dishName}
+                    </h1>
+                    <button
+                      onClick={() => handleAddToCart(item)}
+                      className="text-[#02ca3a] hover:text-[#03e844] transition-all duration-300 hover:scale-110 flex-shrink-0"
+                    >
+                      <GiShoppingCart size={24} className="lg:w-5 lg:h-5 xl:w-6 xl:h-6 2xl:w-7 2xl:h-7" />
+                    </button>
+                  </div>
+
+                  {/* Variations */}
+                  {variations.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 lg:gap-1 xl:gap-1.5 2xl:gap-2 my-2 lg:my-1.5 xl:my-2">
+                      {variations.map((variation) => (
+                        <button
+                          key={variation.name}
+                          onClick={() => handleVariationChange(item._id, variation)}
+                          className={`px-2.5 py-1 lg:px-2 lg:py-0.5 xl:px-2.5 xl:py-1 2xl:px-3 2xl:py-1.5 rounded-lg text-xs lg:text-[10px] xl:text-xs 2xl:text-sm font-semibold transition-all duration-300 border backdrop-blur-sm ${
+                            selectedVar?.name === variation.name
+                              ? 'bg-yellow-500 text-black border-yellow-400 shadow-lg shadow-yellow-500/30 scale-105'
+                              : 'bg-[#2f2f2f]/80 text-white border-[#3a3a3a] hover:bg-[#3a3a3a] hover:border-[#4a4a4a] hover:scale-105'
+                          }`}
+                        >
+                          {variation.name} - BHD {variation.price.toFixed(3)}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Price and Controls */}
+                  <div className="flex items-center justify-between w-full mt-3 lg:mt-2 xl:mt-3 pt-2 lg:pt-1.5 xl:pt-2 border-t border-[#3a3a3a]">
+                    <p className="text-[#f5f5f5] text-lg lg:text-base xl:text-lg 2xl:text-xl font-bold drop-shadow-sm">
+                      {selectedVar ? `BHD ${selectedVar.price.toFixed(3)}` : 'N/A'}
+                    </p>
+                    <div className="flex items-center justify-between bg-black/40 backdrop-blur-md px-3 py-1.5 lg:px-2.5 lg:py-1 xl:px-3 xl:py-1.5 2xl:px-4 2xl:py-2 rounded-lg gap-4 lg:gap-3 xl:gap-4 2xl:gap-5 border-2 border-[#3a3a3a] shadow-inner">
+                      <button
+                        onClick={() => decrement(item._id)}
+                        className="text-yellow-500 hover:text-yellow-400 text-xl lg:text-lg xl:text-xl 2xl:text-2xl cursor-pointer transition-all duration-200 hover:scale-125 active:scale-95"
+                      >
+                        &minus;
+                      </button>
+                      <span className="text-white font-bold text-base lg:text-sm xl:text-base 2xl:text-lg min-w-[16px] lg:min-w-[14px] xl:min-w-[16px] 2xl:min-w-[20px] text-center">
+                        {itemCounts[item._id] || 0}
+                      </span>
+                      <button
+                        onClick={() => increment(item._id)}
+                        className="text-yellow-500 hover:text-yellow-400 text-xl lg:text-lg xl:text-xl 2xl:text-2xl cursor-pointer transition-all duration-200 hover:scale-125 active:scale-95"
+                      >
+                        &#43;
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
-      {isCustomDishModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-[#1f1f1f] p-5 rounded-xl w-[90%] sm:w-[400px]">
-            <h2 className="text-xl font-bold mb-4 text-white">Add Custom Dish</h2>
-            <input
-              type="text"
-              placeholder="Dish Name"
-              value={customDishName}
-              onChange={(e) => setCustomDishName(e.target.value)}
-              className="w-full mb-3 px-3 py-2 rounded-lg bg-[#2a2a2a] text-white"
-            />
-            <input
-              type="number"
-              placeholder="Price"
-              value={customDishPrice}
-              onChange={(e) => setCustomDishPrice(e.target.value)}
-              className="w-full mb-4 px-3 py-2 rounded-lg bg-[#2a2a2a] text-white"
-            />
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setIsCustomDishModalOpen(false)}
-                className="px-4 py-2 bg-gray-500 rounded-lg text-white"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  if (!customDishName || !customDishPrice) {
-                    enqueueSnackbar("Please enter name and price!", { variant: "warning" });
-                    return;
-                  }
-                  const count = itemCounts[selectedCustomDish._id] || 1;
-                  const newObj = {
-                    _id: selectedCustomDish._id,
-                    dishName: customDishName,
-                    section: selectedCustomDish.section || null,
-                    variationName: "Custom",
-                    pricePerQuantity: parseFloat(customDishPrice),
-                    quantity: count,
-                    price: parseFloat(customDishPrice) * count,
-                  };
-                  dispatch(addItems(newObj));
-                  enqueueSnackbar(`${customDishName} added to cart!`, { variant: "success" });
-                  setIsCustomDishModalOpen(false);
-                  setItemCounts((prev) => ({ ...prev, [selectedCustomDish._id]: 0 }));
-                }}
-                className="px-4 py-2 bg-yellow-500 rounded-lg text-black font-semibold"
-              >
-                Add to Cart
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
     </div>
 
-  );
+    {/* Custom Dish Modal */}
+    {isCustomDishModalOpen && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div className="bg-[#1f1f1f] p-5 lg:p-4 xl:p-5 rounded-xl w-[90%] sm:w-[400px] lg:w-[350px] xl:w-[400px]">
+          <h2 className="text-xl lg:text-lg xl:text-xl font-bold mb-4 lg:mb-3 xl:mb-4 text-white">Add Custom Dish</h2>
+          <input
+            type="text"
+            placeholder="Dish Name"
+            value={customDishName}
+            onChange={(e) => setCustomDishName(e.target.value)}
+            className="w-full mb-3 px-3 py-2 lg:px-2.5 lg:py-1.5 xl:px-3 xl:py-2 rounded-lg bg-[#2a2a2a] text-white text-sm lg:text-xs xl:text-sm"
+          />
+          <input
+            type="number"
+            placeholder="Price"
+            value={customDishPrice}
+            onChange={(e) => setCustomDishPrice(e.target.value)}
+            className="w-full mb-4 lg:mb-3 xl:mb-4 px-3 py-2 lg:px-2.5 lg:py-1.5 xl:px-3 xl:py-2 rounded-lg bg-[#2a2a2a] text-white text-sm lg:text-xs xl:text-sm"
+          />
+          <div className="flex justify-end gap-3 lg:gap-2 xl:gap-3">
+            <button
+              onClick={() => setIsCustomDishModalOpen(false)}
+              className="px-4 py-2 lg:px-3 lg:py-1.5 xl:px-4 xl:py-2 bg-gray-500 rounded-lg text-white text-sm lg:text-xs xl:text-sm"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                if (!customDishName || !customDishPrice) {
+                  enqueueSnackbar("Please enter name and price!", { variant: "warning" });
+                  return;
+                }
+                const count = itemCounts[selectedCustomDish._id] || 1;
+                const newObj = {
+                  _id: selectedCustomDish._id,
+                  dishName: customDishName,
+                  section: selectedCustomDish.section || null,
+                  variationName: "Custom",
+                  pricePerQuantity: parseFloat(customDishPrice),
+                  quantity: count,
+                  price: parseFloat(customDishPrice) * count,
+                };
+                dispatch(addItems(newObj));
+                enqueueSnackbar(`${customDishName} added to cart!`, { variant: "success" });
+                setIsCustomDishModalOpen(false);
+                setItemCounts((prev) => ({ ...prev, [selectedCustomDish._id]: 0 }));
+              }}
+              className="px-4 py-2 lg:px-3 lg:py-1.5 xl:px-4 xl:py-2 bg-yellow-500 rounded-lg text-black font-semibold text-sm lg:text-xs xl:text-sm"
+            >
+              Add to Cart
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
+);
 };
 export default MenuContainer;
