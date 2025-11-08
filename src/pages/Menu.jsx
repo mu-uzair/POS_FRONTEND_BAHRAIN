@@ -148,6 +148,7 @@
 // export default Menu
 
 // code for testign the mobile cart drawer
+
 import React, { useState } from 'react'
 import BottomNav from '../components/shared/BottomNav'
 import BackButton from "../components/shared/BackButton"
@@ -160,15 +161,7 @@ import CustomerInfo from '../components/Menu/CustomerInfo';
 import CartInfo from '../components/Menu/CartInfo';
 import BillInfo from '../components/Menu/BillInfo';
 
-// const Menu = () => {
-//     const customerData = useSelector(state => state.customer);
-//     const cartItems = useSelector(state => state.cart?.cart || []); // ✅ Fixed: Added fallback for undefined
-//     const [isCartOpen, setIsCartOpen] = useState(false);
-    
-//     // Calculate total items in cart - ✅ Fixed: Added safety check
-//     const totalItems = Array.isArray(cartItems) 
-//         ? cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0) 
-//         : 0;
+
 
 
 const emptyArray = []; // ✅ Memoized fallback

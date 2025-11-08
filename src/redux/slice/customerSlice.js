@@ -233,7 +233,7 @@
 //     setCustomer: (state, action) => {
 //       const { name, phone, guests, orderType, paymentMethod, orderId, orderNo,isEdit } = action.payload;
 
-      
+
 //   // ✅ If it's a new order (not editing), generate a new unique orderNo
 //   if (!isEdit) {
 //     state.orderNo = generateUniqueOrderNo();
@@ -290,10 +290,10 @@
 //   const timestamp = Date.now();
 //   const timePart = parseInt(timestamp.toString().slice(-3)); // Last 3 digits of timestamp (0-999)
 //   const randomPart = Math.floor(10 + Math.random() * 90); // Random 2 digits (10-99)
-  
+
 //   // Combine to create 5-digit number
 //   const orderNum = (timePart * 100 + randomPart).toString().padStart(5, '0');
-  
+
 //   return `ORD-${orderNum}`;
 // };
 
@@ -371,12 +371,12 @@ const getCurrentCounter = () => {
   const today = new Date().toDateString();
   const storedDate = localStorage.getItem("orderDate");
   let storedCounter = parseInt(localStorage.getItem("orderCounter") || "0");
-  
+
   // If it's a new day, counter should be 0
   if (storedDate !== today) {
     return 0;
   }
-  
+
   return storedCounter;
 };
 
@@ -392,17 +392,17 @@ const confirmOrderNo = () => {
   const today = new Date().toDateString();
   const storedDate = localStorage.getItem("orderDate");
   let storedCounter = parseInt(localStorage.getItem("orderCounter") || "0");
-  
+
   // If it's a new day, reset
   if (storedDate !== today) {
     storedCounter = 0;
     localStorage.setItem("orderDate", today);
   }
-  
+
   // Increment and save
   storedCounter += 1;
   localStorage.setItem("orderCounter", storedCounter.toString());
-  
+
   console.log("✅ Order confirmed! Counter incremented to:", storedCounter);
 };
 
@@ -418,6 +418,7 @@ const initialState = {
   paymentMethod: "",
   deliveryAddress: "",
   deliveryBoyId: null,
+  items:[],
 };
 
 const customerSlice = createSlice({
@@ -425,7 +426,7 @@ const customerSlice = createSlice({
   initialState,
   reducers: {
     setCustomer: (state, action) => {
-      const { name, phone, guests, orderType, paymentMethod, orderId, orderNo, isEdit, table } = action.payload;
+      const { name, phone, guests, orderType, paymentMethod, orderId, orderNo, isEdit, table, items } = action.payload;
 
       // ✅ If it's a new order (not editing), generate preview order number
       if (!isEdit) {
@@ -445,6 +446,7 @@ const customerSlice = createSlice({
       state.orderType = orderType || "";
       state.paymentMethod = paymentMethod || "";
       state.table = table || null;
+      state.items = items || []; // ✅ <-- make sure this line exists
 
       if (orderType !== "Delivery") {
         state.deliveryAddress = "";

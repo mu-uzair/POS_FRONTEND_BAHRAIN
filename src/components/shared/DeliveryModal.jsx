@@ -413,11 +413,11 @@
 //         try {
 //           setLoading(true);
 //           const res = await getDeliveryBoys();
-          
+
 //           // Filter to show only active delivery boys
 //           const activeBoys = (res?.data?.data || []).filter(boy => boy.is_active === true);
 //           setDeliveryBoys(activeBoys);
-          
+
 //           if (activeBoys.length === 0) {
 //             enqueueSnackbar("No active delivery boys available.", { variant: "warning" });
 //           }
@@ -506,7 +506,7 @@
 //       });
 
 //       enqueueSnackbar("Delivery order created successfully!", { variant: "success" });
-      
+
 //       // Reset form
 //       setFormData({
 //         name: "",
@@ -514,7 +514,7 @@
 //         address: "",
 //         deliveryBoy: "",
 //       });
-      
+
 //       onClose();
 //     } catch (err) {
 //       console.error("Error creating delivery:", err);
@@ -642,14 +642,29 @@ import { motion } from "framer-motion";
 import { IoMdClose } from "react-icons/io";
 import { enqueueSnackbar } from "notistack";
 import { getDeliveryBoys, searchCustomer, addCustomer } from "../../https";
+import { useDispatch } from "react-redux";
+import { setDeliveryInfo } from "../../redux/slice/customerSlice";
 
-const DeliveryModal = ({ isOpen, onClose, onCreateDelivery }) => {
+const DeliveryModal = ({ isOpen, onClose, onCreateDelivery,existingData  }) => {
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
     address: "",
     deliveryBoy: "",
   });
+
+  // ✅ Populate form when modal opens
+  useEffect(() => {
+    if (existingData) {
+      setFormData({
+        name: existingData.customerName || "",
+        phone: existingData.customerPhone || "",
+        address: existingData.deliveryAddress || "",
+        deliveryBoy: existingData.deliveryBoyId || "",
+      });
+    }
+  }, [existingData, isOpen]); // update every time modal opens
 
   const [deliveryBoys, setDeliveryBoys] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -662,11 +677,11 @@ const DeliveryModal = ({ isOpen, onClose, onCreateDelivery }) => {
         try {
           setLoading(true);
           const res = await getDeliveryBoys();
-          
+
           // Filter to show only active delivery boys
           const activeBoys = (res?.data?.data || []).filter(boy => boy.is_active === true);
           setDeliveryBoys(activeBoys);
-          
+
           // 🔹 Auto-select the first delivery boy if available
           if (activeBoys.length > 0) {
             setFormData((prev) => ({
@@ -730,42 +745,42 @@ const DeliveryModal = ({ isOpen, onClose, onCreateDelivery }) => {
   // };
 
   const handleSearchCustomer = async (phone) => {
-  try {
-    setSearching(true);
-    const res = await searchCustomer(phone);
+    try {
+      setSearching(true);
+      const res = await searchCustomer(phone);
 
-    let customer = null;
+      let customer = null;
 
-    // ✅ handle both object and array responses
-    if (Array.isArray(res?.data?.data) && res.data.data.length > 0) {
-      customer = res.data.data[0];
-    } else if (res?.data?.data && typeof res.data.data === "object") {
-      customer = res.data.data;
+      // ✅ handle both object and array responses
+      if (Array.isArray(res?.data?.data) && res.data.data.length > 0) {
+        customer = res.data.data[0];
+      } else if (res?.data?.data && typeof res.data.data === "object") {
+        customer = res.data.data;
+      }
+      console.log("Search Customer Response:", res);
+      if (customer) {
+        setFormData((prev) => ({
+          ...prev,
+          name: customer.name || "",
+          address: customer.address || "",
+        }));
+
+        enqueueSnackbar("Existing customer found — data filled automatically.", {
+          variant: "info",
+        });
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          name: "",
+          address: "",
+        }));
+      }
+    } catch (err) {
+      console.error("Error searching customer:", err);
+    } finally {
+      setSearching(false);
     }
-console.log("Search Customer Response:", res);
-    if (customer) {
-      setFormData((prev) => ({
-        ...prev,
-        name: customer.name || "",
-        address: customer.address || "",
-      }));
-
-      enqueueSnackbar("Existing customer found — data filled automatically.", {
-        variant: "info",
-      });
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        name: "",
-        address: "",
-      }));
-    }
-  } catch (err) {
-    console.error("Error searching customer:", err);
-  } finally {
-    setSearching(false);
-  }
-};
+  };
 
 
   // ✅ Input change handler
@@ -775,6 +790,48 @@ console.log("Search Customer Response:", res);
   };
 
   // ✅ Create delivery + add customer
+  // const handleCreate = async () => {
+  //   const { name, phone, address, deliveryBoy } = formData;
+
+  //   if (!phone.trim()) {
+  //     enqueueSnackbar("Customer phone is required!", { variant: "warning" });
+  //     return;
+  //   }
+  //   if (!deliveryBoy) {
+  //     enqueueSnackbar("Please select a delivery boy!", { variant: "warning" });
+  //     return;
+  //   }
+
+  //   try {
+  //     // 🔹 Save customer to backend
+  //     await addCustomer({ name, phone, address });
+
+  //     // 🔹 Create delivery order
+  //     onCreateDelivery({
+  //       name: name.trim(),
+  //       phone: phone.trim(),
+  //       address: address.trim(),
+  //       deliveryBoy,
+  //     });
+
+  //     enqueueSnackbar("Delivery order created successfully!", { variant: "success" });
+
+  //     // Reset form
+  //     setFormData({
+  //       name: "",
+  //       phone: "",
+  //       address: "",
+  //       deliveryBoy: "",
+  //     });
+
+  //     onClose();
+  //   } catch (err) {
+  //     console.error("Error creating delivery:", err);
+  //     enqueueSnackbar("Failed to create delivery order.", { variant: "error" });
+  //   }
+  // };
+
+
   const handleCreate = async () => {
     const { name, phone, address, deliveryBoy } = formData;
 
@@ -788,19 +845,21 @@ console.log("Search Customer Response:", res);
     }
 
     try {
-      // 🔹 Save customer to backend
+      // 🔹 Save customer info to backend
       await addCustomer({ name, phone, address });
 
-      // 🔹 Create delivery order
-      onCreateDelivery({
-        name: name.trim(),
-        phone: phone.trim(),
-        address: address.trim(),
-        deliveryBoy,
-      });
+      // 🔹 Update Redux state only
+      dispatch(
+        setDeliveryInfo({
+          name: name.trim(),
+          phone: phone.trim(),
+          address: address.trim(),
+          deliveryBoyId: deliveryBoy,
+        })
+      );
 
-      enqueueSnackbar("Delivery order created successfully!", { variant: "success" });
-      
+      enqueueSnackbar("Delivery info saved! You can now place the order.", { variant: "success" });
+
       // Reset form
       setFormData({
         name: "",
@@ -808,13 +867,14 @@ console.log("Search Customer Response:", res);
         address: "",
         deliveryBoy: "",
       });
-      
-      onClose();
+
+      onClose(); // Close modal
     } catch (err) {
-      console.error("Error creating delivery:", err);
-      enqueueSnackbar("Failed to create delivery order.", { variant: "error" });
+      console.error("Error saving delivery info:", err);
+      enqueueSnackbar("Failed to save delivery info.", { variant: "error" });
     }
   };
+
 
   if (!isOpen) return null;
 

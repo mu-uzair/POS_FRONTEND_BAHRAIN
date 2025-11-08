@@ -304,7 +304,7 @@
 //         variations: dish.variations?.map((v) => ({
 //           ...v,
 //           // price: v.price / 1000, // convert price to BHD
-           
+
 //         })) || [],
 //       }));
 
@@ -418,7 +418,7 @@
 
 //   return (
 //     <>
-   
+
 
 //       <div className="h-[35vh] min-h-[250px] border-b-2 border-[#2a2a2a] flex flex-col     ">
 //         <div className="px-4 sm:px-6 py-2 flex-shrink-0">
@@ -576,6 +576,13 @@ const getBgColor = (index) => {
 const MenuContainer = () => {
   const dispatch = useDispatch();
 
+  // states for custom dish
+  const [isCustomDishModalOpen, setIsCustomDishModalOpen] = useState(false);
+  const [customDishName, setCustomDishName] = useState("");
+  const [customDishPrice, setCustomDishPrice] = useState(0);
+  const [selectedCustomDish, setSelectedCustomDish] = useState(null);
+
+
   // States
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [allDishes, setAllDishes] = useState([]);
@@ -688,21 +695,68 @@ const MenuContainer = () => {
   };
 
   // Add to cart
+  // const handleAddToCart = (item) => {
+  //   const count = itemCounts[item._id] || 0;
+  //   if (count === 0) return;
+
+  //   const selectedVariation = selectedVariations[item._id] || item.variations?.find(v => v.isDefault);
+  //   if (!selectedVariation) {
+  //     enqueueSnackbar('Please select a variation first.', { variant: 'warning' });
+  //     return;
+  //   }
+
+  //   // ✅ Use MongoDB _id as dishId (real reference)
+  //   const newObj = {
+  //     _id: item._id, // real MongoDB dish ID
+  //     dishName: item.dishName,
+  //     section: item.section || selectedVariation.section || null, // ✅ include section
+  //     variationName: selectedVariation.name,
+  //     pricePerQuantity: selectedVariation.price,
+  //     quantity: count,
+  //     price: selectedVariation.price * count,
+  //   };
+
+  //   dispatch(addItems(newObj));
+  //   enqueueSnackbar(`${item.dishName} (${selectedVariation.name}) added to cart!`, { variant: 'success' });
+
+  //   setItemCounts((prevCounts) => ({
+  //     ...prevCounts,
+  //     [item._id]: 0,
+  //   }));
+  // };
+
+
+  // for pos bahrain
+  // const CUSTOM_CATEGORY_ID = "690e724f26e356c8eef29993";
+
+  // for demo server
+  const CUSTOM_CATEGORY_ID = "690e722d3987e6cf3a2d52e1";
+
+
   const handleAddToCart = (item) => {
     const count = itemCounts[item._id] || 0;
     if (count === 0) return;
 
+    // Check if this is a custom dish
+    if (item.category === CUSTOM_CATEGORY_ID) {
+      setSelectedCustomDish(item); // Save dish object
+      setCustomDishName("");        // Clear name
+      setCustomDishPrice("");       // Clear price
+      setIsCustomDishModalOpen(true); // Open modal
+      return; // Do not add to cart yet
+    }
+
+    // --- Regular dish flow ---
     const selectedVariation = selectedVariations[item._id] || item.variations?.find(v => v.isDefault);
     if (!selectedVariation) {
       enqueueSnackbar('Please select a variation first.', { variant: 'warning' });
       return;
     }
 
-    // ✅ Use MongoDB _id as dishId (real reference)
     const newObj = {
-      _id: item._id, // real MongoDB dish ID
+      _id: item._id,
       dishName: item.dishName,
-      section: item.section || selectedVariation.section || null, // ✅ include section
+      section: item.section || selectedVariation.section || null,
       variationName: selectedVariation.name,
       pricePerQuantity: selectedVariation.price,
       quantity: count,
@@ -718,127 +772,130 @@ const MenuContainer = () => {
     }));
   };
 
+
   return (
     <div className="h-full flex flex-col">
       {/* Categories Section */}
-      <div className="h-[35vh] min-h-[250px] border-b-2 border-[#2a2a2a] flex flex-col flex-shrink-0">
-  <div className="px-4 sm:px-6 py-2 flex-shrink-0">
-    <h2 className="text-xl font-bold text-white">Menu Categories</h2>
-  </div>
+      {/* Categories Section (Shortened) */}
+      <div className="h-[20vh] min-h-[200px] border-b-2 border-[#2a2a2a] flex flex-col flex-shrink-0">
+        <div className="px-4 sm:px-6 py-2 flex-shrink-0">
+          <h2 className="text-xl font-bold text-white">Menu Categories</h2>
+        </div>
 
-  {/* Scrollable Container with Hidden Scrollbar */}
-  <div className="flex-1 py-1 px-4 sm:px-6 pb-4 overflow-y-scroll overflow-x-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-    {categories.length === 0 ? (
-      <div className="text-center text-[#ababab] text-lg font-semibold py-8">
-        No categories found
-      </div>
-    ) : (
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5">
-        {categories.map((category, index) => {
-          if (!category || !category._id) return null;
-          const isSelected = selectedCategory?._id === category._id;
-          const itemCount = categoryItemCounts[category._id] || 0;
-          const hasImage = category.imageUrl && /^https?:\/\//i.test(category.imageUrl.trim());
+        {/* Scrollable Container with Hidden Scrollbar */}
+        <div className="flex-1 py-1 px-4 sm:px-6 pb-4 overflow-y-scroll overflow-x-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          {categories.length === 0 ? (
+            <div className="text-center text-[#ababab] text-lg font-semibold py-8">
+              No categories found
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5">
+              {categories.map((category, index) => {
+                if (!category || !category._id) return null;
+                const isSelected = selectedCategory?._id === category._id;
+                const itemCount = categoryItemCounts[category._id] || 0;
+                const hasImage = category.imageUrl && /^https?:\/\//i.test(category.imageUrl.trim());
 
-          return (
-            <div
-              key={category._id}
-              className={`relative flex flex-col justify-end p-3 sm:p-4 rounded-xl cursor-pointer transition-all duration-300 h-full min-h-[120px] sm:min-h-[140px] overflow-hidden group ${
-                isSelected
-                  ? 'ring-2 ring-yellow-400 scale-[1.03] shadow-2xl shadow-yellow-500/50'
-                  : 'hover:scale-[1.02] hover:shadow-xl shadow-lg'
-              }`}
-              onClick={() => setSelectedCategory(category)}
-            >
-              {/* Background Image or Color */}
-              {hasImage ? (
-                <>
-                  {/* Dark gradient background with subtle pattern */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a1a] via-[#252525] to-[#1a1a1a]"></div>
-                  
-                  {/* Full image visible, no cropping */}
-                  <img
-                    src={category.imageUrl}
-                    alt={category.categoryName}
-                    className="absolute inset-0 w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
-                    onError={e => {
-                      e.target.style.display = 'none';
-                    }}
-                  />
-                  
-                  {/* Enhanced gradient overlay with better depth */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
-                  
-                  {/* Subtle shine effect on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/0 to-transparent group-hover:via-white/5 transition-all duration-500"></div>
-                </>
-              ) : (
-                <>
-                  {/* Fallback Color Background with gradient */}
+                return (
                   <div
-                    className="absolute inset-0"
-                    style={{ 
-                      background: `linear-gradient(135deg, ${getBgColor(index)} 0%, ${getBgColor(index)}dd 100%)`
-                    }}
-                  ></div>
-                  
-                  {/* Subtle overlay for depth */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-transparent"></div>
-                </>
-              )}
+                    key={category._id}
+                    // --- MODIFIED CLASSES FOR SHORTENING ---
+                    // Reduced padding (p-2/p-3) and minimum height (min-h-[80px]/sm:min-h-[100px])
+                    className={`relative flex flex-col justify-end p-2 sm:p-3 rounded-xl cursor-pointer transition-all duration-300 h-full min-h-[80px] sm:min-h-[100px] overflow-hidden group ${isSelected
+                        ? 'ring-2 ring-yellow-400 scale-[1.03] shadow-2xl shadow-yellow-500/50'
+                        : 'hover:scale-[1.02] hover:shadow-xl shadow-lg'
+                      }`}
+                    onClick={() => setSelectedCategory(category)}
+                  >
+                    {/* Background Image or Color (Unchanged logic) */}
+                    {hasImage ? (
+                      <>
+                        {/* Dark gradient background with subtle pattern */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a1a] via-[#252525] to-[#1a1a1a]"></div>
 
-              {/* Content Overlay */}
-              <div className="relative z-10">
-                {/* Category Name with better spacing */}
-                <h3 
-                  className={`text-sm sm:text-base font-bold line-clamp-2 mb-2 ${
-                    hasImage 
-                      ? 'text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]' 
-                      : 'text-white drop-shadow-lg'
-                  }`}
-                >
-                  {category.categoryName}
-                </h3>
+                        {/* Full image visible, no cropping */}
+                        <img
+                          src={category.imageUrl}
+                          alt={category.categoryName}
+                          className="absolute inset-0 w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
+                          onError={e => {
+                            e.target.style.display = 'none';
+                          }}
+                        />
 
-                {/* Item Count & Selector - Enhanced Badge */}
-                <div className="flex items-center gap-2">
-                  <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full transition-all duration-300 ${
-                    hasImage 
-                      ? 'bg-black/70 backdrop-blur-md border border-white/10' 
-                      : 'bg-white/25 backdrop-blur-sm border border-white/20'
-                  } ${isSelected ? 'ring-1 ring-yellow-400/50' : ''}`}>
-                    <p className="text-white text-xs font-semibold">
-                      {itemCount} Items
-                    </p>
+                        {/* Enhanced gradient overlay with better depth */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
+
+                        {/* Subtle shine effect on hover */}
+                        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/0 to-transparent group-hover:via-white/5 transition-all duration-500"></div>
+                      </>
+                    ) : (
+                      <>
+                        {/* Fallback Color Background with gradient */}
+                        <div
+                          className="absolute inset-0"
+                          style={{
+                            background: `linear-gradient(135deg, ${getBgColor(index)} 0%, ${getBgColor(index)}dd 100%)`
+                          }}
+                        ></div>
+
+                        {/* Subtle overlay for depth */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-transparent"></div>
+                      </>
+                    )}
+
+                    {/* Content Overlay */}
+                    <div className="relative z-10">
+                      {/* Category Name (Reduced margin and smaller text on sm) */}
+                      <h3
+                        className={`text-sm sm:text-sm font-bold line-clamp-2 mb-1 ${ // mb-2 changed to mb-1
+                          hasImage
+                            ? 'text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]'
+                            : 'text-white drop-shadow-lg'
+                          }`}
+                      >
+                        {category.categoryName}
+                      </h3>
+
+                      {/* Item Count & Selector - Enhanced Badge (Reduced padding) */}
+                      <div className="flex items-center gap-2">
+                        <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full transition-all duration-300 ${ // px-2.5/py-1.5 changed to px-2/py-1
+                          hasImage
+                            ? 'bg-black/70 backdrop-blur-md border border-white/10'
+                            : 'bg-white/25 backdrop-blur-sm border border-white/20'
+                          } ${isSelected ? 'ring-1 ring-yellow-400/50' : ''}`}>
+                          <p className="text-white text-xs font-semibold">
+                            {itemCount} Items
+                          </p>
+                          {isSelected && (
+                            <GrRadialSelected className="text-yellow-400 flex-shrink-0 animate-pulse" size={12} />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Enhanced Selected Border with Glow */}
                     {isSelected && (
-                      <GrRadialSelected className="text-yellow-400 flex-shrink-0 animate-pulse" size={12} />
+                      <>
+                        <div className="absolute inset-0 rounded-xl ring-2 ring-yellow-400 pointer-events-none"></div>
+                        <div className="absolute inset-0 rounded-xl ring-1 ring-yellow-300/50 blur-sm pointer-events-none"></div>
+                      </>
+                    )}
+
+                    {/* Subtle border for all cards */}
+                    {!isSelected && (
+                      <div className="absolute inset-0 rounded-xl ring-1 ring-white/5 pointer-events-none"></div>
                     )}
                   </div>
-                </div>
-              </div>
-
-              {/* Enhanced Selected Border with Glow */}
-              {isSelected && (
-                <>
-                  <div className="absolute inset-0 rounded-xl ring-2 ring-yellow-400 pointer-events-none"></div>
-                  <div className="absolute inset-0 rounded-xl ring-1 ring-yellow-300/50 blur-sm pointer-events-none"></div>
-                </>
-              )}
-              
-              {/* Subtle border for all cards */}
-              {!isSelected && (
-                <div className="absolute inset-0 rounded-xl ring-1 ring-white/5 pointer-events-none"></div>
-              )}
+                );
+              })}
             </div>
-          );
-        })}
+          )}
+        </div>
       </div>
-    )}
-  </div>
-</div>
       <hr className="border-[#2a2a2a] border-t-2" />
 
-{/* Dishes Section */}
+      {/* Dishes Section */}
       <div className="flex-1 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <div className="px-10 py-4 pb-18">
           <div className="grid grid-cols-1 md:grid-cols-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -853,7 +910,7 @@ const MenuContainer = () => {
                 >
                   {/* Enhanced visible border with glow effect */}
                   <div className="absolute inset-0 rounded-xl ring-1 ring-white/10 pointer-events-none group-hover:ring-white/20 transition-all duration-300"></div>
-                  
+
                   {/* Subtle shine effect on hover */}
                   <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/0 to-transparent group-hover:via-white/5 transition-all duration-500 rounded-xl"></div>
 
@@ -878,11 +935,10 @@ const MenuContainer = () => {
                           <button
                             key={variation.name}
                             onClick={() => handleVariationChange(item._id, variation)}
-                            className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all duration-300 border backdrop-blur-sm ${
-                              selectedVar?.name === variation.name
+                            className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all duration-300 border backdrop-blur-sm ${selectedVar?.name === variation.name
                                 ? 'bg-yellow-500 text-black border-yellow-400 shadow-lg shadow-yellow-500/30 scale-105'
                                 : 'bg-[#2f2f2f]/80 text-white border-[#3a3a3a] hover:bg-[#3a3a3a] hover:border-[#4a4a4a] hover:scale-105'
-                            }`}
+                              }`}
                           >
                             {variation.name} - BHD {variation.price.toFixed(3)}
                           </button>
@@ -920,7 +976,63 @@ const MenuContainer = () => {
           </div>
         </div>
       </div>
+      {isCustomDishModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-[#1f1f1f] p-6 rounded-xl w-[90%] sm:w-[400px]">
+            <h2 className="text-xl font-bold mb-4 text-white">Add Custom Dish</h2>
+            <input
+              type="text"
+              placeholder="Dish Name"
+              value={customDishName}
+              onChange={(e) => setCustomDishName(e.target.value)}
+              className="w-full mb-3 px-3 py-2 rounded-lg bg-[#2a2a2a] text-white"
+            />
+            <input
+              type="number"
+              placeholder="Price"
+              value={customDishPrice}
+              onChange={(e) => setCustomDishPrice(e.target.value)}
+              className="w-full mb-4 px-3 py-2 rounded-lg bg-[#2a2a2a] text-white"
+            />
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setIsCustomDishModalOpen(false)}
+                className="px-4 py-2 bg-gray-500 rounded-lg text-white"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (!customDishName || !customDishPrice) {
+                    enqueueSnackbar("Please enter name and price!", { variant: "warning" });
+                    return;
+                  }
+                  const count = itemCounts[selectedCustomDish._id] || 1;
+                  const newObj = {
+                    _id: selectedCustomDish._id,
+                    dishName: customDishName,
+                    section: selectedCustomDish.section || null,
+                    variationName: "Custom",
+                    pricePerQuantity: parseFloat(customDishPrice),
+                    quantity: count,
+                    price: parseFloat(customDishPrice) * count,
+                  };
+                  dispatch(addItems(newObj));
+                  enqueueSnackbar(`${customDishName} added to cart!`, { variant: "success" });
+                  setIsCustomDishModalOpen(false);
+                  setItemCounts((prev) => ({ ...prev, [selectedCustomDish._id]: 0 }));
+                }}
+                className="px-4 py-2 bg-yellow-500 rounded-lg text-black font-semibold"
+              >
+                Add to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
+
   );
 };
 export default MenuContainer;

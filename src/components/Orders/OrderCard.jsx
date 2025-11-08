@@ -816,7 +816,7 @@
 //       console.error("Error updating order status:", error);
 //       const errorMessage = error?.response?.data?.message || error?.message || "Failed to update order status!";
 //       enqueueSnackbar(errorMessage, { variant: "error" });
-      
+
 //       // Close confirmation modal
 //       setShowConfirmModal(false);
 //       setPendingStatus(null);
@@ -1212,13 +1212,13 @@
 
 //       const user = JSON.parse(userStr);
 //       const role = user?.role;
-      
+
 //       if (role && typeof role === 'string') {
 //         const normalizedRole = role.toLowerCase().trim();
 //         console.log("✅ User role:", normalizedRole);
 //         return normalizedRole;
 //       }
-      
+
 //       console.log("⚠️ Role not found in user object");
 //       return null;
 //     } catch (error) {
@@ -1262,7 +1262,7 @@
 //       console.error("Error updating order status:", error);
 //       const errorMessage = error?.response?.data?.message || error?.message || "Failed to update order status!";
 //       enqueueSnackbar(errorMessage, { variant: "error" });
-      
+
 //       // Close confirmation modal
 //       setShowConfirmModal(false);
 //       setPendingStatus(null);
@@ -1399,7 +1399,7 @@
 //       try {
 //         // For now, we'll use a simple check - you should implement proper backend verification
 //         // Example: await verifyAdminPassword(adminPassword);
-        
+
 //         // Temporary solution: Check if password matches a stored admin password
 //         // IMPORTANT: Replace this with actual API verification
 //         const response = await fetch('/api/verify-admin-password', {
@@ -1700,7 +1700,7 @@ import { useDispatch } from "react-redux";
 import { FaLongArrowAltRight } from "react-icons/fa";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 // Import the new verification function from your https/index
-import { updateOrderStatus, deleteOrder, updateTable, verifyAdminPassword } from "../../https/index"; 
+import { updateOrderStatus, deleteOrder, updateTable, verifyAdminPassword } from "../../https/index";
 import { enqueueSnackbar } from "notistack";
 import { MdFileDownloadDone, MdEdit } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
@@ -1717,7 +1717,7 @@ const OrderCard = ({ order }) => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [adminPassword, setAdminPassword] = useState("");
   // "delete" or "edit"
-  const [passwordAction, setPasswordAction] = useState(null); 
+  const [passwordAction, setPasswordAction] = useState(null);
 
   // 🔔 Confirmation modal for status changes
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -1794,7 +1794,7 @@ const OrderCard = ({ order }) => {
       console.error("Error updating order status:", error);
       const errorMessage = error?.response?.data?.message || error?.message || "Failed to update order status!";
       enqueueSnackbar(errorMessage, { variant: "error" });
-      
+
       setShowConfirmModal(false);
       setPendingStatus(null);
     },
@@ -1816,7 +1816,7 @@ const OrderCard = ({ order }) => {
       enqueueSnackbar("Failed to delete order!", { variant: "error" });
     },
   });
-  
+
   // --- HANDLERS ---
 
   // ✅ Handle status change with confirmation for critical statuses (Unchanged)
@@ -1847,9 +1847,9 @@ const OrderCard = ({ order }) => {
   // ✅ Confirm status change (Unchanged)
   const handleConfirmStatusChange = () => {
     if (pendingStatus) {
-      orderStatusUpdateMutation.mutate({ 
-        orderId: order._id, 
-        orderStatus: pendingStatus 
+      orderStatusUpdateMutation.mutate({
+        orderId: order._id,
+        orderStatus: pendingStatus
       });
     }
   };
@@ -1875,28 +1875,52 @@ const OrderCard = ({ order }) => {
     dispatch(setEditingMode(true));
 
 
+    // console.log("🧾 Original order items before edit:", order.items);
     // --- FIX: STRUCTURE THE TABLE DATA FOR REDUX STATE ---
-    const tableDataForRedux = order.table 
-        ? { 
-            // Map the server's ID field (likely _id) to your Redux's tableId
-            tableId: order.table._id || order.table, 
-            // Map the server's table number field to your Redux's tableNo
-            tableNo: order.table.tableNo || null, 
-          } 
-        : null;
-console.log("Table Data for Redux:", tableDataForRedux);
+    const tableDataForRedux = order.table
+      ? {
+        // Map the server's ID field (likely _id) to your Redux's tableId
+        tableId: order.table._id || order.table,
+        // Map the server's table number field to your Redux's tableNo
+        tableNo: order.table.tableNo || null,
+      }
+      : null;
+    console.log("Table Data for Redux:", tableDataForRedux);
 
-    const itemsForCart = order.items.map((item) => ({
-      orderNo: order.orderNo || null,
-      id: item.menuItem,
-      dishId: item.menuItem,
-      name: item.name,
-      variationName: item.variationName || null,
-      price: item.pricePerQuantity || item.price,
-      quantity: item.quantity || 1,
-      section: item.section || null,
-      // tableNo: order.table ? order.table.tableNo : null,
-    }));
+    // const itemsForCart = order.items.map((item) => ({
+    //   orderNo: order.orderNo || null,
+    //   id: item.menuItem,
+    //   dishId: item.menuItem,
+    //   name: item.name,
+    //   variationName: item.variationName || null,
+    //   price: item.pricePerQuantity || item.price,
+    //   quantity: item.quantity || 1,
+    //   section: item.section || null,
+    //   // tableNo: order.table ? order.table.tableNo : null,
+    // }));
+
+    const itemsForCart = order.items.map((item) => {
+      const variationKey =
+        item.variationName?.toLowerCase?.().trim?.() || "default";
+
+      return {
+        orderNo: order.orderNo || null,
+        id: item.menuItem,
+        dishId: item.menuItem,
+        menuItem: item.menuItem, // keep for backend consistency
+        name: item.name,
+        variationName: item.variationName || null,
+        variationKey, // ✅ normalized key added
+        pricePerQuantity: Number((item.pricePerQuantity || item.price).toFixed(3)),
+        price: Number((item.pricePerQuantity || item.price).toFixed(3)),
+        quantity: Number(item.quantity) || 1,
+        section: item.section || null,
+        status: item.status || "Pending",
+      };
+    });
+
+    // console.log("🛒 Items sent to Redux cart:", itemsForCart);
+console.log("🧾 Order items in OrderCard before dispatch:", order.items);
 
     dispatch(
       setCustomer({
@@ -1906,10 +1930,11 @@ console.log("Table Data for Redux:", tableDataForRedux);
         orderType: order.customerDetails?.orderType,
         paymentMethod: order.paymentMethod || "Online",
         orderId: order.orderId || order._id,
-        orderNo : order.orderNo || null,
+        orderNo: order.orderNo || null,
         // table: order.table || null,
         table: tableDataForRedux,
-         isEdit: true, 
+        isEdit: true,
+        items: order.items || [],
       })
     );
 
@@ -1934,11 +1959,11 @@ console.log("Table Data for Redux:", tableDataForRedux);
       enqueueSnackbar("Admin password required!", { variant: "error" });
       return;
     }
-    
+
     // Trigger the password verification mutation
     verifyPasswordMutation.mutate(adminPassword);
   };
-  
+
   // Get confirmation message based on status (Unchanged)
   const getConfirmationMessage = () => {
     // ... (unchanged logic)
@@ -1954,8 +1979,8 @@ console.log("Table Data for Redux:", tableDataForRedux);
       const willRollback = order.orderStatus === "Completed";
       return {
         title: "Cancel Order?",
-        message: willRollback 
-          ? "This will roll back the inventory deduction. Are you sure?" 
+        message: willRollback
+          ? "This will roll back the inventory deduction. Are you sure?"
           : "Are you sure you want to cancel this order?",
         icon: "⚠️",
         color: "red"
@@ -2016,11 +2041,11 @@ console.log("Table Data for Redux:", tableDataForRedux);
                   #{order.orderId} / {order.customerDetails.orderType}
                 </p>
                 <p className="text-[#ababab] text-xs sm:text-sm">
-                  #{order.orderNo} 
+                  #{order.orderNo}
                 </p>
                 {order.table && (
                   <p className="text-[#ababab] text-xs sm:text-sm flex items-center">
-                    Table 
+                    Table
                     <FaLongArrowAltRight className="text-[#ababab] mx-1 sm:mx-2 inline" />
                     {order.table.tableNo}
                   </p>
@@ -2041,15 +2066,14 @@ console.log("Table Data for Redux:", tableDataForRedux);
                   </button>
 
                   <select
-                    className={`bg-[#1a1a1a] text-[#f5f5f5] border border-gray-500 px-2 py-2 rounded-lg focus:outline-none text-xs sm:text-sm flex-1 min-w-[120px] ${
-                      order.orderStatus === "Ready"
+                    className={`bg-[#1a1a1a] text-[#f5f5f5] border border-gray-500 px-2 py-2 rounded-lg focus:outline-none text-xs sm:text-sm flex-1 min-w-[120px] ${order.orderStatus === "Ready"
                         ? "text-green-500"
                         : order.orderStatus === "Completed"
-                        ? "text-blue-500"
-                        : order.orderStatus === "Cancelled"
-                        ? "text-red-500"
-                        : "text-yellow-500"
-                    }`}
+                          ? "text-blue-500"
+                          : order.orderStatus === "Cancelled"
+                            ? "text-red-500"
+                            : "text-yellow-500"
+                      }`}
                     value={order.orderStatus}
                     onChange={(e) => handleStatusChange(e.target.value)}
                     disabled={orderStatusUpdateMutation.isLoading || isPasswordVerificationLoading}
@@ -2075,7 +2099,7 @@ console.log("Table Data for Redux:", tableDataForRedux);
                 {/* Status Indicator */}
                 <p className="text-[#ababab] text-xs sm:text-sm flex items-center">
                   {orderStatusUpdateMutation.isLoading || isPasswordVerificationLoading ? (
-                      <span className="animate-pulse text-gray-400">Processing action...</span>
+                    <span className="animate-pulse text-gray-400">Processing action...</span>
                   ) : order.orderStatus === "Ready" ? (
                     <>
                       <FaCircle className="inline mr-1 sm:mr-2 text-green-600 text-[8px] sm:text-xs flex-shrink-0" />
@@ -2156,11 +2180,10 @@ console.log("Table Data for Redux:", tableDataForRedux);
               <button
                 onClick={handleConfirmStatusChange}
                 disabled={orderStatusUpdateMutation.isLoading}
-                className={`px-4 sm:px-5 py-2 rounded-lg text-white text-sm sm:text-base transition-colors disabled:opacity-50 ${
-                  confirmInfo.color === "red"
+                className={`px-4 sm:px-5 py-2 rounded-lg text-white text-sm sm:text-base transition-colors disabled:opacity-50 ${confirmInfo.color === "red"
                     ? "bg-red-600 hover:bg-red-700"
                     : "bg-blue-600 hover:bg-blue-700"
-                }`}
+                  }`}
               >
                 Confirm
               </button>
@@ -2196,7 +2219,7 @@ console.log("Table Data for Redux:", tableDataForRedux);
                 <span className="ml-2 text-gray-400 text-sm">Verifying...</span>
               </div>
             )}
-            
+
             <div className="flex justify-end gap-2 sm:gap-3">
               <button
                 onClick={() => {
@@ -2212,11 +2235,10 @@ console.log("Table Data for Redux:", tableDataForRedux);
               <button
                 onClick={handleConfirmPassword}
                 disabled={isPasswordVerificationLoading || isOrderDeletionLoading}
-                className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-white text-sm sm:text-base transition-colors disabled:opacity-50 ${
-                  passwordAction === "delete"
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-white text-sm sm:text-base transition-colors disabled:opacity-50 ${passwordAction === "delete"
                     ? "bg-red-600 hover:bg-red-700"
                     : "bg-blue-600 hover:bg-blue-700"
-                }`}
+                  }`}
               >
                 {isPasswordVerificationLoading ? 'Verifying...' : 'Confirm'}
               </button>

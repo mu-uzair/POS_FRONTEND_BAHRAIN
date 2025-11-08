@@ -150,45 +150,96 @@ const cartSlice = createSlice({
 // },
 
 
+// addItems: (state, action) => {
+//   const incoming = action.payload;
+
+//   // ✅ Normalize and ensure clean data
+//   const variationKey = incoming.variationName?.toLowerCase?.().trim?.() || "default";
+//   const incomingQty = Number(incoming.quantity) > 0 ? Number(incoming.quantity) : 1;
+
+//   // ✅ Try to find an existing item (same dish + same variation)
+//   const existingItem = state.find(
+//     (item) =>
+//       (item.dishId === incoming._id || item.id === incoming._id) &&
+//       item.variationKey === variationKey
+//   );
+
+//   if (existingItem) {
+//     // ✅ Increment only by the selected quantity
+//     existingItem.quantity += incomingQty;
+//   } else {
+//     // ✅ Add as a brand-new variation entry
+//     state.push({
+//       id: `${incoming._id}-${variationKey}`, // unique per variation
+//       dishId: incoming._id,
+//       name: incoming.dishName || incoming.name,
+//       price: Number((incoming.pricePerQuantity || incoming.price).toFixed(3)),
+//       section: incoming.section || null,
+//       variationKey,
+//       variationName: incoming.variationName || null,
+//       quantity: incomingQty,
+//     });
+//   }
+
+//   console.log(
+//     `🛒 Added/Updated: ${incoming.name || incoming.dishName} (${variationKey}) → dishId: ${
+//       incoming._id
+//     }, qty: ${incomingQty}`
+//   );
+// },
+
 addItems: (state, action) => {
   const incoming = action.payload;
 
-  // ✅ Normalize and ensure clean data
-  const variationKey = incoming.variationName?.toLowerCase?.().trim?.() || "default";
-  const incomingQty = Number(incoming.quantity) > 0 ? Number(incoming.quantity) : 1;
+  // ✅ Normalize all possible ID fields (menuItem, dishId, id, _id)
+  const normalizedId =
+    incoming.menuItem || incoming.dishId || incoming.id || incoming._id;
 
-  // ✅ Try to find an existing item (same dish + same variation)
+  // ✅ Normalize variation key
+  const variationKey =
+    incoming.variationName?.toLowerCase?.().trim?.() || "default";
+
+  // ✅ Clean quantity
+  const incomingQty =
+    Number(incoming.quantity) > 0 ? Number(incoming.quantity) : 1;
+
+  // ✅ Find existing item (same dish + same variation)
   const existingItem = state.find(
     (item) =>
-      (item.dishId === incoming._id || item.id === incoming._id) &&
-      item.variationKey === variationKey
+      (item.menuItem === normalizedId ||
+        item.dishId === normalizedId ||
+        item.id === normalizedId) &&
+      (item.variationKey === variationKey ||
+        item.variationName?.toLowerCase?.().trim?.() === variationKey)
   );
 
   if (existingItem) {
-    // ✅ Increment only by the selected quantity
+    // ✅ Merge quantities
     existingItem.quantity += incomingQty;
+    // Optionally recompute total price if needed:
+    // existingItem.price = Number((existingItem.pricePerQuantity * existingItem.quantity).toFixed(3));
   } else {
-    // ✅ Add as a brand-new variation entry
+    // ✅ Add new unique variation
     state.push({
-      id: `${incoming._id}-${variationKey}`, // unique per variation
-      dishId: incoming._id,
+      id: `${normalizedId}-${variationKey}`,
+      dishId: normalizedId,
+      menuItem: normalizedId,
       name: incoming.dishName || incoming.name,
+      pricePerQuantity: Number((incoming.pricePerQuantity || incoming.price).toFixed(3)),
       price: Number((incoming.pricePerQuantity || incoming.price).toFixed(3)),
       section: incoming.section || null,
       variationKey,
       variationName: incoming.variationName || null,
       quantity: incomingQty,
+      status: incoming.status || "Pending",
+      orderNo: incoming.orderNo || null,
     });
   }
 
   console.log(
-    `🛒 Added/Updated: ${incoming.name || incoming.dishName} (${variationKey}) → dishId: ${
-      incoming._id
-    }, qty: ${incomingQty}`
+    `🛒 Added/Updated: ${incoming.name || incoming.dishName} (${variationKey}) → ${incomingQty} pcs`
   );
 },
-
-
 
         removeItem: (state, action) => {
             const existingItem = state.find(item => item.id === action.payload);

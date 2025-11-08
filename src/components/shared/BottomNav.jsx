@@ -745,7 +745,7 @@ import { useDispatch } from "react-redux";
 import { setCustomer, setDeliveryInfo } from "../../redux/slice/customerSlice";
 import { removeAllItems } from "../../redux/slice/cartSlice";
 import { setEditingMode } from "../../redux/slice/editOrderSlice";
-import DeliveryModal from "./DeliveryModal";
+// import DeliveryModal from "./DeliveryModal";
 
 const BottomNav = () => {
   const dispatch = useDispatch();
@@ -757,7 +757,7 @@ const BottomNav = () => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [showSection, setShowSection] = useState(false);
-  const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false);
+  // const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false);
 
   const openDineInTakeAwayModal = () => {
     console.log("Opening DineInTakeAwayModal");
@@ -800,10 +800,24 @@ const BottomNav = () => {
     navigate("/Tables");
   };
 
+  // const handleDelivery = () => {
+  //   closeDineInTakeAwayModal();
+  //   setIsDeliveryModalOpen(true);
+  // };
+
   const handleDelivery = () => {
-    closeDineInTakeAwayModal();
-    setIsDeliveryModalOpen(true);
-  };
+  // Set order type to Delivery and go directly to Menu
+  dispatch(
+    setCustomer({
+      name: "",
+      phone: "",
+      guests: 0,
+      orderType: "Delivery",
+    })
+  );
+  closeDineInTakeAwayModal();
+  navigate("/Menu");
+};
 
   return (
     <div className='fixed bottom-0 left-0 right-0 bg-[#262626] p-2 h-16 md:h-20 flex justify-around items-center px-2 md:px-4 lg:px-8 z-40'>
@@ -914,7 +928,7 @@ const BottomNav = () => {
       />
 
       {/* DeliveryModal */}
-      <DeliveryModal
+      {/* <DeliveryModal
         isOpen={isDeliveryModalOpen}
         onClose={() => setIsDeliveryModalOpen(false)}
         onCreateDelivery={(data) => {
@@ -942,7 +956,7 @@ const BottomNav = () => {
           dispatch(setDeliveryInfo(deliveryInfo));
           navigate("/Menu");
         }}
-      />
+      /> */}
 
       {/* Modal for Dine-In details */}
       <Modal isOpen={isModalOpen} onClose={closeModal} title="Create Order">

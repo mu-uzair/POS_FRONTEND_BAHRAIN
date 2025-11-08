@@ -259,7 +259,295 @@
 // export default DeliveryMetrics;
 
 
-import React, { useMemo } from "react";
+// import React, { useMemo } from "react";
+// import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+// import {
+//   getOrders,
+//   getDeliveryBoys,
+//   assignDeliveryBoyToOrder,
+// } from "../https";
+// import toast from "react-hot-toast";
+
+// const DeliveryMetrics = () => {
+//   const queryClient = useQueryClient();
+
+//   // === FETCH ORDERS ===
+//   const {
+//     data: ordersRes,
+//     isLoading: ordersLoading,
+//     isError: ordersError,
+//   } = useQuery({
+//     queryKey: ["orders"],
+//     queryFn: getOrders,
+//   });
+
+//   // === FETCH DELIVERY BOYS ===
+//   const {
+//     data: boysRes,
+//     isLoading: boysLoading,
+//     isError: boysError,
+//   } = useQuery({
+//     queryKey: ["deliveryBoys"],
+//     queryFn: getDeliveryBoys,
+//   });
+
+//   const isLoading = ordersLoading || boysLoading;
+//   const isError = ordersError || boysError;
+
+//   const orders = ordersRes?.data?.data ?? [];
+//   const deliveryBoys = boysRes?.data?.data ?? [];
+
+//   // === FILTER DELIVERY ORDERS ===
+//   const deliveryOrders = useMemo(
+//     () => orders.filter((o) => o.customerDetails?.orderType === "Delivery"),
+//     [orders]
+//   );
+
+//   const completedOrders = useMemo(
+//     () => deliveryOrders.filter((o) => o.orderStatus === "Completed"),
+//     [deliveryOrders]
+//   );
+
+//   const activeOrders = useMemo(
+//     () => deliveryOrders.filter((o) => o.orderStatus !== "Completed"),
+//     [deliveryOrders]
+//   );
+
+//   const totalRevenue = useMemo(
+//     () =>
+//       completedOrders.reduce(
+//         (sum, o) => sum + (o.bills?.totalWithTax || 0),
+//         0
+//       ),
+//     [completedOrders]
+//   );
+
+//   // === ACTIVE DELIVERY BOYS ===
+//   const activeDeliveryBoys = useMemo(() => {
+//     const activeIds = new Set(
+//       activeOrders
+//         .map((o) => o.deliveryBoyId?._id)
+//         .filter((id) => typeof id === "string")
+//     );
+//     return deliveryBoys.filter((boy) => activeIds.has(boy._id));
+//   }, [activeOrders, deliveryBoys]);
+
+//   // === RIDER PERFORMANCE ===
+//   const riderStats = useMemo(() => {
+//     const stats = {};
+//     for (const o of completedOrders) {
+//       const id = o.deliveryBoyId?._id;
+//       if (!id) continue;
+//       if (!stats[id]) stats[id] = { name: o.deliveryBoyId.name, count: 0 };
+//       stats[id].count += 1;
+//     }
+//     return Object.values(stats);
+//   }, [completedOrders]);
+
+//   // === MUTATION: ASSIGN RIDER ===
+//   const mutation = useMutation({
+//     mutationFn: ({ orderId, deliveryBoyId }) =>
+//       assignDeliveryBoyToOrder(orderId, deliveryBoyId),
+//     onSuccess: () => {
+//       toast.success("Delivery boy updated successfully!");
+//       queryClient.invalidateQueries(["orders"]);
+//     },
+//     onError: (err) => {
+//       toast.error(
+//         err.response?.data?.message || "Failed to update delivery boy"
+//       );
+//     },
+//   });
+
+//   const handleAssign = (orderId, deliveryBoyId) => {
+//     if (!deliveryBoyId) return;
+//     mutation.mutate({ orderId, deliveryBoyId });
+//   };
+
+//   // === LOADING STATES ===
+//   if (isLoading)
+//     return (
+//       <div className="flex justify-center items-center h-screen bg-[#0e0e0e] text-gray-200">
+//         <p>Loading Delivery Metrics...</p>
+//       </div>
+//     );
+
+//   if (isError)
+//     return (
+//       <div className="flex justify-center items-center h-screen bg-[#0e0e0e] text-red-400">
+//         <p>Failed to fetch data.</p>
+//       </div>
+//     );
+
+// //   
+
+// return (
+//     <div className="min-h-screen bg-gradient-to-br from-[#0d0d0d] via-[#1a1a1a] to-[#0d0d0d] text-gray-200 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 font-inter pb-24 md:pb-28">
+//       <header className="mb-6 sm:mb-8 lg:mb-10">
+//         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white mb-2">
+//           Delivery Metrics Dashboard
+//         </h2>
+//         <p className="text-sm sm:text-base text-gray-400">
+//           Real-time insights and analytics for all delivery operations.
+//         </p>
+//       </header>
+
+//       {/* === METRIC CARDS === */}
+//       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6 mb-8 sm:mb-10 lg:mb-12">
+//         <MetricCard
+//           title="Active Delivery Boys"
+//           value={activeDeliveryBoys.length}
+//           color="#10B981"
+//         />
+//         <MetricCard
+//           title="Completed Deliveries"
+//           value={completedOrders.length}
+//           color="#3B82F6"
+//         />
+//         <MetricCard
+//           title="Active Orders"
+//           value={activeOrders.length}
+//           color="#F59E0B"
+//         />
+//         <MetricCard
+//           title="Revenue Generated"
+//           value={`BHD ${totalRevenue.toFixed(3)}`}
+//           color="#22C55E"
+//         />
+//       </div>
+
+//       {/* === ACTIVE ORDERS === */}
+//       <SectionCard title="🚴 Active Deliveries">
+//         {activeOrders.length > 0 ? (
+//           <div className="overflow-x-auto -mx-2 sm:mx-0">
+//             <Table
+//               headers={[
+//                 "Order ID",
+//                 "Customer",
+//                 "Current Rider",
+//                 "Change Rider",
+//                 "Status",
+//               ]}
+//             >
+//               {activeOrders.map((order) => (
+//                 <tr
+//                   key={order._id}
+//                   className="border-b border-gray-700 hover:bg-[#1f1f1f]/70 transition-colors"
+//                 >
+//                   <td className="py-3 px-2 sm:px-4 font-medium text-gray-300 text-xs sm:text-sm whitespace-nowrap">
+//                     {order.orderId || order._id.slice(-6)}
+//                   </td>
+//                   <td className="py-3 px-2 sm:px-4 text-xs sm:text-sm">
+//                     <div className="max-w-[100px] sm:max-w-none truncate">
+//                       {order.customerDetails?.name}
+//                     </div>
+//                   </td>
+//                   <td className="py-3 px-2 sm:px-4 text-xs sm:text-sm">
+//                     <div className="max-w-[100px] sm:max-w-none truncate">
+//                       {order.deliveryBoyId?.name || "Unassigned"}
+//                     </div>
+//                   </td>
+//                   <td className="py-3 px-2 sm:px-4">
+//                     <select
+//                       value={order.deliveryBoyId?._id || ""}
+//                       onChange={(e) =>
+//                         handleAssign(order._id, e.target.value)
+//                       }
+//                       className="bg-[#111] border border-gray-600 rounded-lg p-1 sm:p-1.5 text-xs sm:text-sm focus:ring-2 focus:ring-[#3B82F6] outline-none text-gray-200 w-full min-w-[100px] sm:min-w-[120px]"
+//                     >
+//                       <option value="">Select Rider</option>
+//                       {deliveryBoys.map((boy) => (
+//                         <option key={boy._id} value={boy._id}>
+//                           {boy.name}
+//                         </option>
+//                       ))}
+//                     </select>
+//                   </td>
+//                   <td className="py-3 px-2 sm:px-4 text-xs sm:text-sm whitespace-nowrap">
+//                     <span className="hidden sm:inline">{order.orderStatus}</span>
+//                     <span className="sm:hidden">
+//                       {order.orderStatus === "In Progress" ? "Progress" : order.orderStatus}
+//                     </span>
+//                   </td>
+//                 </tr>
+//               ))}
+//             </Table>
+//           </div>
+//         ) : (
+//           <p className="text-gray-400 text-sm sm:text-base">No active deliveries currently.</p>
+//         )}
+//       </SectionCard>
+
+//       {/* === RIDER PERFORMANCE === */}
+//       <SectionCard title="🏁 Rider Performance">
+//         {riderStats.length > 0 ? (
+//           <div className="overflow-x-auto -mx-2 sm:mx-0">
+//             <Table headers={["Rider Name", "Completed Orders"]}>
+//               {riderStats.map((rider, i) => (
+//                 <tr
+//                   key={i}
+//                   className="border-b border-gray-700 hover:bg-[#1f1f1f]/70 transition"
+//                 >
+//                   <td className="py-3 px-2 sm:px-4 font-medium text-sm sm:text-base">{rider.name}</td>
+//                   <td className="py-3 px-2 sm:px-4 text-sm sm:text-base">{rider.count}</td>
+//                 </tr>
+//               ))}
+//             </Table>
+//           </div>
+//         ) : (
+//           <p className="text-gray-400 text-sm sm:text-base">No completed deliveries yet.</p>
+//         )}
+//       </SectionCard>
+//     </div>
+//   );
+// };
+
+// // === METRIC CARD === (Responsive)
+// const MetricCard = ({ title, value, color }) => (
+//   <div
+//     className="p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl shadow-lg backdrop-blur-lg bg-[#1a1a1a]/70 border border-gray-700 hover:shadow-[#3b82f650] transition transform hover:-translate-y-1"
+//     style={{ borderTop: `3px solid ${color}`, borderTopWidth: window.innerWidth >= 640 ? '4px' : '3px' }}
+//   >
+//     <p className="text-xs sm:text-sm text-gray-400 mb-1">{title}</p>
+//     <p className="text-xl sm:text-2xl lg:text-3xl font-extrabold" style={{ color }}>
+//       {value}
+//     </p>
+//   </div>
+// );
+
+// // === SECTION WRAPPER === (Responsive)
+// const SectionCard = ({ title, children }) => (
+//   <div className="bg-[#141414]/90 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl shadow-xl mb-6 sm:mb-8 lg:mb-10 border border-gray-800 backdrop-blur-md">
+//     <h3 className="text-[#02ca3a] text-lg sm:text-xl font-semibold mb-3 sm:mb-4">{title}</h3>
+//     {children}
+//   </div>
+// );
+
+// // === TABLE COMPONENT === (Responsive)
+// const Table = ({ headers, children }) => (
+//   <div className="min-w-full">
+//     <table className="w-full text-left border-collapse min-w-[600px]">
+//       <thead>
+//         <tr className="border-b border-gray-700 bg-[#111]/70">
+//           {headers.map((h, i) => (
+//             <th
+//               key={i}
+//               className="py-2 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-medium text-gray-400 uppercase tracking-wider whitespace-nowrap"
+//             >
+//               {h}
+//             </th>
+//           ))}
+//         </tr>
+//       </thead>
+//       <tbody className="divide-y divide-gray-800">{children}</tbody>
+//     </table>
+//   </div>
+// );
+
+// export default DeliveryMetrics;
+
+
+import React, { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getOrders,
@@ -270,6 +558,10 @@ import toast from "react-hot-toast";
 
 const DeliveryMetrics = () => {
   const queryClient = useQueryClient();
+
+  // ✅ Date filter states
+  const [dateFilter, setDateFilter] = useState("Today");
+  const [selectedDate, setSelectedDate] = useState("");
 
   // === FETCH ORDERS ===
   const {
@@ -297,10 +589,36 @@ const DeliveryMetrics = () => {
   const orders = ordersRes?.data?.data ?? [];
   const deliveryBoys = boysRes?.data?.data ?? [];
 
-  // === FILTER DELIVERY ORDERS ===
+  // ✅ Helper function to check if order matches date filter
+  const matchesDateFilter = (order) => {
+    const orderDate = new Date(order.createdAt).toDateString();
+    const today = new Date().toDateString();
+
+    switch (dateFilter) {
+      case "Today":
+        return orderDate === today;
+      case "Yesterday": {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        return orderDate === yesterday.toDateString();
+      }
+      case "Custom":
+        if (!selectedDate) return true;
+        return orderDate === new Date(selectedDate).toDateString();
+      case "All":
+      default:
+        return true;
+    }
+  };
+
+  // === FILTER DELIVERY ORDERS WITH DATE FILTER ===
   const deliveryOrders = useMemo(
-    () => orders.filter((o) => o.customerDetails?.orderType === "Delivery"),
-    [orders]
+    () =>
+      orders.filter(
+        (o) =>
+          o.customerDetails?.orderType === "Delivery" && matchesDateFilter(o)
+      ),
+    [orders, dateFilter, selectedDate]
   );
 
   const completedOrders = useMemo(
@@ -341,7 +659,7 @@ const DeliveryMetrics = () => {
       if (!stats[id]) stats[id] = { name: o.deliveryBoyId.name, count: 0 };
       stats[id].count += 1;
     }
-    return Object.values(stats);
+    return Object.values(stats).sort((a, b) => b.count - a.count);
   }, [completedOrders]);
 
   // === MUTATION: ASSIGN RIDER ===
@@ -379,10 +697,9 @@ const DeliveryMetrics = () => {
       </div>
     );
 
-//   
-
-return (
+  return (
     <div className="min-h-screen bg-gradient-to-br from-[#0d0d0d] via-[#1a1a1a] to-[#0d0d0d] text-gray-200 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 font-inter pb-24 md:pb-28">
+      {/* === HEADER === */}
       <header className="mb-6 sm:mb-8 lg:mb-10">
         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white mb-2">
           Delivery Metrics Dashboard
@@ -391,6 +708,47 @@ return (
           Real-time insights and analytics for all delivery operations.
         </p>
       </header>
+
+      {/* ✅ DATE FILTER BAR */}
+      <div className="mb-6 sm:mb-8 lg:mb-10">
+        <div className="bg-[#141414]/90 p-3 sm:p-4 rounded-xl border border-gray-800 backdrop-blur-md">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            <span className="text-sm font-medium text-gray-400 whitespace-nowrap">
+              Filter by Date:
+            </span>
+            <div className="w-full sm:w-auto overflow-x-auto scrollbar-hide">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-max">
+                {["All", "Today", "Yesterday", "Custom"].map((d) => (
+                  <button
+                    key={d}
+                    onClick={() => {
+                      setDateFilter(d);
+                      if (d !== "Custom") setSelectedDate("");
+                    }}
+                    className={`text-xs sm:text-sm font-medium px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all duration-200 whitespace-nowrap ${
+                      dateFilter === d
+                        ? "bg-[#02ca3a] text-black shadow-lg"
+                        : "bg-[#1f1f1f] text-[#ababab] hover:bg-[#2a2a2a] border border-gray-700"
+                    }`}
+                    aria-pressed={dateFilter === d}
+                  >
+                    {d === "All" ? "All Dates" : d}
+                  </button>
+                ))}
+                {dateFilter === "Custom" && (
+                  <input
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    className="bg-[#1f1f1f] text-[#f5f5f5] rounded-lg px-2 sm:px-3 py-1.5 text-xs sm:text-sm border border-gray-700 focus:ring-2 focus:ring-[#02ca3a] focus:border-[#02ca3a] outline-none"
+                    aria-label="Select custom date"
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* === METRIC CARDS === */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6 mb-8 sm:mb-10 lg:mb-12">
@@ -464,9 +822,13 @@ return (
                     </select>
                   </td>
                   <td className="py-3 px-2 sm:px-4 text-xs sm:text-sm whitespace-nowrap">
-                    <span className="hidden sm:inline">{order.orderStatus}</span>
+                    <span className="hidden sm:inline">
+                      {order.orderStatus}
+                    </span>
                     <span className="sm:hidden">
-                      {order.orderStatus === "In Progress" ? "Progress" : order.orderStatus}
+                      {order.orderStatus === "In Progress"
+                        ? "Progress"
+                        : order.orderStatus}
                     </span>
                   </td>
                 </tr>
@@ -474,7 +836,9 @@ return (
             </Table>
           </div>
         ) : (
-          <p className="text-gray-400 text-sm sm:text-base">No active deliveries currently.</p>
+          <p className="text-gray-400 text-sm sm:text-base">
+            No active deliveries for the selected date range.
+          </p>
         )}
       </SectionCard>
 
@@ -488,14 +852,20 @@ return (
                   key={i}
                   className="border-b border-gray-700 hover:bg-[#1f1f1f]/70 transition"
                 >
-                  <td className="py-3 px-2 sm:px-4 font-medium text-sm sm:text-base">{rider.name}</td>
-                  <td className="py-3 px-2 sm:px-4 text-sm sm:text-base">{rider.count}</td>
+                  <td className="py-3 px-2 sm:px-4 font-medium text-sm sm:text-base">
+                    {rider.name}
+                  </td>
+                  <td className="py-3 px-2 sm:px-4 text-sm sm:text-base">
+                    {rider.count}
+                  </td>
                 </tr>
               ))}
             </Table>
           </div>
         ) : (
-          <p className="text-gray-400 text-sm sm:text-base">No completed deliveries yet.</p>
+          <p className="text-gray-400 text-sm sm:text-base">
+            No completed deliveries for the selected date range.
+          </p>
         )}
       </SectionCard>
     </div>
@@ -506,10 +876,16 @@ return (
 const MetricCard = ({ title, value, color }) => (
   <div
     className="p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl shadow-lg backdrop-blur-lg bg-[#1a1a1a]/70 border border-gray-700 hover:shadow-[#3b82f650] transition transform hover:-translate-y-1"
-    style={{ borderTop: `3px solid ${color}`, borderTopWidth: window.innerWidth >= 640 ? '4px' : '3px' }}
+    style={{
+      borderTop: `3px solid ${color}`,
+      borderTopWidth: window.innerWidth >= 640 ? "4px" : "3px",
+    }}
   >
     <p className="text-xs sm:text-sm text-gray-400 mb-1">{title}</p>
-    <p className="text-xl sm:text-2xl lg:text-3xl font-extrabold" style={{ color }}>
+    <p
+      className="text-xl sm:text-2xl lg:text-3xl font-extrabold"
+      style={{ color }}
+    >
       {value}
     </p>
   </div>
@@ -518,7 +894,9 @@ const MetricCard = ({ title, value, color }) => (
 // === SECTION WRAPPER === (Responsive)
 const SectionCard = ({ title, children }) => (
   <div className="bg-[#141414]/90 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl shadow-xl mb-6 sm:mb-8 lg:mb-10 border border-gray-800 backdrop-blur-md">
-    <h3 className="text-[#02ca3a] text-lg sm:text-xl font-semibold mb-3 sm:mb-4">{title}</h3>
+    <h3 className="text-[#02ca3a] text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
+      {title}
+    </h3>
     {children}
   </div>
 );
