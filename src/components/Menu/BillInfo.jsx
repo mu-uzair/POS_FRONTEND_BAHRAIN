@@ -967,16 +967,8 @@ const BillInfo = () => {
         setIsDeliveryModalOpen(true); // Open the delivery modal
         return;
       }
-      if (!customerData.deliveryAddress || customerData.deliveryAddress.trim() === "") {
-        enqueueSnackbar("Please enter delivery address!", { variant: "warning" });
-        setIsDeliveryModalOpen(true); // Open the delivery modal
-        return;
-      }
-      if (!customerData.customerName || customerData.customerName.trim() === "") {
-        enqueueSnackbar("Please enter customer name!", { variant: "warning" });
-        setIsDeliveryModalOpen(true); // Open the delivery modal
-        return;
-      }
+      
+   
     }
 
 
