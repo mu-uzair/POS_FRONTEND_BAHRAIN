@@ -961,6 +961,25 @@ const BillInfo = () => {
       return;
     }
 
+    if (customerData.orderType === "Delivery") {
+      if (!customerData.customerPhone || customerData.customerPhone.trim() === "") {
+        enqueueSnackbar("Please enter delivery phone number!", { variant: "warning" });
+        setIsDeliveryModalOpen(true); // Open the delivery modal
+        return;
+      }
+      if (!customerData.deliveryAddress || customerData.deliveryAddress.trim() === "") {
+        enqueueSnackbar("Please enter delivery address!", { variant: "warning" });
+        setIsDeliveryModalOpen(true); // Open the delivery modal
+        return;
+      }
+      if (!customerData.customerName || customerData.customerName.trim() === "") {
+        enqueueSnackbar("Please enter customer name!", { variant: "warning" });
+        setIsDeliveryModalOpen(true); // Open the delivery modal
+        return;
+      }
+    }
+
+
     setStoredTotal(total);
 
     const taxRate = 10;
@@ -1171,6 +1190,27 @@ const BillInfo = () => {
     }
 
     try {
+      // const response = await updateOrderMutation.mutateAsync({
+      //   orderId: customerData.orderId,
+      //   updateData,
+      // });
+
+      // // ✅ Update Redux with backend response
+      // const updatedOrder = response?.data?.data || response?.data;
+
+      // if (updatedOrder && updatedOrder.items) {
+      //   dispatch(setCustomer({
+      //     ...customerData,
+      //     items: updatedOrder.items,
+      //   }));
+      //   console.log("✅ Redux state synced with backend items:", updatedOrder.items);
+      // } else {
+      //   dispatch(setCustomer({
+      //     ...customerData,
+      //     items: mergedItems,
+      //   }));
+      //   console.log("✅ Redux state updated with merged items:", mergedItems);
+      // }
       const response = await updateOrderMutation.mutateAsync({
         orderId: customerData.orderId,
         updateData,
@@ -1178,6 +1218,21 @@ const BillInfo = () => {
 
       // ✅ Update Redux with backend response
       const updatedOrder = response?.data?.data || response?.data;
+
+      // ✅ CRITICAL FIX: Update placedOrderData for printing
+      const tableDataForReceipt = customerData.table
+        ? { _id: customerData.table.tableId, tableNo: customerData.table.tableNo }
+        : updatedOrder?.table;
+
+      const updatedOrderDataForReceipt = {
+        ...(updatedOrder || updateData),
+        table: tableDataForReceipt,
+        _id: customerData.orderId,
+        orderId: customerData.orderId,
+      };
+
+      setPlacedOrderData(updatedOrderDataForReceipt); // ✅ THIS WAS MISSING!
+      setStoredTotal(total); // ✅ Update stored total for printing
 
       if (updatedOrder && updatedOrder.items) {
         dispatch(setCustomer({
@@ -1281,7 +1336,7 @@ const BillInfo = () => {
             className="text-[#f5f5f5] text-md font-bold bg-transparent border border-[#555] rounded-lg px-2 py-1 w-20"
           /> */}
           <input
-            type="number"      
+            type="number"
             value={discountPercentage > 0 ? discountPercentage : ""}
             onChange={handleDiscountChange}
             placeholder="0" // Set placeholder to indicate the expected input
