@@ -728,6 +728,7 @@ const MenuContainer = () => {
 
   // for pos bahrain
   const CUSTOM_CATEGORY_ID = "690e724f26e356c8eef29993";
+  
 
   // for demo server
   // const CUSTOM_CATEGORY_ID = "690e722d3987e6cf3a2d52e1";
