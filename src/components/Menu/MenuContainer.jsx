@@ -741,7 +741,7 @@ const MenuContainer = () => {
     if (item.category === CUSTOM_CATEGORY_ID) {
       setSelectedCustomDish(item); // Save dish object
       setCustomDishName("");        // Clear name
-      setCustomDishPrice("");       // Clear price
+      setCustomDishPrice('');       // Clear price
       setIsCustomDishModalOpen(true); // Open modal
       return; // Do not add to cart yet
     }
@@ -976,7 +976,60 @@ const MenuContainer = () => {
           </div>
         </div>
       </div>
-  
+      {isCustomDishModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-[#1f1f1f] p-5 rounded-xl w-[90%] sm:w-[400px]">
+            <h2 className="text-xl font-bold mb-4 text-white">Add Custom Dish</h2>
+            <input
+              type="text"
+              placeholder="Dish Name"
+              value={customDishName}
+              onChange={(e) => setCustomDishName(e.target.value)}
+              className="w-full mb-3 px-3 py-2 rounded-lg bg-[#2a2a2a] text-white"
+            />
+            <input
+              type="number"
+              placeholder="Price"
+              value={customDishPrice}
+              onChange={(e) => setCustomDishPrice(e.target.value)}
+              className="w-full mb-4 px-3 py-2 rounded-lg bg-[#2a2a2a] text-white"
+            />
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setIsCustomDishModalOpen(false)}
+                className="px-4 py-2 bg-gray-500 rounded-lg text-white"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (!customDishName || !customDishPrice) {
+                    enqueueSnackbar("Please enter name and price!", { variant: "warning" });
+                    return;
+                  }
+                  const count = itemCounts[selectedCustomDish._id] || 1;
+                  const newObj = {
+                    _id: selectedCustomDish._id,
+                    dishName: customDishName,
+                    section: selectedCustomDish.section || null,
+                    variationName: "Custom",
+                    pricePerQuantity: parseFloat(customDishPrice),
+                    quantity: count,
+                    price: parseFloat(customDishPrice) * count,
+                  };
+                  dispatch(addItems(newObj));
+                  enqueueSnackbar(`${customDishName} added to cart!`, { variant: "success" });
+                  setIsCustomDishModalOpen(false);
+                  setItemCounts((prev) => ({ ...prev, [selectedCustomDish._id]: 0 }));
+                }}
+                className="px-4 py-2 bg-yellow-500 rounded-lg text-black font-semibold"
+              >
+                Add to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
 
