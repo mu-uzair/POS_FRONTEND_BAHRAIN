@@ -1138,10 +1138,10 @@ const MenuContainer = () => {
   };
 
   // for pos bahrain
-  // const CUSTOM_CATEGORY_ID = "690e724f26e356c8eef29993";
+  const CUSTOM_CATEGORY_ID = "690e724f26e356c8eef29993";
   
   // for demo server
-  const CUSTOM_CATEGORY_ID = "690e722d3987e6cf3a2d52e1";
+  // const CUSTOM_CATEGORY_ID = "690e722d3987e6cf3a2d52e1";
 
   const handleAddToCart = (item) => {
     const count = itemCounts[item._id] || 1; // ✅ Changed default from 0 to 1
