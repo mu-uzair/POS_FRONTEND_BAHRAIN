@@ -1202,7 +1202,7 @@ return (
                         &minus;
                       </button>
                       <span className="text-white font-bold text-base lg:text-sm xl:text-base 2xl:text-lg min-w-[16px] lg:min-w-[14px] xl:min-w-[16px] 2xl:min-w-[20px] text-center">
-                        {itemCounts[item._id] || 0}
+                        {itemCounts[item._id] || 1}
                       </span>
                       <button
                         onClick={() => increment(item._id)}
