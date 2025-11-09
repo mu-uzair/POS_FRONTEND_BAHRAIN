@@ -427,7 +427,7 @@ const Menu = () => {
 
   return (
     <div>
-      <section className="bg-[#1f1f1f] h-[calc(100vh-5rem)] overflow-hidden flex flex-col lg:flex-row lg:gap-3 xl:gap-4 2xl:gap-5 lg:p-2 xl:p-3 2xl:p-4">
+      <section className="bg-[#1f1f1f] h-[calc(100vh-6rem)] overflow-hidden flex flex-col lg:flex-row lg:gap-3 xl:gap-4 2xl:gap-5 lg:p-2 xl:p-3 2xl:p-4">
         {/* LEFT DIV */}
         <div className="flex-[3] flex flex-col min-h-0 relative lg:bg-[#1a1a1a] lg:rounded-lg lg:overflow-hidden">
           {/* Header */}

@@ -1041,7 +1041,7 @@ return (
     {/* Categories Section */}
     <div className="h-[22vh] lg:h-[20vh] xl:h-[22vh] 2xl:h-[24vh] min-h-[160px] lg:min-h-[140px] xl:min-h-[160px] 2xl:min-h-[180px] border-b-2 border-[#2a2a2a] flex flex-col flex-shrink-0">
       <div className="px-4 sm:px-6 lg:px-3 xl:px-4 2xl:px-6 py-2 lg:py-1.5 xl:py-2 flex-shrink-0">
-        <h2 className="text-xl lg:text-base xl:text-lg 2xl:text-xl font-bold text-white">Menu Categories</h2>
+        {/* <h2 className="text-xl lg:text-base xl:text-lg 2xl:text-xl font-bold text-white">Menu Categories</h2> */}
       </div>
 
       {/* Scrollable Categories */}
