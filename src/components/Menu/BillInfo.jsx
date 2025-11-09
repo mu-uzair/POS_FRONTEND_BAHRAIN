@@ -1027,7 +1027,6 @@ const BillInfo = () => {
       console.error("Order Placement Error:", error);
     }
   };
-
   // ✅ Handle updating existing order - FIXED VERSION
   const handleUpdateOrder = async () => {
     if (!customerData.orderId) {
@@ -1182,27 +1181,7 @@ const BillInfo = () => {
     }
 
     try {
-      // const response = await updateOrderMutation.mutateAsync({
-      //   orderId: customerData.orderId,
-      //   updateData,
-      // });
 
-      // // ✅ Update Redux with backend response
-      // const updatedOrder = response?.data?.data || response?.data;
-
-      // if (updatedOrder && updatedOrder.items) {
-      //   dispatch(setCustomer({
-      //     ...customerData,
-      //     items: updatedOrder.items,
-      //   }));
-      //   console.log("✅ Redux state synced with backend items:", updatedOrder.items);
-      // } else {
-      //   dispatch(setCustomer({
-      //     ...customerData,
-      //     items: mergedItems,
-      //   }));
-      //   console.log("✅ Redux state updated with merged items:", mergedItems);
-      // }
       const response = await updateOrderMutation.mutateAsync({
         orderId: customerData.orderId,
         updateData,
