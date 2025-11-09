@@ -1485,7 +1485,7 @@ const BillInfo = () => {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex items-center gap-2 lg:gap-1.5 xl:gap-2 2xl:gap-2.5 pt-2.5 lg:pt-2 xl:pt-2.5 ">
+      <div className="flex items-center gap-2 lg:gap-1.5 xl:gap-2 2xl:gap-2.5 pt-2.5 lg:pt-2 xl:pt-2.5 pb-4">
         <button
           onClick={handlePrintButton}
           className="bg-[#025cca] px-2.5 py-2.5 lg:px-2 lg:py-2 xl:px-2.5 xl:py-2.5 2xl:px-3 2xl:py-3 w-full rounded-lg text-[#f5f5f5] font-semibold text-sm lg:text-xs xl:text-sm 2xl:text-base hover:bg-[#0147a3] transition-colors"

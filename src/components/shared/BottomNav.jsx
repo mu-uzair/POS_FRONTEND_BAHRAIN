@@ -820,7 +820,7 @@ const BottomNav = () => {
 };
 
   return (
-    <div className='fixed bottom-0 left-0 right-0 bg-[#262626] p-2 h-16 md:h-20 flex justify-around items-center px-2 md:px-4 lg:px-8 z-40'>
+    <div className='fixed bottom-0 left-0 right-0 bg-[#262626] p-2 h-16 md:h-12 flex justify-around items-center px-2 md:px-4 lg:px-8 z-40'>
       {/* Navigation Buttons - Responsive sizing */}
       <button 
         onClick={() => navigate("/")} 
@@ -897,11 +897,11 @@ const BottomNav = () => {
           dispatch(setEditingMode(false));
           dispatch(removeAllItems());
         }}
-        className={`absolute bottom-8 md:bottom-11 left-1/2 transform -translate-x-1/2 bg-[#F6B100] text-[#f5f5f5] rounded-full p-3 md:p-4 flex items-center justify-center shadow-lg transition-all hover:bg-[#e5a000] ${
+        className={`absolute bottom-8 md:bottom-6 left-1/2 transform -translate-x-1/2 bg-[#F6B100] text-[#f5f5f5] rounded-full p-3 md:p-4 flex items-center justify-center shadow-lg transition-all hover:bg-[#e5a000] ${
           (isActive("/Tables") || isActive("/Menu")) ? "opacity-50 cursor-not-allowed" : ""
         }`}
       >
-        <BiSolidDish size={28} className="md:w-8 md:h-8" />
+        <BiSolidDish size={28} className="md:w-7 md:h-7" />
       </button>
 
       {/* DineInTakeAwayModal */}
