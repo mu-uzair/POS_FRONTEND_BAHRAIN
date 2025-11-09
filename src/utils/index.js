@@ -61,7 +61,7 @@ export const formatDateAndTme = (date) => {
             minute: "2-digit",
             
             hour12: true,
-            timeZone: "Asia/Karachi", // Corrected time zone
+            timeZone: "Asia/Bahrain", // Corrected time zone
         });
         return dateAndTime;
     } catch (error) {
