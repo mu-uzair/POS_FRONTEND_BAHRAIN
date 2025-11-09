@@ -1182,27 +1182,7 @@ const BillInfo = () => {
     }
 
     try {
-      // const response = await updateOrderMutation.mutateAsync({
-      //   orderId: customerData.orderId,
-      //   updateData,
-      // });
 
-      // // ✅ Update Redux with backend response
-      // const updatedOrder = response?.data?.data || response?.data;
-
-      // if (updatedOrder && updatedOrder.items) {
-      //   dispatch(setCustomer({
-      //     ...customerData,
-      //     items: updatedOrder.items,
-      //   }));
-      //   console.log("✅ Redux state synced with backend items:", updatedOrder.items);
-      // } else {
-      //   dispatch(setCustomer({
-      //     ...customerData,
-      //     items: mergedItems,
-      //   }));
-      //   console.log("✅ Redux state updated with merged items:", mergedItems);
-      // }
       const response = await updateOrderMutation.mutateAsync({
         orderId: customerData.orderId,
         updateData,
@@ -1299,114 +1279,6 @@ const BillInfo = () => {
       });
     }
   };
-
-  // return (
-  //   <>
-  //     <div className="flex items-center justify-between px-5 mt-2">
-  //       <p className="text-xs text-[#ababab] font-medium mt-2">
-  //         Items({cartData.length})
-  //       </p>
-  //       <h1 className="text-[#f5f5f5] text-md font-bold">
-  //         BHD {total.toFixed(3)}
-  //       </h1>
-  //     </div>
-  //     <div className="flex items-center justify-between px-5 mt-2">
-  //       <p className="text-xs text-[#ababab] font-medium mt-2">
-  //         Tax({paymentMethod === "Cash" ? "10%" : "10%"})
-  //       </p>
-  //       <h1 className="text-[#f5f5f5] text-md font-bold">
-  //         BHD {tax.toFixed(3)}
-  //       </h1>
-  //     </div>
-  //     <div className="flex items-center justify-between px-5 mt-2">
-  //       <p className="text-xs text-[#ababab] font-medium mt-2">Discount</p>
-  //       <div className="flex items-center gap-2">
-  //         {/* <input
-  //           type="number"
-  //           value={discountPercentage}
-  //           onChange={handleDiscountChange}
-  //           className="text-[#f5f5f5] text-md font-bold bg-transparent border border-[#555] rounded-lg px-2 py-1 w-20"
-  //         /> */}
-  //         <input
-  //           type="number"
-  //           value={discountPercentage > 0 ? discountPercentage : ""}
-  //           onChange={handleDiscountChange}
-  //           placeholder="0" // Set placeholder to indicate the expected input
-  //           className="text-[#f5f5f5] text-md font-bold bg-transparent border border-[#555] rounded-lg px-2 py-1 w-20 text-center"
-  //         />
-  //       </div>
-  //     </div>
-  //     <div className="flex items-center justify-between px-5 mt-2">
-  //       <p className="text-xs text-[#ababab] font-medium mt-2">Total With Tax</p>
-  //       <h1 className="text-[#f5f5f5] text-md font-bold">
-  //         BHD {totalPriceWithTax.toFixed(3)}
-  //       </h1>
-  //     </div>
-
-  //     <div className="flex flex-col sm:flex-row items-center gap-3 px-5 mt-4 w-full">
-  //       <button
-  //         onClick={() => setPaymentMethod("Cash")}
-  //         className={`flex-1 bg-[#1f1f1f] px-4 py-3 rounded-lg text-[#ababab] font-semibold transition-colors duration-150 ${paymentMethod === "Cash" ? "bg-[#383737] scale-105 shadow-md" : ""
-  //           }`}
-  //       >
-  //         Cash
-  //       </button>
-  //       <button
-  //         onClick={() => setPaymentMethod("Online")}
-  //         className={`flex-1 bg-[#1f1f1f] px-4 py-3 rounded-lg text-[#ababab] font-semibold transition-colors duration-150 ${paymentMethod === "Online" ? "bg-[#383737] scale-105 shadow-md" : ""
-  //           }`}
-  //       >
-  //         Online
-  //       </button>
-  //       <button
-  //         onClick={() => setPaymentMethod("Benefit")}
-  //         className={`flex-1 bg-[#1f1f1f] px-4 py-3 rounded-lg text-[#ababab] font-semibold transition-colors duration-150 ${paymentMethod === "Benefit" ? "bg-[#383737] scale-105 shadow-md" : ""
-  //           }`}
-  //       >
-  //         Benefit
-  //       </button>
-  //     </div>
-
-  //     <div className="flex items-center gap-3 px-5 mt-4">
-  //       <button
-  //         onClick={handlePrintButton}
-  //         className="bg-[#025cca] px-4 py-3 w-full rounded-lg text-[#f5f5f5] font-semibold text-lg"
-  //       >
-  //         Print Receipt
-  //       </button>
-
-  //       <button
-  //         onClick={isEditing ? handleUpdateOrder : handlePlaceOrder}
-  //         disabled={cartData.length === 0}
-  //         className="bg-[#f6b100] px-4 py-3 w-full rounded-lg text-[#1f1f1f] font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
-  //       >
-  //         {isEditing ? "Update Order" : "Place Order"}
-  //       </button>
-  //     </div>
-
-  //     {customerData.orderType === "Delivery" && (
-  //       <div className="px-5 mt-3">
-  //         <button
-  //           onClick={() => setIsDeliveryModalOpen(true)}
-  //           className="bg-[#ff6b35] px-4 py-3 w-full rounded-lg text-[#f5f5f5] font-semibold text-lg hover:bg-[#ff5520] transition-colors"
-  //         >
-  //           📍 Enter Delivery Details
-  //         </button>
-  //       </div>
-  //     )}
-
-  //     {showInvoice && (
-  //       <Invoice orderInfo={orderInfo} setShowInvoice={setShowInvoice} />
-  //     )}
-
-  //     <DeliveryModal
-  //       isOpen={isDeliveryModalOpen}
-  //       onClose={() => setIsDeliveryModalOpen(false)}
-  //       onCreateDelivery={handleDeliveryOrder}
-  //       existingData={customerData}
-  //     />
-  //   </>
-  // );
 
    return (
     <div className="space-y-2 lg:space-y-2 xl:space-y-2.5 ">
