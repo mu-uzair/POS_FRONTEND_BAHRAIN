@@ -891,14 +891,15 @@ const BottomNav = () => {
 
       {/* Floating Action Button - Responsive sizing and positioning */}
       <button
-        disabled={isActive("/Tables") || isActive("/Menu")}
+        // disabled={isActive("/Tables") || isActive("/Menu")}
+        disabled={isActive("/Tables") }
         onClick={() => {
           openDineInTakeAwayModal();
           dispatch(setEditingMode(false));
           dispatch(removeAllItems());
         }}
         className={`absolute bottom-8 md:bottom-6 left-1/2 transform -translate-x-1/2 bg-[#F6B100] text-[#f5f5f5] rounded-full p-3 md:p-4 flex items-center justify-center shadow-lg transition-all hover:bg-[#e5a000] ${
-          (isActive("/Tables") || isActive("/Menu")) ? "opacity-50 cursor-not-allowed" : ""
+          (isActive("/Tables") ) ? "opacity-50 cursor-not-allowed" : ""
         }`}
       >
         <BiSolidDish size={28} className="md:w-7 md:h-7" />
