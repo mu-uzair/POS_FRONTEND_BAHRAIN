@@ -1027,7 +1027,6 @@ const BillInfo = () => {
       console.error("Order Placement Error:", error);
     }
   };
-
   // ✅ Handle updating existing order - FIXED VERSION
   const handleUpdateOrder = async () => {
     if (!customerData.orderId) {
