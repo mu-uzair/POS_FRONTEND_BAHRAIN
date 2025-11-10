@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { FaCircle } from "react-icons/fa";
 import { getAvatarName, formatDateAndTme } from "../../utils/index";
 import { useDispatch } from "react-redux";
-import { FaLongArrowAltRight } from "react-icons/fa";
+import { FaLongArrowAltRight  } from "react-icons/fa";
+import { FcPrint } from "react-icons/fc";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 // Import the new verification function from your https/index
 import { updateOrderStatus, deleteOrder, updateTable, verifyAdminPassword } from "../../https/index";
@@ -12,6 +13,8 @@ import { useNavigate } from "react-router-dom";
 import { setEditingMode } from "../../redux/slice/editOrderSlice";
 import { setCustomer, setDeliveryInfo } from "../../redux/slice/customerSlice";
 import { setCartItems } from "../../redux/slice/cartSlice";
+import { sendToPrinters } from "../../https/printBridge";
+
 
 const OrderCard = ({ order }) => {
   const queryClient = useQueryClient();
@@ -124,8 +127,29 @@ const OrderCard = ({ order }) => {
 
   // --- HANDLERS ---
 
+// --- PRINTING HANDLER ---
+const handlePrintOrder = async (order) => {
+  try {
+    enqueueSnackbar("🖨️ Sending receipt to cashier printer...", { variant: "info" });
+
+    const response = await sendToPrinters({
+      ...order,
+      target: "cashier", // only cashier printer
+    });
+
+    enqueueSnackbar(response?.message || "✅ Receipt printed successfully!", {
+      variant: "success",
+    });
+  } catch (error) {
+    console.error("Print error:", error);
+    enqueueSnackbar(`❌ Print failed: ${error.message}`, { variant: "error" });
+  }
+};
+
+
   // ✅ Handle status change with confirmation for critical statuses (Unchanged)
   const handleStatusChange = (newStatus) => {
+    
     if (newStatus === "delete") {
       if (window.confirm("Are you sure you want to delete this order?")) {
         const userRole = getUserRole();
@@ -140,6 +164,7 @@ const OrderCard = ({ order }) => {
       }
       return;
     }
+    
 
     if (newStatus === "Completed" || newStatus === "Cancelled") {
       setPendingStatus(newStatus);
@@ -147,6 +172,9 @@ const OrderCard = ({ order }) => {
     } else {
       orderStatusUpdateMutation.mutate({ orderId: order._id, orderStatus: newStatus });
     }
+
+   
+
   };
 
   // ✅ Confirm status change (Unchanged)
@@ -192,7 +220,7 @@ const OrderCard = ({ order }) => {
       : null;
     console.log("Table Data for Redux:", tableDataForRedux);
 
- 
+
 
     const itemsForCart = order.items.map((item) => {
       const variationKey =
@@ -215,7 +243,7 @@ const OrderCard = ({ order }) => {
     });
 
     // console.log("🛒 Items sent to Redux cart:", itemsForCart);
-console.log("🧾 Order items in OrderCard before dispatch:", order.items);
+    console.log("🧾 Order items in OrderCard before dispatch:", order.items);
 
     dispatch(
       setCustomer({
@@ -230,6 +258,8 @@ console.log("🧾 Order items in OrderCard before dispatch:", order.items);
         table: tableDataForRedux,
         isEdit: true,
         items: order.items || [],
+        comment : order.comment || "",
+          printedItems: order.items || [],
       })
     );
 
@@ -322,16 +352,18 @@ console.log("🧾 Order items in OrderCard before dispatch:", order.items);
           <button className="bg-[#f6b100] p-2 sm:p-2.5 lg:p-3 text-base sm:text-lg lg:text-xl font-bold rounded-lg flex-shrink-0">
             {getAvatarName(order.customerDetails.name)}
           </button>
+          
 
           {/* Main Content Wrapper */}
           <div className="flex-1 min-w-0">
             {/* Customer Info & Actions Container */}
             <div className="flex flex-col gap-3">
               {/* Customer Info */}
-              <div className="flex flex-col items-start gap-1">
+              {/* <div className="flex flex-col items-start gap-1">
                 <h1 className="text-[#f5f5f5] text-sm sm:text-base lg:text-lg font-semibold tracking-wide truncate w-full">
                   {order.customerDetails.name}
                 </h1>
+                
                 <p className="text-[#ababab] text-xs sm:text-sm">
                   #{order.orderId} / {order.customerDetails.orderType}
                 </p>
@@ -345,7 +377,36 @@ console.log("🧾 Order items in OrderCard before dispatch:", order.items);
                     {order.table.tableNo}
                   </p>
                 )}
-              </div>
+              </div> */}
+
+              <div className="flex items-center justify-between w-full">
+  <h1 className="text-[#f5f5f5] text-sm sm:text-base lg:text-lg font-semibold tracking-wide truncate">
+    {order.customerDetails.name}
+  </h1>
+  
+  <button
+    onClick={() => handlePrintOrder(order)}
+    className="text-gray-400 hover:scale-3d transition-colors"
+    title="Print Receipt"
+  >
+    <FcPrint size={16} className="sm:w-7 sm:h-7 hover:scale-105" />
+  </button>
+</div>
+
+{/* Customer Details Below */}
+<div className="flex flex-col items-start gap-1 mt-1">
+  <p className="text-[#ababab] text-xs sm:text-sm">
+    #{order.orderId} / {order.customerDetails.orderType}
+  </p>
+  <p className="text-[#ababab] text-xs sm:text-sm">#{order.orderNo}</p>
+  {order.table && (
+    <p className="text-[#ababab] text-xs sm:text-sm flex items-center">
+      Table
+      <FaLongArrowAltRight className="text-[#ababab] mx-1 sm:mx-2 inline" />
+      {order.table.tableNo}
+    </p>
+  )}
+</div>
 
               {/* Actions & Status Section */}
               <div className="flex flex-col gap-2">
@@ -362,12 +423,12 @@ console.log("🧾 Order items in OrderCard before dispatch:", order.items);
 
                   <select
                     className={`bg-[#1a1a1a] text-[#f5f5f5] border border-gray-500 px-2 py-2 rounded-lg focus:outline-none text-xs sm:text-sm flex-1 min-w-[120px] ${order.orderStatus === "Ready"
-                        ? "text-green-500"
-                        : order.orderStatus === "Completed"
-                          ? "text-blue-500"
-                          : order.orderStatus === "Cancelled"
-                            ? "text-red-500"
-                            : "text-yellow-500"
+                      ? "text-green-500"
+                      : order.orderStatus === "Completed"
+                        ? "text-blue-500"
+                        : order.orderStatus === "Cancelled"
+                          ? "text-red-500"
+                          : "text-yellow-500"
                       }`}
                     value={order.orderStatus}
                     onChange={(e) => handleStatusChange(e.target.value)}
@@ -388,7 +449,10 @@ console.log("🧾 Order items in OrderCard before dispatch:", order.items);
                     <option className="text-red-500" value="delete">
                       Delete Order
                     </option>
+                  
+
                   </select>
+
                 </div>
 
                 {/* Status Indicator */}
@@ -476,8 +540,8 @@ console.log("🧾 Order items in OrderCard before dispatch:", order.items);
                 onClick={handleConfirmStatusChange}
                 disabled={orderStatusUpdateMutation.isLoading}
                 className={`px-4 sm:px-5 py-2 rounded-lg text-white text-sm sm:text-base transition-colors disabled:opacity-50 ${confirmInfo.color === "red"
-                    ? "bg-red-600 hover:bg-red-700"
-                    : "bg-blue-600 hover:bg-blue-700"
+                  ? "bg-red-600 hover:bg-red-700"
+                  : "bg-blue-600 hover:bg-blue-700"
                   }`}
               >
                 Confirm
@@ -531,8 +595,8 @@ console.log("🧾 Order items in OrderCard before dispatch:", order.items);
                 onClick={handleConfirmPassword}
                 disabled={isPasswordVerificationLoading || isOrderDeletionLoading}
                 className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-white text-sm sm:text-base transition-colors disabled:opacity-50 ${passwordAction === "delete"
-                    ? "bg-red-600 hover:bg-red-700"
-                    : "bg-blue-600 hover:bg-blue-700"
+                  ? "bg-red-600 hover:bg-red-700"
+                  : "bg-blue-600 hover:bg-blue-700"
                   }`}
               >
                 {isPasswordVerificationLoading ? 'Verifying...' : 'Confirm'}

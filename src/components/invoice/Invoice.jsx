@@ -283,6 +283,9 @@ const Receipt = ({ orderInfo, setShowInvoice }) => {
                                 Order Date: {formattedOrderDateTime}
                             </p>
                             {user && <p className="text-xs font-medium mt-1">User: {user.role}</p>}
+                              <p className="text-xs font-medium mt-1">
+                                Comment: {orderInfo?.comment || ""}
+                            </p>
                             
                             {/* Delivery Details */}
                             {orderType === "Delivery" && (
@@ -316,6 +319,8 @@ const Receipt = ({ orderInfo, setShowInvoice }) => {
                         <p className="font-bold">TAX SALES INVOICE</p>
                         <p>----------------------------------</p>
                     </div>
+
+                    
 
                     <div className="flex justify-between mb-2 border">
                         <p className="font-bold">Description</p>

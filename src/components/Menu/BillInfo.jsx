@@ -773,6 +773,52 @@ import Invoice from "../invoice/Invoice";
 import DeliveryModal from "../shared/DeliveryModal";
 import { setDeliveryInfo } from "../../redux/slice/customerSlice";
 
+
+
+// ✅ ADD THIS HELPER FUNCTION
+const calculateDeltaItems = (currentItems, previousItems) => {
+  const deltaItems = [];
+  
+  currentItems.forEach((currentItem) => {
+    // Find matching previous item by menuItem ID and variation
+    const previousItem = previousItems.find(
+      (prev) =>
+        prev.menuItem === (currentItem.menuItem || currentItem.dishId || currentItem.id) &&
+        (prev.variationName?.toLowerCase?.().trim?.() ===
+          currentItem.variationName?.toLowerCase?.().trim?.() ||
+          (!prev.variationName && !currentItem.variationName))
+    );
+
+    if (!previousItem) {
+      // This is a completely NEW item
+      deltaItems.push({
+        ...currentItem,
+        quantity: currentItem.quantity,
+        isNew: true
+      });
+    } else if (currentItem.quantity > previousItem.quantity) {
+      // Item quantity INCREASED - only print the additional quantity
+      const additionalQuantity = currentItem.quantity - previousItem.quantity;
+      deltaItems.push({
+        ...currentItem,
+        quantity: additionalQuantity,
+        isNew: false,
+        previousQuantity: previousItem.quantity
+      });
+    }
+    // If quantity is same or decreased, don't add to delta
+  });
+
+  console.log("📊 Delta Calculation:", {
+    previous: previousItems.length,
+    current: currentItems.length,
+    delta: deltaItems.length,
+    deltaItems
+  });
+
+  return deltaItems;
+};
+
 const BillInfo = () => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient(); // ✅ ADD THIS
@@ -792,6 +838,19 @@ const BillInfo = () => {
   const [discountPercentage, setDiscountPercentage] = useState(0);
   const [storedTotal, setStoredTotal] = useState(0);
   const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false);
+ const [orderComment, setOrderComment] = useState(customerData.comment || "");
+
+   // ✅ Update Redux when comment changes
+  const handleCommentChange = (e) => {
+    const value = e.target.value;
+    setOrderComment(value);
+    
+    // Optional: Update Redux immediately
+    dispatch(setCustomer({
+      ...customerData,
+      comment: value,
+    }));
+  };
 
   const roundTo3 = (num) => {
     const n = typeof num === "string" ? parseFloat(num) : Number(num || 0);
@@ -818,6 +877,7 @@ const BillInfo = () => {
     mutationFn: (reqData) => addOrder(reqData),
     onSuccess: async (resData) => {
       dispatch(removeAllItems());
+      setOrderComment("");
       const { data } = resData.data;
 
       const tableDataForReceipt = customerData.table
@@ -844,6 +904,10 @@ const BillInfo = () => {
       await queryClient.invalidateQueries(["orders"]);
 
       enqueueSnackbar("Order Placed!", { variant: "success" });
+      dispatch(setCustomer({
+      ...customerData,
+      comment: "",
+    }));
     },
     onError: (error) => {
       console.error("Add Order Error:", error);
@@ -871,6 +935,7 @@ const BillInfo = () => {
     mutationFn: ({ orderId, updateData }) => updateOrder(orderId, updateData),
     onSuccess: async (resData, variables) => {
       dispatch(removeAllItems());
+      setOrderComment("");
 
       const serverData = resData?.data?.data || {};
 
@@ -967,8 +1032,8 @@ const BillInfo = () => {
         setIsDeliveryModalOpen(true); // Open the delivery modal
         return;
       }
-      
-   
+
+
     }
 
 
@@ -1010,6 +1075,7 @@ const BillInfo = () => {
       },
       items,
       paymentMethod,
+      comment: orderComment.trim(),
     };
 
     if (customerData.orderType === "Dine-in") {
@@ -1163,6 +1229,7 @@ const BillInfo = () => {
       },
       items: mergedItems,
       paymentMethod,
+      comment: orderComment.trim(),
     };
 
     if (hasChanges) {
@@ -1208,6 +1275,7 @@ const BillInfo = () => {
       if (updatedOrder && updatedOrder.items) {
         dispatch(setCustomer({
           ...customerData,
+          comment: "",
           items: updatedOrder.items,
         }));
         console.log("✅ Redux state synced with backend items:", updatedOrder.items);
@@ -1239,47 +1307,101 @@ const BillInfo = () => {
     if (value >= 0 && value <= 100) setDiscountPercentage(value);
   };
 
+  // const handlePrintButton = async () => {
+  //   if (placedOrderData) {
+  //     const taxRate = 10;
+  //     const discountAmount = roundTo3((storedTotal * discountPercentage) / 100);
+  //     const discountedTotal = roundTo3(storedTotal - discountAmount);
+  //     const calculatedTax = roundTo3((discountedTotal * taxRate) / 100);
+  //     const totalWithTax = roundBhd(discountedTotal + calculatedTax);
+
+  //     const updatedOrderInfo = {
+  //       ...placedOrderData,
+  //       bills: {
+  //         ...placedOrderData.bills,
+  //         total: storedTotal,
+  //         tax: calculatedTax,
+  //         totalWithTax,
+  //         discountPercentage,
+  //         discountAmount,
+  //       },
+  //     };
+
+  //     setOrderInfo(updatedOrderInfo);
+  //     setShowInvoice(true);
+
+  //     try {
+  //       const res = await sendToPrinters(updatedOrderInfo);
+  //       console.log("✅ Print sent:", res);
+  //       enqueueSnackbar("Receipt sent to printers!", { variant: "success" });
+  //     } catch (error) {
+  //       console.error("Print Error:", error);
+  //       enqueueSnackbar("Failed to send to printer bridge!", {
+  //         variant: "error",
+  //       });
+  //     }
+  //   } else {
+  //     enqueueSnackbar("Please place or update an order first!", {
+  //       variant: "warning",
+  //     });
+  //   }
+  // };
+
   const handlePrintButton = async () => {
-    if (placedOrderData) {
-      const taxRate = 10;
-      const discountAmount = roundTo3((storedTotal * discountPercentage) / 100);
-      const discountedTotal = roundTo3(storedTotal - discountAmount);
-      const calculatedTax = roundTo3((discountedTotal * taxRate) / 100);
-      const totalWithTax = roundBhd(discountedTotal + calculatedTax);
+  if (placedOrderData) {
+    const taxRate = 10;
+    const discountAmount = roundTo3((storedTotal * discountPercentage) / 100);
+    const discountedTotal = roundTo3(storedTotal - discountAmount);
+    const calculatedTax = roundTo3((discountedTotal * taxRate) / 100);
+    const totalWithTax = roundBhd(discountedTotal + calculatedTax);
 
-      const updatedOrderInfo = {
-        ...placedOrderData,
-        bills: {
-          ...placedOrderData.bills,
-          total: storedTotal,
-          tax: calculatedTax,
-          totalWithTax,
-          discountPercentage,
-          discountAmount,
-        },
-      };
+    // ✅ NEW: Calculate delta items for kitchen/grill
+    const previousItems = customerData.printedItems || [];
+    const currentItems = placedOrderData.items || [];
+    const deltaItems = calculateDeltaItems(currentItems, previousItems);
 
-      setOrderInfo(updatedOrderInfo);
-      setShowInvoice(true);
+    const updatedOrderInfo = {
+      ...placedOrderData,
+      bills: {
+        ...placedOrderData.bills,
+        total: storedTotal,
+        tax: calculatedTax,
+        totalWithTax,
+        discountPercentage,
+        discountAmount,
+      },
+      // ✅ NEW: Add reprint flag and delta items
+      isReprint: previousItems.length > 0,
+      deltaItems: deltaItems,
+    };
 
-      try {
-        const res = await sendToPrinters(updatedOrderInfo);
-        console.log("✅ Print sent:", res);
-        enqueueSnackbar("Receipt sent to printers!", { variant: "success" });
-      } catch (error) {
-        console.error("Print Error:", error);
-        enqueueSnackbar("Failed to send to printer bridge!", {
-          variant: "error",
-        });
-      }
-    } else {
-      enqueueSnackbar("Please place or update an order first!", {
-        variant: "warning",
+    setOrderInfo(updatedOrderInfo);
+    setShowInvoice(true);
+
+    try {
+      const res = await sendToPrinters(updatedOrderInfo);
+      console.log("✅ Print sent:", res);
+      enqueueSnackbar("Receipt sent to printers!", { variant: "success" });
+
+      // ✅ NEW: Update Redux to track printed items
+      dispatch(setCustomer({
+        ...customerData,
+        printedItems: currentItems
+      }));
+    } catch (error) {
+      console.error("Print Error:", error);
+      enqueueSnackbar("Failed to send to printer bridge!", {
+        variant: "error",
       });
     }
-  };
+  } else {
+    enqueueSnackbar("Please place or update an order first!", {
+      variant: "warning",
+    });
+  }
+};
 
-   return (
+  return (
     <div className="space-y-2 lg:space-y-2 xl:space-y-2.5 ">
       {/* Items Total */}
       <div className="flex items-center justify-between">
@@ -1326,30 +1448,40 @@ const BillInfo = () => {
           BHD {totalPriceWithTax.toFixed(3)}
         </h1>
       </div>
+      {/* Order Comment/Notes */}
+      <div className="flex  gap-1 pt-1">
+        <p className="text-xs lg:text-[10px] xl:text-xs 2xl:text-xs text-[#ababab] font-medium">
+          Order Notes (Optional)
+        </p>
+        <textarea
+          value={orderComment}
+          onChange={(e) => setOrderComment(e.target.value)}
+          placeholder="Add special instructions or notes..."
+          rows={3}
+          className="text-[#f5f5f5] text-xs lg:text-[10px] xl:text-xs 2xl:text-sm bg-[#1f1f1f] border border-[#555] rounded-lg px-3 py-2 lg:px-2 lg:py-1.5 xl:px-3 xl:py-2 w-full h-10 resize-none focus:border-[#f6b100] focus:outline-none transition-colors"
+        />
+      </div>
 
       {/* Payment Method Buttons */}
       <div className="flex flex-col sm:flex-row items-center gap-2 lg:gap-1.5 xl:gap-2 2xl:gap-2.5 w-full pt-2.5 lg:pt-2 xl:pt-2.5">
         <button
           onClick={() => setPaymentMethod("Cash")}
-          className={`flex-1 w-full bg-[#1f1f1f] px-2.5 py-2 lg:px-2 lg:py-1.5 xl:px-2.5 xl:py-2 2xl:px-3 2xl:py-2.5 rounded-lg text-[#ababab] text-xs lg:text-[10px] xl:text-xs 2xl:text-sm font-semibold transition-all duration-150 hover:bg-[#2a2a2a] ${
-            paymentMethod === "Cash" ? "bg-[#383737] scale-105 shadow-md ring-2 ring-yellow-500/50" : ""
-          }`}
+          className={`flex-1 w-full bg-[#1f1f1f] px-2.5 py-2 lg:px-2 lg:py-1.5 xl:px-2.5 xl:py-2 2xl:px-3 2xl:py-2.5 rounded-lg text-[#ababab] text-xs lg:text-[10px] xl:text-xs 2xl:text-sm font-semibold transition-all duration-150 hover:bg-[#2a2a2a] ${paymentMethod === "Cash" ? "bg-[#383737] scale-105 shadow-md ring-2 ring-yellow-500/50" : ""
+            }`}
         >
           Cash
         </button>
         <button
           onClick={() => setPaymentMethod("Online")}
-          className={`flex-1 w-full bg-[#1f1f1f] px-2.5 py-2 lg:px-2 lg:py-1.5 xl:px-2.5 xl:py-2 2xl:px-3 2xl:py-2.5 rounded-lg text-[#ababab] text-xs lg:text-[10px] xl:text-xs 2xl:text-sm font-semibold transition-all duration-150 hover:bg-[#2a2a2a] ${
-            paymentMethod === "Online" ? "bg-[#383737] scale-105 shadow-md ring-2 ring-yellow-500/50" : ""
-          }`}
+          className={`flex-1 w-full bg-[#1f1f1f] px-2.5 py-2 lg:px-2 lg:py-1.5 xl:px-2.5 xl:py-2 2xl:px-3 2xl:py-2.5 rounded-lg text-[#ababab] text-xs lg:text-[10px] xl:text-xs 2xl:text-sm font-semibold transition-all duration-150 hover:bg-[#2a2a2a] ${paymentMethod === "Online" ? "bg-[#383737] scale-105 shadow-md ring-2 ring-yellow-500/50" : ""
+            }`}
         >
           Online
         </button>
         <button
           onClick={() => setPaymentMethod("Benefit")}
-          className={`flex-1 w-full bg-[#1f1f1f] px-2.5 py-2 lg:px-2 lg:py-1.5 xl:px-2.5 xl:py-2 2xl:px-3 2xl:py-2.5 rounded-lg text-[#ababab] text-xs lg:text-[10px] xl:text-xs 2xl:text-sm font-semibold transition-all duration-150 hover:bg-[#2a2a2a] ${
-            paymentMethod === "Benefit" ? "bg-[#383737] scale-105 shadow-md ring-2 ring-yellow-500/50" : ""
-          }`}
+          className={`flex-1 w-full bg-[#1f1f1f] px-2.5 py-2 lg:px-2 lg:py-1.5 xl:px-2.5 xl:py-2 2xl:px-3 2xl:py-2.5 rounded-lg text-[#ababab] text-xs lg:text-[10px] xl:text-xs 2xl:text-sm font-semibold transition-all duration-150 hover:bg-[#2a2a2a] ${paymentMethod === "Benefit" ? "bg-[#383737] scale-105 shadow-md ring-2 ring-yellow-500/50" : ""
+            }`}
         >
           Benefit
         </button>
