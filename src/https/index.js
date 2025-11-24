@@ -27,16 +27,11 @@ export const getTable = () => api.get("/api/table");
 // Status & Order update
 export const updateTable = ({ tableId, ...tableData }) => api.put(`/api/table/${tableId}/status`, tableData);
 
-// // Table data (seats & tableNumber) update
-// export const updateTableData = (tableData) => {
-//     const { _id, ...rest } = tableData;
-//     return api.put(`/api/table/${_id}/data`, rest);
-// };
+
 
 // Table data (seats, tableNo, and now status) update
 export const updateTableData = (tableData) => {
-    // _id is destructured out, and 'rest' contains all other fields: 
-    // { tableNo: 10, seats: 6, status: "Booked" }
+    
     const { _id, ...rest } = tableData; 
     
     // The 'rest' object is sent as the request body, which now includes 'status'
@@ -47,7 +42,7 @@ export const deleteTable = (tableId) => api.delete(`/api/table/${tableId}`);
 
 // Order Endpoints/Order
 export const addOrder = (data) => api.post("/api/order", data);
-// export const getOrders = () => api.get("/api/order");
+
 // Get orders since a specific timestamp
  export const getOrders = (since) => api.get(`/api/order?since=${since}`);
 
@@ -76,8 +71,7 @@ export const deleteOrder = (orderId, password = null) =>
 export const updateOrder = (orderId, orderData) =>
     api.put(`/api/order/by-order-id/${orderId}`, orderData);
 
-// export const assignDeliveryBoyToOrder = (orderId, deliveryBoyId) =>
-//   api.patch(`/api/orders/${orderId}/assign-delivery`, { deliveryBoyId });
+
 // ✅ FIXED ENDPOINT
 export const assignDeliveryBoyToOrder = (orderId, deliveryBoyId) =>
   api.patch(`/api/order/${orderId}/assign-delivery`, { deliveryBoyId });
@@ -185,7 +179,7 @@ export const getMetrics = async () => {
 
 
 // Inventory Category Endpoints
-// export const addInventoryCategory = (data) => api.post("/api/category", data);
+
 export const addInventoryCategory = (data) => api.post("/api/inventory-category", data);
 
 

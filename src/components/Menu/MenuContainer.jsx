@@ -1058,8 +1058,8 @@ const MenuContainer = () => {
   const [isLoadingOffline, setIsLoadingOffline] = useState(false);
 
   // Custom category ID
-  const CUSTOM_CATEGORY_ID = "690e724f26e356c8eef29993"; // Bahrain
-  // const CUSTOM_CATEGORY_ID = "690e722d3987e6cf3a2d52e1"; // Demo
+  // const CUSTOM_CATEGORY_ID = "690e724f26e356c8eef29993"; // Bahrain
+  const CUSTOM_CATEGORY_ID = "690e722d3987e6cf3a2d52e1"; // Demo
 
   // Monitor online/offline status
   useEffect(() => {
@@ -1329,35 +1329,67 @@ const MenuContainer = () => {
   };
 
   // ✅ Custom dish handler with unique ID
-  const handleAddCustomDish = () => {
-    if (!customDishName || !customDishPrice) {
-      enqueueSnackbar("Please enter name and price!", { variant: "warning" });
-      return;
-    }
+  // const handleAddCustomDish = () => {
+  //   if (!customDishName || !customDishPrice) {
+  //     enqueueSnackbar("Please enter name and price!", { variant: "warning" });
+  //     return;
+  //   }
     
-    const count = itemCounts[selectedCustomDish._id] || 1;
+  //   const count = itemCounts[selectedCustomDish._id] || 1;
     
-    // Generate truly unique ID for each custom dish
-    const customDishId = `custom-${uuid()}`;
+  //   // Generate truly unique ID for each custom dish
+  //   const customDishId = `custom-${uuid()}`;
     
-    const newObj = {
-      _id: customDishId,
-      menuItem: customDishId,
-      dishId: customDishId,
-      dishName: customDishName,
-      section: selectedCustomDish.section || null,
-      variationName: "Custom",
-      pricePerQuantity: parseFloat(customDishPrice),
-      quantity: count,
-      price: parseFloat(customDishPrice) * count,
-    };
+  //   const newObj = {
+  //     _id: customDishId,
+  //     menuItem: customDishId,
+  //     dishId: customDishId,
+  //     dishName: customDishName,
+  //     section: selectedCustomDish.section || null,
+  //     variationName: "Custom",
+  //     pricePerQuantity: parseFloat(customDishPrice),
+  //     quantity: count,
+  //     price: parseFloat(customDishPrice) * count,
+  //   };
     
-    dispatch(addItems(newObj));
-    enqueueSnackbar(`${customDishName} added to cart!`, { variant: "success" });
-    setIsCustomDishModalOpen(false);
-    setCustomDishName("");
-    setCustomDishPrice('');
+  //   dispatch(addItems(newObj));
+  //   enqueueSnackbar(`${customDishName} added to cart!`, { variant: "success" });
+  //   setIsCustomDishModalOpen(false);
+  //   setCustomDishName("");
+  //   setCustomDishPrice('');
+  // };
+
+const handleAddCustomDish = () => {
+  if (!customDishName || !customDishPrice) {
+    enqueueSnackbar("Please enter name and price!", { variant: "warning" });
+    return;
+  }
+
+  const count = itemCounts[selectedCustomDish._id] || 1;
+
+  // FIXED: proper UUID
+  const customDishId = `custom-${uuidv4()}`;
+
+  const newObj = {
+    _id: customDishId,
+    menuItem: customDishId,
+    dishId: customDishId,
+    dishName: customDishName,
+    section: selectedCustomDish.section || null,
+    variationName: "Custom",
+    pricePerQuantity: parseFloat(customDishPrice),
+    quantity: count,
+    price: parseFloat(customDishPrice) * count,
   };
+
+  dispatch(addItems(newObj));
+  enqueueSnackbar(`${customDishName} added to cart!`, { variant: "success" });
+  setIsCustomDishModalOpen(false);
+  setCustomDishName("");
+  setCustomDishPrice('');
+};
+
+
 
   return (
     <div className="h-full flex flex-col">
