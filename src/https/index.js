@@ -47,7 +47,10 @@ export const deleteTable = (tableId) => api.delete(`/api/table/${tableId}`);
 
 // Order Endpoints/Order
 export const addOrder = (data) => api.post("/api/order", data);
-export const getOrders = () => api.get("/api/order");
+// export const getOrders = () => api.get("/api/order");
+// Get orders since a specific timestamp
+ export const getOrders = (since) => api.get(`/api/order?since=${since}`);
+
 export const getOrdersByStatus = (status) => api.get(`/api/order/status/${status}`);
 // in your https.js or API file
 export const getOrderById = (orderId) => {
@@ -122,6 +125,7 @@ export const deleteDeliveryBoy = (id) => api.delete(`/api/deliveryBoy/${id}`);
 // GET: Searches for a customer record by phone number
 export const searchCustomer = (phone) => api.get(`/api/customers/search?phone=${phone}`);
 export const addCustomer = (data) => api.post("/api/customers", data);
+export const getCustomers = () => api.get('/api/customers');
 
 
 // All Endpoints for Inventory System 

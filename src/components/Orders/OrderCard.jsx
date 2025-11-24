@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 import { FaLongArrowAltRight  } from "react-icons/fa";
 import { FcPrint } from "react-icons/fc";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-// Import the new verification function from your https/index
+// Import the new verification function from  https/index
 import { updateOrderStatus, deleteOrder, updateTable, verifyAdminPassword } from "../../https/index";
 import { enqueueSnackbar } from "notistack";
 import { MdFileDownloadDone, MdEdit } from "react-icons/md";
@@ -14,6 +14,7 @@ import { setEditingMode } from "../../redux/slice/editOrderSlice";
 import { setCustomer, setDeliveryInfo } from "../../redux/slice/customerSlice";
 import { setCartItems } from "../../redux/slice/cartSlice";
 import { sendToPrinters } from "../../https/printBridge";
+import { updateOrderStatusInCache, removeOrderFromCache,  isTrulyOfflineOrder} from "../../utils/offlineStore";
 
 
 const OrderCard = ({ order }) => {
@@ -31,6 +32,9 @@ const OrderCard = ({ order }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pendingStatus, setPendingStatus] = useState(null);
 
+  // 🔄 Local state to track current order status for immediate UI updates
+  const [localOrderStatus, setLocalOrderStatus] = useState(order.orderStatus);
+
   // ✅ Get user role from localStorage
   const getUserRole = () => {
     try {
@@ -41,6 +45,20 @@ const OrderCard = ({ order }) => {
     } catch (error) {
       console.error("❌ Error getting user role:", error);
       return null;
+    }
+  };
+
+
+
+
+  // Check if order is from offline cache
+  const isOfflineOrder = async (orderId) => {
+    try {
+      const cachedOrders = (await load('offline:orders')) || [];
+      return cachedOrders.some(o => (o._id === orderId || o.orderId === orderId));
+    } catch (error) {
+      console.error("Error checking offline order:", error);
+      return false;
     }
   };
 
@@ -83,47 +101,53 @@ const OrderCard = ({ order }) => {
   });
 
   // ✅ Order status mutation with inventory handling (Unchanged)
-  const orderStatusUpdateMutation = useMutation({
-    mutationFn: ({ orderId, orderStatus }) => updateOrderStatus({ orderId, orderStatus }),
-    onSuccess: (data, variables) => {
-      const message = data?.message || "Order status updated successfully!";
-      enqueueSnackbar(message, { variant: "success" });
-      queryClient.invalidateQueries(["orders"]);
-      queryClient.invalidateQueries(["products"]); // Refresh products for inventory
+ const orderStatusUpdateMutation = useMutation({
+  mutationFn: ({ orderId, orderStatus }) => updateOrderStatus({ orderId, orderStatus }),
+  onSuccess: async (data, variables) => {
+    // Update status in cache (works both online and offline)
+    await updateOrderStatusInCache(variables.orderId, variables.orderStatus);
+    
+    const message = data?.message || "Order status updated successfully!";
+    enqueueSnackbar(message, { variant: "success" });
+    queryClient.invalidateQueries(["orders"]);
+    queryClient.invalidateQueries(["products"]);
 
-      if (variables.orderStatus === "Completed" && order.table) {
-        updateTableMutation.mutate({ tableId: order.table._id, status: "Available" });
-      }
+    if (variables.orderStatus === "Completed" && order.table) {
+      updateTableMutation.mutate({ tableId: order.table._id, status: "Available" });
+    }
 
-      setShowConfirmModal(false);
-      setPendingStatus(null);
-    },
-    onError: (error) => {
-      console.error("Error updating order status:", error);
-      const errorMessage = error?.response?.data?.message || error?.message || "Failed to update order status!";
-      enqueueSnackbar(errorMessage, { variant: "error" });
+    setShowConfirmModal(false);
+    setPendingStatus(null);
+  },
+  onError: (error) => {
+    console.error("Error updating order status:", error);
+    const errorMessage = error?.response?.data?.message || error?.message || "Failed to update order status!";
+    enqueueSnackbar(errorMessage, { variant: "error" });
 
-      setShowConfirmModal(false);
-      setPendingStatus(null);
-    },
-  });
+    setShowConfirmModal(false);
+    setPendingStatus(null);
+  },
+});
 
   // ✅ Delete order mutation (Unchanged)
   const deleteOrderMutation = useMutation({
-    mutationFn: (order) => deleteOrder(order._id, order.password),
-    onSuccess: (data, order) => {
-      enqueueSnackbar("Order deleted successfully!", { variant: "success" });
-      queryClient.invalidateQueries(["orders"]);
+  mutationFn: (order) => deleteOrder(order._id, order.password),
+  onSuccess: async (data, order) => {
+    // Remove from cache (works both online and offline)
+    await removeOrderFromCache(order._id);
+    
+    enqueueSnackbar("Order deleted successfully!", { variant: "success" });
+    queryClient.invalidateQueries(["orders"]);
 
-      if (order.table) {
-        updateTableMutation.mutate({ tableId: order.table._id, status: "Available" });
-      }
-    },
-    onError: (error) => {
-      console.error("Error deleting order:", error);
-      enqueueSnackbar("Failed to delete order!", { variant: "error" });
-    },
-  });
+    if (order.table) {
+      updateTableMutation.mutate({ tableId: order.table._id, status: "Available" });
+    }
+  },
+  onError: (error) => {
+    console.error("Error deleting order:", error);
+    enqueueSnackbar("Failed to delete order!", { variant: "error" });
+  },
+});
 
   // --- HANDLERS ---
 
@@ -148,34 +172,90 @@ const handlePrintOrder = async (order) => {
 
 
   // ✅ Handle status change with confirmation for critical statuses (Unchanged)
-  const handleStatusChange = (newStatus) => {
-    
-    if (newStatus === "delete") {
-      if (window.confirm("Are you sure you want to delete this order?")) {
-        const userRole = getUserRole();
+ const isOnline = () => navigator.onLine;
 
-        if (userRole === "admin") {
-          deleteOrderMutation.mutate({ ...order, password: null });
-        } else {
-          // Trigger modal for password verification
-          setPasswordAction("delete");
-          setShowPasswordModal(true);
-        }
+// UPDATED handleStatusChange function - replace your existing one
+const handleStatusChange = async (newStatus) => {
+  
+  
+
+const orderId = order._id || order.orderId;
+
+  if (newStatus === "delete") {
+    const offline = !isOnline();
+    const isOfflineCreated = await isTrulyOfflineOrder(orderId);
+
+    if (offline && !isOfflineCreated) {
+      enqueueSnackbar(
+        "⚠️ Cannot delete online orders while offline. Please connect to the internet.",
+        { variant: "warning" }
+      );
+      return;
+    }
+
+    if (!window.confirm("Are you sure you want to delete this order?")) {
+      return;
+    }
+
+    if (isOfflineCreated) {
+      // 📴 Delete offline order from local cache
+      const removed = await removeOrderFromCache(orderId);
+      if (removed) {
+        enqueueSnackbar("✅ Offline order removed successfully", { variant: "success" });
+        queryClient.invalidateQueries(["orders"]);
+      } else {
+        enqueueSnackbar("❌ Failed to remove offline order", { variant: "error" });
       }
       return;
     }
-    
 
-    if (newStatus === "Completed" || newStatus === "Cancelled") {
-      setPendingStatus(newStatus);
-      setShowConfirmModal(true);
+    // 🌐 Online order (has _id)
+    const userRole = getUserRole();
+    if (userRole === "admin") {
+      deleteOrderMutation.mutate({ ...order, password: null });
     } else {
-      orderStatusUpdateMutation.mutate({ orderId: order._id, orderStatus: newStatus });
+      setPasswordAction("delete");
+      setShowPasswordModal(true);
     }
 
-   
+    return;
+  }
 
-  };
+
+  // Handle STATUS CHANGE (Ready, Complete, etc.)
+  
+  // Check if offline
+  if (!isOnline()) {
+    // Offline: Update cache directly
+    await updateOrderStatusInCache(order._id || order.orderId, newStatus);
+    
+    // Update local state for immediate UI update
+    setLocalOrderStatus(newStatus);
+    
+    // Manually update React Query cache to reflect changes immediately
+    queryClient.setQueryData(["orders"], (oldData) => {
+      if (!oldData) return oldData;
+      
+      return oldData.map((ord) => {
+        if ((ord._id || ord.orderId) === (order._id || order.orderId)) {
+          return { ...ord, orderStatus: newStatus };
+        }
+        return ord;
+      });
+    });
+    
+    enqueueSnackbar(`Order status updated to ${newStatus} (offline)`, { variant: "success" });
+    return;
+  }
+
+  // Online: Normal flow with confirmation if needed
+  if (newStatus === "Completed" || newStatus === "Cancelled") {
+    setPendingStatus(newStatus);
+    setShowConfirmModal(true);
+  } else {
+    orderStatusUpdateMutation.mutate({ orderId: order._id, orderStatus: newStatus });
+  }
+};
 
   // ✅ Confirm status change (Unchanged)
   const handleConfirmStatusChange = () => {
@@ -341,6 +421,8 @@ const handlePrintOrder = async (order) => {
   const isPasswordVerificationLoading = verifyPasswordMutation.isLoading;
   const isOrderDeletionLoading = deleteOrderMutation.isLoading;
 
+
+
   return (
     <>
       {/* 🧾 Order Card - Responsive */}
@@ -422,15 +504,15 @@ const handlePrintOrder = async (order) => {
                   </button>
 
                   <select
-                    className={`bg-[#1a1a1a] text-[#f5f5f5] border border-gray-500 px-2 py-2 rounded-lg focus:outline-none text-xs sm:text-sm flex-1 min-w-[120px] ${order.orderStatus === "Ready"
+                    className={`bg-[#1a1a1a] text-[#f5f5f5] border border-gray-500 px-2 py-2 rounded-lg focus:outline-none text-xs sm:text-sm flex-1 min-w-[120px] ${localOrderStatus === "Ready"
                       ? "text-green-500"
-                      : order.orderStatus === "Completed"
+                      : localOrderStatus === "Completed"
                         ? "text-blue-500"
-                        : order.orderStatus === "Cancelled"
+                        : localOrderStatus === "Cancelled"
                           ? "text-red-500"
                           : "text-yellow-500"
                       }`}
-                    value={order.orderStatus}
+                    value={localOrderStatus}
                     onChange={(e) => handleStatusChange(e.target.value)}
                     disabled={orderStatusUpdateMutation.isLoading || isPasswordVerificationLoading}
                   >
@@ -459,17 +541,17 @@ const handlePrintOrder = async (order) => {
                 <p className="text-[#ababab] text-xs sm:text-sm flex items-center">
                   {orderStatusUpdateMutation.isLoading || isPasswordVerificationLoading ? (
                     <span className="animate-pulse text-gray-400">Processing action...</span>
-                  ) : order.orderStatus === "Ready" ? (
+                  ) : localOrderStatus === "Ready" ? (
                     <>
                       <FaCircle className="inline mr-1 sm:mr-2 text-green-600 text-[8px] sm:text-xs flex-shrink-0" />
                       <span>Order Ready</span>
                     </>
-                  ) : order.orderStatus === "Completed" ? (
+                  ) : localOrderStatus === "Completed" ? (
                     <>
                       <MdFileDownloadDone className="inline mr-1 sm:mr-2 text-blue-600 text-sm sm:text-base flex-shrink-0" />
                       <span>Order Completed</span>
                     </>
-                  ) : order.orderStatus === "Cancelled" ? (
+                  ) : localOrderStatus === "Cancelled" ? (
                     <>
                       <FaCircle className="inline mr-1 sm:mr-2 text-red-600 text-[8px] sm:text-xs flex-shrink-0" />
                       <span>Order Cancelled</span>

@@ -15,3 +15,28 @@ export const sendToPrinters = async (orderData) => {
     throw err;
   }
 };
+
+
+export const printSalesReport = async (reportData) => {
+  try {
+
+    
+    const response = await fetch(`${BRIDGE_BASE_URL}/print-sales-report`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(reportData),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Print failed');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Print sales report error:', error);
+    throw error;
+  }
+};
