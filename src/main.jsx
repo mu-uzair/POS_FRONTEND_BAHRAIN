@@ -34,8 +34,8 @@
 // Modified main.jsx
 // to include Service Worker registration
 // add this for iphone login issue line 36 and 37
-import axios from "axios";
-axios.defaults.withCredentials = true;
+// import axios from "axios";
+// axios.defaults.withCredentials = true;
 
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
