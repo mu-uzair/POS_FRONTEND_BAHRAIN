@@ -1058,8 +1058,8 @@ const MenuContainer = () => {
   const [isLoadingOffline, setIsLoadingOffline] = useState(false);
 
   // Custom category ID
-  const CUSTOM_CATEGORY_ID = "690e724f26e356c8eef29993"; // Bahrain
-  // const CUSTOM_CATEGORY_ID = "690e722d3987e6cf3a2d52e1"; // Demo
+  // const CUSTOM_CATEGORY_ID = "690e724f26e356c8eef29993"; // Bahrain
+  const CUSTOM_CATEGORY_ID = "690e722d3987e6cf3a2d52e1"; // Demo
 
   // Monitor online/offline status
   useEffect(() => {
