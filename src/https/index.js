@@ -41,6 +41,9 @@ export const updateTableData = (tableData) => {
 export const deleteTable = (tableId) => api.delete(`/api/table/${tableId}`);
 
 // Order Endpoints/Order
+
+export const getNextOrderNumber = () => api.get("/api/order/next-order-number");
+
 export const addOrder = (data) => api.post("/api/order", data);
 
 // Get orders since a specific timestamp
@@ -70,6 +73,18 @@ export const deleteOrder = (orderId, password = null) =>
 // For full order updates
 export const updateOrder = (orderId, orderData) =>
     api.put(`/api/order/by-order-id/${orderId}`, orderData);
+
+// // for Bulk Order Status Updates
+// export const completeAllOrders = async (filters) => {
+//   const { data } = await axios.patch('/api/orders/complete-multiple', filters);
+//   return data;               // { success, modifiedCount, message }
+// };
+
+export const completeAllOrders = async (filters) => {
+  const { data } = await api.patch('/api/order/complete-multiple', filters);
+  return data; // { success, modifiedCount, message }
+};
+
 
 
 // ✅ FIXED ENDPOINT
@@ -219,3 +234,139 @@ export const adjustStockByRecipeApi = ({ recipeId, quantity }) =>
     api.post(`/api/dishRecipe/${recipeId}/stock-out`, {
         qtyOfDishes: quantity,
     });
+
+
+
+// ============================================
+// 📊 ANALYTICS APIs
+// ============================================
+
+/**
+ * Get dashboard analytics (revenue, orders, graphs)
+ * @param {number} dateRange - Number of days (7, 30, 90)
+ */
+export const getDashboardAnalytics = async (dateRange = 30) => {
+  try {
+    const response = await api.get('api/analytics/dashboard', {
+      params: { dateRange }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching dashboard analytics:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get today's analytics (for home page)
+ */
+export const getTodayAnalytics = async () => {
+  try {
+    const response = await api.get('api/analytics/today');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching today analytics:', error);
+    throw error;
+  }
+};
+
+// /**
+//  * Get popular dishes
+//  * @param {number} limit - Number of dishes to return
+//  * @param {number} dateRange - Number of days to analyze
+//  */
+// export const getPopularDishes = async (limit = 10, dateRange = 30) => {
+//   try {
+//     const response = await api.get('api/analytics/top-dishes', {
+//       params: { limit, dateRange }
+//     });
+//     return response.data;
+//   } catch (error) {
+//     console.error('Error fetching popular dishes:', error);
+//     throw error;
+//   }
+// };
+
+/**
+ * Get popular dishes
+ * @param {number} limit - Number of dishes to return
+ * @param {number} dateRange - Number of days to analyze (optional if using startDate/endDate)
+ * @param {string} startDate - Optional start date (ISO string)
+ * @param {string} endDate - Optional end date (ISO string)
+ */
+export const getPopularDishes = async (limit = 10, dateRange = 30, startDate = null, endDate = null) => {
+  try {
+    const params = {
+      limit,
+      ...(startDate && endDate ? { startDate, endDate } : { dateRange })
+    };
+    
+    const response = await api.get('api/analytics/popular-dishes', {
+      params
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching popular dishes:', error);
+    throw error;
+  }
+};
+
+// ============================================
+// 📦 OPTIMIZED ORDER APIs
+// ============================================
+
+/**
+ * Get paginated orders with filters
+ * @param {Object} params - Query parameters
+ * @param {number} params.page - Page number
+ * @param {number} params.limit - Items per page
+ * @param {string} params.status - Order status filter
+ * @param {string} params.dateFilter - Date filter (Today, Yesterday, Custom, All)
+ * @param {string} params.startDate - Start date for custom filter
+ * @param {string} params.endDate - End date for custom filter
+ * @param {string} params.orderType - Order type filter
+ * @param {string} params.paymentMethod - Payment method filter
+ * @param {string} params.sortBy - Sort field
+ * @param {string} params.sortOrder - Sort order (asc, desc)
+ */
+export const getPaginatedOrders = async (params) => {
+  try {
+    const response = await api.get('api/optimized-orders/list', { params });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching paginated orders:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get order statistics (counts by status)
+ * @param {Object} filters - Filter parameters
+ */
+export const getOrderStats = async (filters = {}) => {
+  try {
+    const response = await api.get('api/optimized-orders/stats', {
+      params: filters
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching order stats:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get payment totals with filters
+ * @param {Object} filters - Filter parameters
+ */
+export const getPaymentTotals = async (filters = {}) => {
+  try {
+    const response = await api.get('api/optimized-orders/payments', {
+      params: filters
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching payment totals:', error);
+    throw error;
+  }
+};
