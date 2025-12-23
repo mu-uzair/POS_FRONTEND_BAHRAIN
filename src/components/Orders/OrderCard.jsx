@@ -1,8 +1,9 @@
 import React, { useState } from "react";
+
 import { FaCircle } from "react-icons/fa";
 import { getAvatarName, formatDateAndTme } from "../../utils/index";
 import { useDispatch } from "react-redux";
-import { FaLongArrowAltRight  } from "react-icons/fa";
+import { FaLongArrowAltRight } from "react-icons/fa";
 import { FcPrint } from "react-icons/fc";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 // Import the new verification function from  https/index
@@ -14,13 +15,19 @@ import { setEditingMode } from "../../redux/slice/editOrderSlice";
 import { setCustomer, setDeliveryInfo } from "../../redux/slice/customerSlice";
 import { setCartItems } from "../../redux/slice/cartSlice";
 import { sendToPrinters } from "../../https/printBridge";
-import { updateOrderStatusInCache, removeOrderFromCache,  isTrulyOfflineOrder} from "../../utils/offlineStore";
-
+import { updateOrderStatusInCache, removeOrderFromCache, isTrulyOfflineOrder } from "../../utils/offlineStore";
+import { useOfflineMode } from "../../constants/OfflineModeContext";
+import { load, save, STORAGE_KEYS } from "../../utils/offlineStore";
 
 const OrderCard = ({ order }) => {
   const queryClient = useQueryClient();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  // ✅ Add offline mode hook
+  const { isOfflineMode } = useOfflineMode();
+
+
 
   // 🔐 Password modal state
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -100,28 +107,99 @@ const OrderCard = ({ order }) => {
     },
   });
 
-  // ✅ Order status mutation with inventory handling (Unchanged)
- const orderStatusUpdateMutation = useMutation({
-  mutationFn: ({ orderId, orderStatus }) => updateOrderStatus({ orderId, orderStatus }),
+
+
+const orderStatusUpdateMutation = useMutation({
+  mutationFn: ({ orderId, orderStatus }) => 
+    updateOrderStatus({ orderId, orderStatus }),
   onSuccess: async (data, variables) => {
-    // Update status in cache (works both online and offline)
-    await updateOrderStatusInCache(variables.orderId, variables.orderStatus);
+    console.log('✅ [ONLINE] Status updated via API');
+    console.log('   OrderID:', variables.orderId);
+    console.log('   New Status:', variables.orderStatus);
     
     const message = data?.message || "Order status updated successfully!";
     enqueueSnackbar(message, { variant: "success" });
-    queryClient.invalidateQueries(["orders"]);
-    queryClient.invalidateQueries(["products"]);
-
+    
+    // ✅ IMMEDIATE: Update local state for instant UI change
+    setLocalOrderStatus(variables.orderStatus);
+    
+    // ✅ DIRECT CACHE UPDATE: Update IndexedDB immediately
+    try {
+      console.log('💾 Updating cache directly...');
+      
+      // Load current cache
+      const orders = (await load(STORAGE_KEYS.ORDERS_CACHE)) || [];
+      console.log(`   Found ${orders.length} orders in cache`);
+      
+      // Find and update the order with IMPROVED ID matching
+      let found = false;
+      const updatedOrders = orders.map(o => {
+        // ✅ IMPROVED: Check all possible ID combinations
+        const matches = 
+          o._id === variables.orderId ||
+          o.orderId === variables.orderId ||
+          String(o._id) === String(variables.orderId) ||
+          String(o.orderId) === String(variables.orderId);
+        
+        if (matches) {
+          found = true;
+          console.log(`   ✅ Found order (cache _id: ${o._id}, search id: ${variables.orderId})`);
+          console.log(`   📝 Updating status: ${o.orderStatus} → ${variables.orderStatus}`);
+          return { 
+            ...o, 
+            orderStatus: variables.orderStatus,
+            updatedAt: new Date().toISOString()
+          };
+        }
+        return o;
+      });
+      
+      if (found) {
+        // Save updated cache
+        await save(STORAGE_KEYS.ORDERS_CACHE, updatedOrders);
+        console.log('✅ Cache saved successfully!');
+        
+        // Verify the update
+        const verify = (await load(STORAGE_KEYS.ORDERS_CACHE)) || [];
+        const verifyOrder = verify.find(o => 
+          o._id === variables.orderId ||
+          o.orderId === variables.orderId ||
+          String(o._id) === String(variables.orderId) ||
+          String(o.orderId) === String(variables.orderId)
+        );
+        
+        if (verifyOrder) {
+          console.log(`✅ Verification SUCCESS: Status is now "${verifyOrder.orderStatus}"`);
+        } else {
+          console.error('❌ Verification FAILED: Order not found after save');
+        }
+      } else {
+        console.warn(`⚠️ Order ${variables.orderId} not found in cache`);
+        console.warn('   Cache IDs:', orders.map(o => ({ _id: o._id, orderId: o.orderId })));
+      }
+      
+    } catch (err) {
+      console.error('❌ Failed to update cache:', err);
+    }
+    
+    // ✅ ALSO: Invalidate React Query (for next page load)
+    await queryClient.invalidateQueries(["orders"]);
+    
     if (variables.orderStatus === "Completed" && order.table) {
-      updateTableMutation.mutate({ tableId: order.table._id, status: "Available" });
+      updateTableMutation.mutate({ 
+        tableId: order.table._id, 
+        status: "Available" 
+      });
     }
 
     setShowConfirmModal(false);
     setPendingStatus(null);
   },
   onError: (error) => {
-    console.error("Error updating order status:", error);
-    const errorMessage = error?.response?.data?.message || error?.message || "Failed to update order status!";
+    console.error("❌ [ONLINE] Status update failed:", error);
+    const errorMessage = 
+      error?.response?.data?.message || 
+      "Failed to update order status!";
     enqueueSnackbar(errorMessage, { variant: "error" });
 
     setShowConfirmModal(false);
@@ -129,133 +207,222 @@ const OrderCard = ({ order }) => {
   },
 });
 
-  // ✅ Delete order mutation (Unchanged)
+
+
   const deleteOrderMutation = useMutation({
   mutationFn: (order) => deleteOrder(order._id, order.password),
-  onSuccess: async (data, order) => {
-    // Remove from cache (works both online and offline)
-    await removeOrderFromCache(order._id);
+  onSuccess: async (data, deletedOrder) => {
+    console.log('✅ [ONLINE DELETE] Order deleted from backend');
+    console.log('   Order ID:', deletedOrder._id);
     
-    enqueueSnackbar("Order deleted successfully!", { variant: "success" });
-    queryClient.invalidateQueries(["orders"]);
-
-    if (order.table) {
-      updateTableMutation.mutate({ tableId: order.table._id, status: "Available" });
+    try {
+      // ✅ STEP 1: Remove from IndexedDB cache
+      console.log('   🗑️ Removing from cache...');
+      const removed = await removeOrderFromCache(deletedOrder._id);
+      
+      if (removed) {
+        console.log('   ✅ Removed from cache');
+      } else {
+        console.warn('   ⚠️ Order not found in cache (might be already removed)');
+      }
+      
+      // ✅ STEP 2: Invalidate React Query to refresh UI
+      console.log('   🔄 Invalidating React Query...');
+      await queryClient.invalidateQueries(["orders"]);
+      console.log('   ✅ React Query invalidated');
+      
+      // ✅ STEP 3: Update table status if needed
+      if (deletedOrder.table) {
+        console.log('   🪑 Updating table status...');
+        updateTableMutation.mutate({
+          tableId: deletedOrder.table._id,
+          status: "Available"
+        });
+      }
+      
+      enqueueSnackbar("Order deleted successfully!", { variant: "success" });
+      
+    } catch (err) {
+      console.error('❌ Error cleaning up after delete:', err);
+      // Still show success since backend delete worked
+      enqueueSnackbar("Order deleted (cache cleanup error)", { 
+        variant: "warning" 
+      });
     }
   },
   onError: (error) => {
-    console.error("Error deleting order:", error);
+    console.error("❌ Error deleting order:", error);
     enqueueSnackbar("Failed to delete order!", { variant: "error" });
   },
 });
 
+
   // --- HANDLERS ---
 
-// --- PRINTING HANDLER ---
-const handlePrintOrder = async (order) => {
-  try {
-    enqueueSnackbar("🖨️ Sending receipt to cashier printer...", { variant: "info" });
+  // --- PRINTING HANDLER ---
+  const handlePrintOrder = async (order) => {
+    try {
+      enqueueSnackbar("🖨️ Sending receipt to cashier printer...", { variant: "info" });
 
-    const response = await sendToPrinters({
-      ...order,
-      target: "cashier", // only cashier printer
-    });
+      const response = await sendToPrinters({
+        ...order,
+        target: "cashier", // only cashier printer
+      });
 
-    enqueueSnackbar(response?.message || "✅ Receipt printed successfully!", {
-      variant: "success",
-    });
-  } catch (error) {
-    console.error("Print error:", error);
-    enqueueSnackbar(`❌ Print failed: ${error.message}`, { variant: "error" });
-  }
-};
+      enqueueSnackbar(response?.message || "✅ Receipt printed successfully!", {
+        variant: "success",
+      });
+    } catch (error) {
+      console.error("Print error:", error);
+      enqueueSnackbar(`❌ Print failed: ${error.message}`, { variant: "error" });
+    }
+  };
 
 
   // ✅ Handle status change with confirmation for critical statuses (Unchanged)
- const isOnline = () => navigator.onLine;
+  const isOnline = () => navigator.onLine;
 
-// UPDATED handleStatusChange function - replace your existing one
-const handleStatusChange = async (newStatus) => {
-  
-  
 
-const orderId = order._id || order.orderId;
+  // ============================================
+  // HANDLE STATUS CHANGE
+  // ============================================
+  const handleStatusChange = async (newStatus) => {
+    const orderId = order._id || order.orderId;
 
-  if (newStatus === "delete") {
-    const offline = !isOnline();
-    const isOfflineCreated = await isTrulyOfflineOrder(orderId);
+    // ============================================
+    // HANDLE DELETE
+    // ============================================
+    if (newStatus === "delete") {
+      const isOfflineCreated = await isTrulyOfflineOrder(orderId);
 
-    if (offline && !isOfflineCreated) {
-      enqueueSnackbar(
-        "⚠️ Cannot delete online orders while offline. Please connect to the internet.",
-        { variant: "warning" }
-      );
-      return;
-    }
-
-    if (!window.confirm("Are you sure you want to delete this order?")) {
-      return;
-    }
-
-    if (isOfflineCreated) {
-      // 📴 Delete offline order from local cache
-      const removed = await removeOrderFromCache(orderId);
-      if (removed) {
-        enqueueSnackbar("✅ Offline order removed successfully", { variant: "success" });
-        queryClient.invalidateQueries(["orders"]);
-      } else {
-        enqueueSnackbar("❌ Failed to remove offline order", { variant: "error" });
+      // Prevent deleting online orders while offline
+      if (isOfflineMode && !isOfflineCreated) {
+        enqueueSnackbar(
+          "⚠️ Cannot delete online orders while offline. Please connect to the internet.",
+          { variant: "warning" }
+        );
+        return;
       }
+
+      if (!window.confirm("Are you sure you want to delete this order?")) {
+        return;
+      }
+
+      // Delete offline-created order
+      if (isOfflineCreated) {
+        const removed = await removeOrderFromCache(orderId);
+        if (removed) {
+          enqueueSnackbar("✅ Offline order removed successfully", {
+            variant: "success"
+          });
+          queryClient.invalidateQueries(["orders"]);
+        } else {
+          enqueueSnackbar("❌ Failed to remove offline order", {
+            variant: "error"
+          });
+        }
+        return;
+      }
+      const userRole = getUserRole();
+      if (userRole === "admin") {
+        deleteOrderMutation.mutate({ ...order, password: null });
+      } else {
+        setPasswordAction("delete");
+        setShowPasswordModal(true);
+      }
+      
       return;
     }
 
-    // 🌐 Online order (has _id)
-    const userRole = getUserRole();
-    if (userRole === "admin") {
-      deleteOrderMutation.mutate({ ...order, password: null });
-    } else {
-      setPasswordAction("delete");
-      setShowPasswordModal(true);
+    // ============================================
+    // HANDLE STATUS UPDATE
+    // ============================================
+
+    if (isOfflineMode) {
+      // ------------------------------------------------
+      // OFFLINE MODE: Update cache and queue for sync
+      // ------------------------------------------------
+      console.log(`📴 [OFFLINE] Updating status: ${orderId} -> ${newStatus}`);
+
+      try {
+        // ✅ Update in cache with addToSync = true
+        const updated = await updateOrderStatusInCache(orderId, newStatus, true);
+
+        if (!updated) {
+          enqueueSnackbar("Failed to update order status offline", {
+            variant: "error"
+          });
+          return;
+        }
+
+        // ✅ Update local state immediately
+        setLocalOrderStatus(newStatus);
+
+        // ✅ Manually update React Query cache for instant UI update
+        queryClient.setQueryData(["orders"], (oldData) => {
+          if (!oldData) return oldData;
+
+          if (oldData?.pages) {
+            // Infinite query format
+            return {
+              ...oldData,
+              pages: oldData.pages.map(page => ({
+                ...page,
+                data: page.data?.map(ord => {
+                  const id = ord._id || ord.orderId;
+                  if (id === orderId) {
+                    return { ...ord, orderStatus: newStatus };
+                  }
+                  return ord;
+                }) || []
+              }))
+            };
+          } else if (Array.isArray(oldData)) {
+            // Array format
+            return oldData.map(ord => {
+              const id = ord._id || ord.orderId;
+              if (id === orderId) {
+                return { ...ord, orderStatus: newStatus };
+              }
+              return ord;
+            });
+          }
+
+          return oldData;
+        });
+
+        enqueueSnackbar(
+          `Order status updated to ${newStatus} (offline - will sync when online)`,
+          { variant: "warning", autoHideDuration: 4000 }
+        );
+
+        console.log(`✅ [OFFLINE] Status updated and queued for sync`);
+
+      } catch (error) {
+        console.error('❌ [OFFLINE] Status update failed:', error);
+        enqueueSnackbar("Failed to update status offline", { variant: "error" });
+      }
+
+      return;
     }
 
-    return;
-  }
+    // ------------------------------------------------
+    // ONLINE MODE: Call API only
+    // ------------------------------------------------
+    console.log(`🌐 [ONLINE] Updating status via API: ${orderId} -> ${newStatus}`);
 
-
-  // Handle STATUS CHANGE (Ready, Complete, etc.)
-  
-  // Check if offline
-  if (!isOnline()) {
-    // Offline: Update cache directly
-    await updateOrderStatusInCache(order._id || order.orderId, newStatus);
-    
-    // Update local state for immediate UI update
-    setLocalOrderStatus(newStatus);
-    
-    // Manually update React Query cache to reflect changes immediately
-    queryClient.setQueryData(["orders"], (oldData) => {
-      if (!oldData) return oldData;
-      
-      return oldData.map((ord) => {
-        if ((ord._id || ord.orderId) === (order._id || order.orderId)) {
-          return { ...ord, orderStatus: newStatus };
-        }
-        return ord;
+    // Check if confirmation needed for critical statuses
+    if (newStatus === "Completed" || newStatus === "Cancelled") {
+      setPendingStatus(newStatus);
+      setShowConfirmModal(true);
+    } else {
+      // Direct update for non-critical statuses
+      orderStatusUpdateMutation.mutate({
+        orderId: order._id,
+        orderStatus: newStatus
       });
-    });
-    
-    enqueueSnackbar(`Order status updated to ${newStatus} (offline)`, { variant: "success" });
-    return;
-  }
-
-  // Online: Normal flow with confirmation if needed
-  if (newStatus === "Completed" || newStatus === "Cancelled") {
-    setPendingStatus(newStatus);
-    setShowConfirmModal(true);
-  } else {
-    orderStatusUpdateMutation.mutate({ orderId: order._id, orderStatus: newStatus });
-  }
-};
+    }
+  };
 
   // ✅ Confirm status change (Unchanged)
   const handleConfirmStatusChange = () => {
@@ -338,8 +505,8 @@ const orderId = order._id || order.orderId;
         table: tableDataForRedux,
         isEdit: true,
         items: order.items || [],
-        comment : order.comment || "",
-          printedItems: order.items || [],
+        comment: order.comment || "",
+        printedItems: order.items || [],
       })
     );
 
@@ -434,24 +601,33 @@ const orderId = order._id || order.orderId;
           <button className="bg-[#f6b100] p-2 sm:p-2.5 lg:p-3 text-base sm:text-lg lg:text-xl font-bold rounded-lg flex-shrink-0">
             {getAvatarName(order.customerDetails.name)}
           </button>
-          
+
 
           {/* Main Content Wrapper */}
           <div className="flex-1 min-w-0">
             {/* Customer Info & Actions Container */}
             <div className="flex flex-col gap-3">
-              {/* Customer Info */}
-              {/* <div className="flex flex-col items-start gap-1">
-                <h1 className="text-[#f5f5f5] text-sm sm:text-base lg:text-lg font-semibold tracking-wide truncate w-full">
+             
+              <div className="flex items-center justify-between w-full">
+                <h1 className="text-[#f5f5f5] text-sm sm:text-base lg:text-lg font-semibold tracking-wide truncate">
                   {order.customerDetails.name}
                 </h1>
-                
+
+                <button
+                  onClick={() => handlePrintOrder(order)}
+                  className="text-gray-400 hover:scale-3d transition-colors"
+                  title="Print Receipt"
+                >
+                  <FcPrint size={16} className="sm:w-7 sm:h-7 hover:scale-105" />
+                </button>
+              </div>
+
+              {/* Customer Details Below */}
+              <div className="flex flex-col items-start gap-1 mt-1">
                 <p className="text-[#ababab] text-xs sm:text-sm">
                   #{order.orderId} / {order.customerDetails.orderType}
                 </p>
-                <p className="text-[#ababab] text-xs sm:text-sm">
-                  #{order.orderNo}
-                </p>
+                <p className="text-[#ababab] text-xs sm:text-sm">#{order.orderNo}</p>
                 {order.table && (
                   <p className="text-[#ababab] text-xs sm:text-sm flex items-center">
                     Table
@@ -459,36 +635,7 @@ const orderId = order._id || order.orderId;
                     {order.table.tableNo}
                   </p>
                 )}
-              </div> */}
-
-              <div className="flex items-center justify-between w-full">
-  <h1 className="text-[#f5f5f5] text-sm sm:text-base lg:text-lg font-semibold tracking-wide truncate">
-    {order.customerDetails.name}
-  </h1>
-  
-  <button
-    onClick={() => handlePrintOrder(order)}
-    className="text-gray-400 hover:scale-3d transition-colors"
-    title="Print Receipt"
-  >
-    <FcPrint size={16} className="sm:w-7 sm:h-7 hover:scale-105" />
-  </button>
-</div>
-
-{/* Customer Details Below */}
-<div className="flex flex-col items-start gap-1 mt-1">
-  <p className="text-[#ababab] text-xs sm:text-sm">
-    #{order.orderId} / {order.customerDetails.orderType}
-  </p>
-  <p className="text-[#ababab] text-xs sm:text-sm">#{order.orderNo}</p>
-  {order.table && (
-    <p className="text-[#ababab] text-xs sm:text-sm flex items-center">
-      Table
-      <FaLongArrowAltRight className="text-[#ababab] mx-1 sm:mx-2 inline" />
-      {order.table.tableNo}
-    </p>
-  )}
-</div>
+              </div>
 
               {/* Actions & Status Section */}
               <div className="flex flex-col gap-2">
@@ -531,7 +678,7 @@ const orderId = order._id || order.orderId;
                     <option className="text-red-500" value="delete">
                       Delete Order
                     </option>
-                  
+
 
                   </select>
 
@@ -651,7 +798,7 @@ const orderId = order._id || order.orderId;
               value={adminPassword}
               onChange={(e) => setAdminPassword(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleConfirmPassword()}
-              disabled={isPasswordVerificationLoading || isOrderDeletionLoading}
+              disabled={isPasswordVerificationLoading || deleteOrderMutation}
             />
 
             {isPasswordVerificationLoading && (
