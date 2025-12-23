@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"||"https://backend.hasnova.com";
 
 export const useSalesReport = () => {
   const [dateRange, setDateRange] = useState({
