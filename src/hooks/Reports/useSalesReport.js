@@ -14,7 +14,7 @@ export const useSalesReport = () => {
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['salesReport', dateRange],
     queryFn: async () => {
-      const response = await axios.get(`${API_BASE_URL}/api/optimized-orders/sales-report`, {
+      const response = await axios.get(`${API_BASE_URL}api/optimized-orders/sales-report`, {
         params: {
           startDate: dateRange.startDate,
           endDate: dateRange.endDate
