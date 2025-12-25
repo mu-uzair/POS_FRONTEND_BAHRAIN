@@ -19,11 +19,12 @@ import { setDeliveryInfo } from "../../redux/slice/customerSlice";
 import { useOfflineMode } from "../../constants/OfflineModeContext";
 import { useCreateOrder } from "../../hooks/useCreateOrder";
 import { useUpdateOrderStatus } from "../../hooks/useUpdateOrder";
-import { isTrulyOfflineOrder,
-  addToPendingSync, 
+import {
+  isTrulyOfflineOrder,
+  addToPendingSync,
   updateOrdersCache,
   updateOrderStatusInCache,
-  updateOrderInCache ,
+  updateOrderInCache,
   STORAGE_KEYS,
   load,
   save
@@ -32,7 +33,7 @@ import { isTrulyOfflineOrder,
 // ✅ Calculate delta items helper
 const calculateDeltaItems = (currentItems, previousItems) => {
   const deltaItems = [];
-  
+
   currentItems.forEach((currentItem) => {
     const previousItem = previousItems.find(
       (prev) =>
@@ -72,13 +73,13 @@ const calculateDeltaItems = (currentItems, previousItems) => {
 const BillInfo = () => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
-  
+
   // ✅ Get offline mode from context
   const { isOfflineMode } = useOfflineMode();
-  
+
   // ✅ Use unified order creation hook
   const { createOrder, isCreating } = useCreateOrder();
-  
+
   const isEditing = useSelector((state) => state.editOrder.isEditing);
   const customerData = useSelector((state) => state.customer);
   const cartData = useSelector((state) => state.cart);
@@ -100,7 +101,7 @@ const BillInfo = () => {
   const handleCommentChange = (e) => {
     const value = e.target.value;
     setOrderComment(value);
-    
+
     dispatch(setCustomer({
       ...customerData,
       comment: value,
@@ -122,7 +123,7 @@ const BillInfo = () => {
     const totalAfterDiscount = roundTo3(total - discountAmount);
     const basePrice = roundTo3(totalAfterDiscount / 1.10);
     const calculatedTax = roundTo3(totalAfterDiscount - basePrice);
-    
+
     setTax(calculatedTax);
     setTotalPriceWithTax(roundBhd(totalAfterDiscount));
   }, [total, paymentMethod, discountPercentage]);
@@ -162,7 +163,7 @@ const BillInfo = () => {
         ...customerData,
         comment: "",
       }));
-      
+
       dispatch(confirmOrder());
     },
     onError: (error) => {
@@ -238,33 +239,65 @@ const BillInfo = () => {
   });
 
   // ✅ Handle Delivery Order with Customer Info
+  // const handleDeliveryOrder = async (deliveryData) => {
+  //   try {
+  //     dispatch(
+  //       setCustomer({
+  //         name: deliveryData.name,
+  //         phone: deliveryData.phone,
+  //         guests: 0,
+  //         orderType: "Delivery",
+  //       })
+  //     );
+
+  //     const deliveryInfo = {
+  //       address: deliveryData.address,
+  //       deliveryBoyId: deliveryData.deliveryBoy,
+  //       phone: deliveryData.phone,
+  //       name: deliveryData.name
+  //     };
+
+  //     dispatch(setDeliveryInfo(deliveryInfo));
+  //     setIsDeliveryModalOpen(false);
+
+  //     setTimeout(() => {
+  //       handlePlaceOrder();
+  //     }, 100);
+  //   } catch (error) {
+  //     console.error("Delivery Order Error:", error);
+  //     enqueueSnackbar("Failed to create delivery order!", { variant: "error" });
+  //   }
+  // };
+
+
   const handleDeliveryOrder = async (deliveryData) => {
     try {
-      dispatch(
-        setCustomer({
-          name: deliveryData.name,
-          phone: deliveryData.phone,
-          guests: 0,
-          orderType: "Delivery",
-        })
-      );
-
-      const deliveryInfo = {
-        address: deliveryData.address,
+      const updatedCustomerData = {
+        ...customerData,
+        customerName: deliveryData.name,
+        customerPhone: deliveryData.phone,
+        guests: 0,
+        orderType: "Delivery",
+        deliveryAddress: deliveryData.address,
         deliveryBoyId: deliveryData.deliveryBoy,
-        phone: deliveryData.phone,
-        name: deliveryData.name
       };
 
-      dispatch(setDeliveryInfo(deliveryInfo));
+      dispatch(setCustomer(updatedCustomerData));
       setIsDeliveryModalOpen(false);
 
-      setTimeout(() => {
-        handlePlaceOrder();
-      }, 100);
+      // ✅ Only auto-submit if cart has items
+      if (cartData.length > 0) {
+        setTimeout(() => {
+          handlePlaceOrder();
+        }, 200);
+      } else {
+        enqueueSnackbar("Delivery details saved! Add items to place order.", {
+          variant: "success"
+        });
+      }
     } catch (error) {
       console.error("Delivery Order Error:", error);
-      enqueueSnackbar("Failed to create delivery order!", { variant: "error" });
+      enqueueSnackbar("Failed to save delivery details!", { variant: "error" });
     }
   };
 
@@ -340,110 +373,140 @@ const BillInfo = () => {
 
 
 
-  try {
-    // ✅ Use unified order creation hook
-    const result = await createOrder(orderData);
+    try {
+      // ✅ Use unified order creation hook
+      const result = await createOrder(orderData);
 
-    if (result.success) {
-      const tableDataForReceipt = customerData.table
-        ? { _id: customerData.table.tableId, tableNo: customerData.table.tableNo }
-        : null;
+      if (result.success) {
+        const tableDataForReceipt = customerData.table
+          ? { _id: customerData.table.tableId, tableNo: customerData.table.tableNo }
+          : null;
 
-      const orderDataForReceipt = {
-        ...result.data,
-        _id: result.data._id || result.data.orderId,
-        table: tableDataForReceipt,
-      };
+        const orderDataForReceipt = {
+          ...result.data,
+          _id: result.data._id || result.data.orderId,
+          table: tableDataForReceipt,
+        };
 
-      setPlacedOrderData(orderDataForReceipt);
-      setStoredTotal(total);
+        setPlacedOrderData(orderDataForReceipt);
+        setStoredTotal(total);
 
-      // ✅ Mark table as booked for Dine-in orders (ONLINE mode only)
-      if (customerData.orderType === "Dine-in" && customerData.table?.tableId && !result.isOffline) {
-        try {
-          const tableData = {
-            tableId: customerData.table.tableId,
-            status: "Booked",
-            orderId: result.data._id || result.data.orderId,
-          };
-          
-          // Use mutation to update table
-          await tableUpdateMutation.mutateAsync(tableData);
-          console.log("✅ Table marked as booked:", customerData.table.tableNo);
-        } catch (tableError) {
-          console.error("❌ Failed to mark table as booked:", tableError);
-          enqueueSnackbar("Order placed but table status not updated", { variant: "warning" });
+        // ✅ Mark table as booked for Dine-in orders (ONLINE mode only)
+        if (customerData.orderType === "Dine-in" && customerData.table?.tableId && !result.isOffline) {
+          try {
+            const tableData = {
+              tableId: customerData.table.tableId,
+              status: "Booked",
+              orderId: result.data._id || result.data.orderId,
+            };
+
+            // Use mutation to update table
+            await tableUpdateMutation.mutateAsync(tableData);
+            console.log("✅ Table marked as booked:", customerData.table.tableNo);
+          } catch (tableError) {
+            console.error("❌ Failed to mark table as booked:", tableError);
+            enqueueSnackbar("Order placed but table status not updated", { variant: "warning" });
+          }
+        }
+
+        // // Send to printer (works offline too)
+        // if (result.isOffline) {
+        //   try {
+        //     const printData = {
+        //       ...orderDataForReceipt,
+        //       isReprint: false,
+        //       deltaItems: items,
+        //     };
+        //     await sendToPrinters(printData);
+        //   } catch (printError) {
+        //     console.error("Printer error:", printError);
+        //   }
+        // }
+
+        dispatch(removeAllItems());
+        setOrderComment("");
+        dispatch(confirmOrder());
+        dispatch(setCustomer({
+          ...customerData,
+          comment: "",
+        }));
+
+        // ✅ Only remove customer data after table is updated
+        if (customerData.orderType === "Dine-in" && !result.isOffline) {
+          dispatch(removeCustomer());
         }
       }
-
-      // // Send to printer (works offline too)
-      // if (result.isOffline) {
-      //   try {
-      //     const printData = {
-      //       ...orderDataForReceipt,
-      //       isReprint: false,
-      //       deltaItems: items,
-      //     };
-      //     await sendToPrinters(printData);
-      //   } catch (printError) {
-      //     console.error("Printer error:", printError);
-      //   }
-      // }
-
-      dispatch(removeAllItems());
-      setOrderComment("");
-      dispatch(confirmOrder());
-      dispatch(setCustomer({
-        ...customerData,
-        comment: "",
-      }));
-      
-      // ✅ Only remove customer data after table is updated
-      if (customerData.orderType === "Dine-in" && !result.isOffline) {
-        dispatch(removeCustomer());
-      }
+    } catch (error) {
+      console.error("❌ ORDER PLACEMENT ERROR:", error);
+      enqueueSnackbar("Failed to place order!", { variant: "error" });
     }
-  } catch (error) {
-    console.error("❌ ORDER PLACEMENT ERROR:", error);
-    enqueueSnackbar("Failed to place order!", { variant: "error" });
-  }
-};
+  };
 
 
   const handleUpdateOrder = async () => {
-  if (!customerData.orderId) {
-    enqueueSnackbar("No existing order to update!", { variant: "warning" });
-    return;
-  }
+    if (!customerData.orderId) {
+      enqueueSnackbar("No existing order to update!", { variant: "warning" });
+      return;
+    }
 
-  const oldItems = customerData.items || [];
-  const mergedItems = [];
-  const currentOrderNo = customerData.orderNo || null;
-  let hasChanges = false;
+    const oldItems = customerData.items || [];
+    const mergedItems = [];
+    const currentOrderNo = customerData.orderNo || null;
+    let hasChanges = false;
 
-  console.log("🧩 Original order items:", oldItems);
-  console.log("🛒 Current cart data:", cartData);
+    console.log("🧩 Original order items:", oldItems);
+    console.log("🛒 Current cart data:", cartData);
 
-  // Merge logic (same as before)
-  cartData.forEach((item) => {
-    const existing = oldItems.find(
-      (old) =>
-        old.menuItem === (item.dishId || item.id) &&
-        (old.variationName?.toLowerCase?.().trim?.() ===
-          item.variationName?.toLowerCase?.().trim?.() ||
-          (!old.variationName && !item.variationName))
-    );
+    // Merge logic (same as before)
+    cartData.forEach((item) => {
+      const existing = oldItems.find(
+        (old) =>
+          old.menuItem === (item.dishId || item.id) &&
+          (old.variationName?.toLowerCase?.().trim?.() ===
+            item.variationName?.toLowerCase?.().trim?.() ||
+            (!old.variationName && !item.variationName))
+      );
 
-    if (existing) {
-      if (existing.status === "Ready") {
-        if (item.quantity > existing.quantity) {
-          hasChanges = true;
-          const readyPart = {
+      if (existing) {
+        if (existing.status === "Ready") {
+          if (item.quantity > existing.quantity) {
+            hasChanges = true;
+            const readyPart = {
+              ...existing,
+              quantity: existing.quantity,
+              status: "Ready"
+            };
+            const newPart = {
+              name: item.name,
+              variationName: item.variationName || null,
+              notes: item.notes || "",
+              price: item.price,
+              section: item.section,
+              menuItem: item.dishId || item.id,
+              orderNo: currentOrderNo,
+              quantity: item.quantity - existing.quantity,
+              status: "pending",
+            };
+            mergedItems.push(readyPart, newPart);
+          } else if (item.quantity < existing.quantity) {
+            hasChanges = true;
+            mergedItems.push({
+              ...existing,
+              quantity: item.quantity,
+              status: "Ready"
+            });
+          } else {
+            mergedItems.push({
+              ...existing,
+              status: "Ready"
+            });
+          }
+        } else {
+          if (item.quantity !== existing.quantity) {
+            hasChanges = true;
+          }
+          mergedItems.push({
             ...existing,
-            quantity: existing.quantity,
-            status: "Ready"
-          };
-          const newPart = {
             name: item.name,
             variationName: item.variationName || null,
             notes: item.notes || "",
@@ -451,29 +514,13 @@ const BillInfo = () => {
             section: item.section,
             menuItem: item.dishId || item.id,
             orderNo: currentOrderNo,
-            quantity: item.quantity - existing.quantity,
-            status: "pending",
-          };
-          mergedItems.push(readyPart, newPart);
-        } else if (item.quantity < existing.quantity) {
-          hasChanges = true;
-          mergedItems.push({
-            ...existing,
             quantity: item.quantity,
-            status: "Ready"
-          });
-        } else {
-          mergedItems.push({
-            ...existing,
-            status: "Ready"
+            status: existing.status ?? "pending",
           });
         }
       } else {
-        if (item.quantity !== existing.quantity) {
-          hasChanges = true;
-        }
+        hasChanges = true;
         mergedItems.push({
-          ...existing,
           name: item.name,
           variationName: item.variationName || null,
           notes: item.notes || "",
@@ -482,215 +529,201 @@ const BillInfo = () => {
           menuItem: item.dishId || item.id,
           orderNo: currentOrderNo,
           quantity: item.quantity,
-          status: existing.status ?? "pending",
+          status: "pending",
         });
       }
-    } else {
-      hasChanges = true;
-      mergedItems.push({
-        name: item.name,
-        variationName: item.variationName || null,
-        notes: item.notes || "",
-        price: item.price,
-        section: item.section,
-        menuItem: item.dishId || item.id,
-        orderNo: currentOrderNo,
-        quantity: item.quantity,
-        status: "pending",
-      });
+    });
+
+    oldItems.forEach((oldItem) => {
+      const stillExists = cartData.find(
+        (item) =>
+          (item.dishId || item.id) === oldItem.menuItem &&
+          (item.variationName?.toLowerCase?.().trim?.() ===
+            oldItem.variationName?.toLowerCase?.().trim?.() ||
+            (!item.variationName && !oldItem.variationName))
+      );
+      if (!stillExists) {
+        hasChanges = true;
+      }
+    });
+
+    // ✅ TAX INCLUSIVE CALCULATION
+    const discountAmount = roundTo3((total * discountPercentage) / 100);
+    const totalWithTax = roundTo3(total - discountAmount);
+    const basePrice = roundTo3(totalWithTax / 1.10);
+    const calculatedTax = roundTo3(totalWithTax - basePrice);
+
+    const updateData = {
+      orderNo: currentOrderNo,
+      customerDetails: {
+        name: customerData.customerName,
+        phone: customerData.customerPhone,
+        guests: customerData.guests,
+        orderType: customerData.orderType,
+      },
+      bills: {
+        total: roundTo3(basePrice),
+        tax: calculatedTax,
+        totalWithTax: roundBhd(totalWithTax),
+        discountPercentage: roundTo3(discountPercentage),
+        discountAmount: roundTo3(discountAmount),
+      },
+      items: mergedItems,
+      paymentMethod,
+      comment: orderComment.trim(),
+    };
+
+    if (hasChanges) {
+      updateData.orderStatus = "In Progress";
     }
-  });
 
-  oldItems.forEach((oldItem) => {
-    const stillExists = cartData.find(
-      (item) =>
-        (item.dishId || item.id) === oldItem.menuItem &&
-        (item.variationName?.toLowerCase?.().trim?.() ===
-          oldItem.variationName?.toLowerCase?.().trim?.() ||
-          (!item.variationName && !oldItem.variationName))
-    );
-    if (!stillExists) {
-      hasChanges = true;
+    if (customerData.orderType === "Dine-in") {
+      updateData.table = customerData.table.tableId;
+    } else if (customerData.orderType === "Delivery") {
+      updateData.deliveryAddress = customerData.deliveryAddress;
+      updateData.deliveryBoyId = customerData.deliveryBoyId;
     }
-  });
 
-  // ✅ TAX INCLUSIVE CALCULATION
-  const discountAmount = roundTo3((total * discountPercentage) / 100);
-  const totalWithTax = roundTo3(total - discountAmount);
-  const basePrice = roundTo3(totalWithTax / 1.10);
-  const calculatedTax = roundTo3(totalWithTax - basePrice);
+    try {
+      if (!isOfflineMode) {
+        // ============================================
+        // ONLINE MODE - Use API
+        // ============================================
+        console.log("🌐 ONLINE - Updating order via API...");
+        const response = await updateOrderMutation.mutateAsync({
+          orderId: customerData.orderId,
+          updateData,
+        });
 
-  const updateData = {
-    orderNo: currentOrderNo,
-    customerDetails: {
-      name: customerData.customerName,
-      phone: customerData.customerPhone,
-      guests: customerData.guests,
-      orderType: customerData.orderType,
-    },
-    bills: {
-      total: roundTo3(basePrice),
-      tax: calculatedTax,
-      totalWithTax: roundBhd(totalWithTax),
-      discountPercentage: roundTo3(discountPercentage),
-      discountAmount: roundTo3(discountAmount),
-    },
-    items: mergedItems,
-    paymentMethod,
-    comment: orderComment.trim(),
-  };
+        const updatedOrder = response?.data?.data || response?.data;
 
-  if (hasChanges) {
-    updateData.orderStatus = "In Progress";
-  }
+        const tableDataForReceipt = customerData.table
+          ? { _id: customerData.table.tableId, tableNo: customerData.table.tableNo }
+          : updatedOrder?.table;
 
-  if (customerData.orderType === "Dine-in") {
-    updateData.table = customerData.table.tableId;
-  } else if (customerData.orderType === "Delivery") {
-    updateData.deliveryAddress = customerData.deliveryAddress;
-    updateData.deliveryBoyId = customerData.deliveryBoyId;
-  }
+        const updatedOrderDataForReceipt = {
+          ...(updatedOrder || updateData),
+          table: tableDataForReceipt,
+          _id: customerData.orderId,
+          orderId: customerData.orderId,
+        };
 
-  try {
-    if (!isOfflineMode) {
-      // ============================================
-      // ONLINE MODE - Use API
-      // ============================================
-      console.log("🌐 ONLINE - Updating order via API...");
-      const response = await updateOrderMutation.mutateAsync({
-        orderId: customerData.orderId,
-        updateData,
-      });
+        setPlacedOrderData(updatedOrderDataForReceipt);
+        setStoredTotal(total);
 
-      const updatedOrder = response?.data?.data || response?.data;
+        if (updatedOrder && updatedOrder.items) {
+          dispatch(setCustomer({
+            ...customerData,
+            comment: "",
+            items: updatedOrder.items,
+          }));
+        } else {
+          dispatch(setCustomer({
+            ...customerData,
+            items: mergedItems,
+          }));
+        }
 
-      const tableDataForReceipt = customerData.table
-        ? { _id: customerData.table.tableId, tableNo: customerData.table.tableNo }
-        : updatedOrder?.table;
+        enqueueSnackbar(
+          hasChanges ? "Order updated with new items!" : "Order updated!",
+          { variant: "success" }
+        );
 
-      const updatedOrderDataForReceipt = {
-        ...(updatedOrder || updateData),
-        table: tableDataForReceipt,
-        _id: customerData.orderId,
-        orderId: customerData.orderId,
-      };
+      }
 
-      setPlacedOrderData(updatedOrderDataForReceipt);
-      setStoredTotal(total);
+      else {
+        // ============================================
+        // OFFLINE MODE - Update cache AND queue
+        // ============================================
+        console.log("📴 OFFLINE - Updating order...");
+        console.log("   Order ID:", customerData.orderId);
 
-      if (updatedOrder && updatedOrder.items) {
+        const isOfflineCreated = await isTrulyOfflineOrder(customerData.orderId);
+        console.log("   Is offline-created:", isOfflineCreated);
+
+        // ✅ STEP 1: ALWAYS update the cache first (for both offline & online orders)
+        console.log("   💾 Updating cache...");
+
+        const orders = (await load(STORAGE_KEYS.ORDERS_CACHE)) || [];
+        const updatedOrders = orders.map(o => {
+          // Check all possible IDs
+          const matches =
+            o._id === customerData.orderId ||
+            o.orderId === customerData.orderId ||
+            o.orderNo === customerData.orderNo ||
+            String(o._id) === String(customerData.orderId) ||
+            String(o.orderId) === String(customerData.orderId);
+
+          if (matches) {
+            console.log("   ✅ Found order in cache, updating...");
+            return {
+              ...o,
+              ...updateData,
+              updatedAt: new Date().toISOString()
+            };
+          }
+          return o;
+        });
+
+        await save(STORAGE_KEYS.ORDERS_CACHE, updatedOrders);
+        console.log("   ✅ Cache updated");
+
+        // ✅ STEP 2: Add to pending sync (different logic for offline vs online orders)
+        if (isOfflineCreated) {
+          // OFFLINE-CREATED ORDER: Update the addOrder item
+          console.log("   📦 Offline order - updating addOrder item");
+          await updateOrderInCache(customerData.orderId, updateData);
+
+        } else {
+          // ONLINE ORDER: Create updateOrder item
+          console.log("   🌐 Online order - creating updateOrder item");
+          await addToPendingSync({
+            type: 'updateOrder',
+            orderId: customerData.orderId,
+            data: updateData,
+            timestamp: Date.now()
+          });
+        }
+        console.log("   ✅ Added to pending sync");
+
+        // ✅ STEP 3: Update UI
+        const tableDataForReceipt = customerData.table
+          ? { _id: customerData.table.tableId, tableNo: customerData.table.tableNo }
+          : null;
+
+        const updatedOrderDataForReceipt = {
+          ...updateData,
+          table: tableDataForReceipt,
+          _id: customerData.orderId,
+          orderId: customerData.orderId,
+        };
+
+        setPlacedOrderData(updatedOrderDataForReceipt);
+        setStoredTotal(total);
+
+        dispatch(removeAllItems());
+        setOrderComment("");
+
         dispatch(setCustomer({
           ...customerData,
           comment: "",
-          items: updatedOrder.items,
-        }));
-      } else {
-        dispatch(setCustomer({
-          ...customerData,
           items: mergedItems,
         }));
-      }
 
+        enqueueSnackbar("Order updated offline - will sync when online", {
+          variant: "info"
+        });
+
+        console.log("✅ [OFFLINE UPDATE] Complete");
+      }
+    } catch (err) {
+      console.error("❌ UPDATE ORDER ERROR:", err);
       enqueueSnackbar(
-        hasChanges ? "Order updated with new items!" : "Order updated!", 
-        { variant: "success" }
+        err?.message || "Failed to update order!",
+        { variant: "error" }
       );
-
-    } 
-  
-    else {
-    // ============================================
-    // OFFLINE MODE - Update cache AND queue
-    // ============================================
-    console.log("📴 OFFLINE - Updating order...");
-    console.log("   Order ID:", customerData.orderId);
-    
-    const isOfflineCreated = await isTrulyOfflineOrder(customerData.orderId);
-    console.log("   Is offline-created:", isOfflineCreated);
-    
-    // ✅ STEP 1: ALWAYS update the cache first (for both offline & online orders)
-    console.log("   💾 Updating cache...");
-    
-    const orders = (await load(STORAGE_KEYS.ORDERS_CACHE)) || [];
-    const updatedOrders = orders.map(o => {
-      // Check all possible IDs
-      const matches = 
-        o._id === customerData.orderId ||
-        o.orderId === customerData.orderId ||
-        o.orderNo === customerData.orderNo ||
-        String(o._id) === String(customerData.orderId) ||
-        String(o.orderId) === String(customerData.orderId);
-      
-      if (matches) {
-        console.log("   ✅ Found order in cache, updating...");
-        return {
-          ...o,
-          ...updateData,
-          updatedAt: new Date().toISOString()
-        };
-      }
-      return o;
-    });
-    
-    await save(STORAGE_KEYS.ORDERS_CACHE, updatedOrders);
-    console.log("   ✅ Cache updated");
-    
-    // ✅ STEP 2: Add to pending sync (different logic for offline vs online orders)
-    if (isOfflineCreated) {
-      // OFFLINE-CREATED ORDER: Update the addOrder item
-      console.log("   📦 Offline order - updating addOrder item");
-      await updateOrderInCache(customerData.orderId, updateData);
-      
-    } else {
-      // ONLINE ORDER: Create updateOrder item
-      console.log("   🌐 Online order - creating updateOrder item");
-      await addToPendingSync({
-        type: 'updateOrder',
-        orderId: customerData.orderId,
-        data: updateData,
-        timestamp: Date.now()
-      });
     }
-    console.log("   ✅ Added to pending sync");
-
-    // ✅ STEP 3: Update UI
-    const tableDataForReceipt = customerData.table
-      ? { _id: customerData.table.tableId, tableNo: customerData.table.tableNo }
-      : null;
-
-    const updatedOrderDataForReceipt = {
-      ...updateData,
-      table: tableDataForReceipt,
-      _id: customerData.orderId,
-      orderId: customerData.orderId,
-    };
-
-    setPlacedOrderData(updatedOrderDataForReceipt);
-    setStoredTotal(total);
-
-    dispatch(removeAllItems());
-    setOrderComment("");
-    
-    dispatch(setCustomer({
-      ...customerData,
-      comment: "",
-      items: mergedItems,
-    }));
-
-    enqueueSnackbar("Order updated offline - will sync when online", { 
-      variant: "info" 
-    });
-    
-    console.log("✅ [OFFLINE UPDATE] Complete");
-  }
-  } catch (err) {
-    console.error("❌ UPDATE ORDER ERROR:", err);
-    enqueueSnackbar(
-      err?.message || "Failed to update order!",
-      { variant: "error" }
-    );
-  }
-};
+  };
 
   // ✅ Handle discount input
   const handleDiscountChange = (e) => {
@@ -708,9 +741,9 @@ const BillInfo = () => {
 
       const previousItems = customerData.printedItems || [];
       const currentItems = placedOrderData.items || [];
-      
+
       const isActualReprint = isEditing && previousItems.length > 0;
-      const deltaItems = isActualReprint 
+      const deltaItems = isActualReprint
         ? calculateDeltaItems(currentItems, previousItems)
         : currentItems;
 
@@ -824,25 +857,22 @@ const BillInfo = () => {
       <div className="flex flex-col sm:flex-row items-center gap-2 lg:gap-1.5 xl:gap-2 2xl:gap-2.5 w-full pt-2.5 lg:pt-2 xl:pt-2.5">
         <button
           onClick={() => setPaymentMethod("Cash")}
-          className={`flex-1 w-full bg-[#1f1f1f] px-2.5 py-2 lg:px-2 lg:py-1.5 xl:px-2.5 xl:py-2 2xl:px-3 2xl:py-2.5 rounded-lg text-[#ababab] text-xs lg:text-[10px] xl:text-xs 2xl:text-sm font-semibold transition-all duration-150 hover:bg-[#2a2a2a] ${
-            paymentMethod === "Cash" ? "bg-[#383737] scale-105 shadow-md ring-2 ring-yellow-500/50" : ""
-          }`}
+          className={`flex-1 w-full bg-[#1f1f1f] px-2.5 py-2 lg:px-2 lg:py-1.5 xl:px-2.5 xl:py-2 2xl:px-3 2xl:py-2.5 rounded-lg text-[#ababab] text-xs lg:text-[10px] xl:text-xs 2xl:text-sm font-semibold transition-all duration-150 hover:bg-[#2a2a2a] ${paymentMethod === "Cash" ? "bg-[#383737] scale-105 shadow-md ring-2 ring-yellow-500/50" : ""
+            }`}
         >
           Cash
         </button>
         <button
           onClick={() => setPaymentMethod("Online")}
-          className={`flex-1 w-full bg-[#1f1f1f] px-2.5 py-2 lg:px-2 lg:py-1.5 xl:px-2.5 xl:py-2 2xl:px-3 2xl:py-2.5 rounded-lg text-[#ababab] text-xs lg:text-[10px] xl:text-xs 2xl:text-sm font-semibold transition-all duration-150 hover:bg-[#2a2a2a] ${
-            paymentMethod === "Online" ? "bg-[#383737] scale-105 shadow-md ring-2 ring-yellow-500/50" : ""
-          }`}
+          className={`flex-1 w-full bg-[#1f1f1f] px-2.5 py-2 lg:px-2 lg:py-1.5 xl:px-2.5 xl:py-2 2xl:px-3 2xl:py-2.5 rounded-lg text-[#ababab] text-xs lg:text-[10px] xl:text-xs 2xl:text-sm font-semibold transition-all duration-150 hover:bg-[#2a2a2a] ${paymentMethod === "Online" ? "bg-[#383737] scale-105 shadow-md ring-2 ring-yellow-500/50" : ""
+            }`}
         >
           Online
         </button>
         <button
           onClick={() => setPaymentMethod("Benefit")}
-          className={`flex-1 w-full bg-[#1f1f1f] px-2.5 py-2 lg:px-2 lg:py-1.5 xl:px-2.5 xl:py-2 2xl:px-3 2xl:py-2.5 rounded-lg text-[#ababab] text-xs lg:text-[10px] xl:text-xs 2xl:text-sm font-semibold transition-all duration-150 hover:bg-[#2a2a2a] ${
-            paymentMethod === "Benefit" ? "bg-[#383737] scale-105 shadow-md ring-2 ring-yellow-500/50" : ""
-          }`}
+          className={`flex-1 w-full bg-[#1f1f1f] px-2.5 py-2 lg:px-2 lg:py-1.5 xl:px-2.5 xl:py-2 2xl:px-3 2xl:py-2.5 rounded-lg text-[#ababab] text-xs lg:text-[10px] xl:text-xs 2xl:text-sm font-semibold transition-all duration-150 hover:bg-[#2a2a2a] ${paymentMethod === "Benefit" ? "bg-[#383737] scale-105 shadow-md ring-2 ring-yellow-500/50" : ""
+            }`}
         >
           Benefit
         </button>
