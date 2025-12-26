@@ -98,14 +98,23 @@ const BillInfo = () => {
   const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false);
   const [orderComment, setOrderComment] = useState(customerData.comment || "");
 
+  // const handleCommentChange = (e) => {
+  //   const value = e.target.value;
+  //   setOrderComment(value);
+
+  //   dispatch(setCustomer({
+  //     ...customerData,
+  //     comment: value,
+  //   }));
+  // };
+
+    // ✅ FIXED: Don't dispatch on every comment change
   const handleCommentChange = (e) => {
     const value = e.target.value;
     setOrderComment(value);
-
-    dispatch(setCustomer({
-      ...customerData,
-      comment: value,
-    }));
+    
+    // ✅ Don't dispatch immediately - just update local state
+    // The comment will be included when placing/updating the order
   };
 
   const roundTo3 = (num) => {
