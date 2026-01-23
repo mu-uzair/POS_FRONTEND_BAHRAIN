@@ -1280,7 +1280,7 @@ const PopularDishes = () => {
     error
   } = useQuery({
     queryKey: ['popular-dishes', dateFilter, selectedDate, dateRange, startDate, endDate],
-    queryFn: () => getPopularDishes(1000, dateRange, startDate, endDate),
+    queryFn: () => getPopularDishes(100, dateRange, startDate, endDate),
     staleTime: 60000,
     refetchOnWindowFocus: false,
     retry: false,
