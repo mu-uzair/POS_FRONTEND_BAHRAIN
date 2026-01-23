@@ -284,12 +284,12 @@
 
 //     return dishes.map((dish) => {
 //       const dishName = dish.name?.trim().toLowerCase();
-      
+
 //       // Try to find image from dishes array
 //       const dishObj = dishesArray.find(
 //         d => d.dishName && d.dishName.trim().toLowerCase() === dishName
 //       );
-      
+
 //       let image = dishObj?.imageUrl || dishObj?.image;
 
 //       // If no image, try category image
@@ -429,7 +429,7 @@
 // const PopularDishes = () => {
 //   const [dateFilter, setDateFilter] = useState('All');
 //   const [selectedDate, setSelectedDate] = useState('');
-  
+
 //   // Get offline status
 //   const { isOfflineMode } = useOfflineMode();
 
@@ -522,12 +522,12 @@
 
 //     return dishes.map((dish) => {
 //       const dishName = dish.name?.trim().toLowerCase();
-      
+
 //       // Try to find image from dishes array
 //       const dishObj = dishesArray.find(
 //         d => d.dishName && d.dishName.trim().toLowerCase() === dishName
 //       );
-      
+
 //       let image = dishObj?.imageUrl || dishObj?.image;
 
 //       // If no image, try category image
@@ -667,7 +667,7 @@
 //                       </div>
 //                     </div>
 //                   </div>
-                  
+
 //                   {/* Helpful Tips */}
 //                   <div className="max-w-md p-4 bg-[#252525] rounded-lg">
 //                     <p className="text-gray-400 text-xs text-center">
@@ -783,7 +783,7 @@
 //   const [dateFilter, setDateFilter] = useState('All');
 //   const [selectedDate, setSelectedDate] = useState('');
 //   const [searchQuery, setSearchQuery] = useState('');
-  
+
 //   // Get offline status
 //   const { isOfflineMode } = useOfflineMode();
 
@@ -876,11 +876,11 @@
 
 //     return dishes.map((dish) => {
 //       const dishName = dish.name?.trim().toLowerCase();
-      
+
 //       const dishObj = dishesArray.find(
 //         d => d.dishName && d.dishName.trim().toLowerCase() === dishName
 //       );
-      
+
 //       let image = dishObj?.imageUrl || dishObj?.image;
 
 //       if (!image && dishObj?.category) {
@@ -915,7 +915,7 @@
 //   // Filter dishes based on search query
 //   const filteredDishes = useMemo(() => {
 //     if (!searchQuery.trim()) return enrichedDishes;
-    
+
 //     const query = searchQuery.toLowerCase().trim();
 //     return enrichedDishes.filter(dish => 
 //       dish.displayName.toLowerCase().includes(query) ||
@@ -1057,7 +1057,7 @@
 //                       </div>
 //                     </div>
 //                   </div>
-                  
+
 //                   <div className="max-w-md p-4 bg-[#252525] rounded-lg">
 //                     <p className="text-gray-400 text-xs text-center">
 //                       💡 <span className="font-semibold">Tip:</span> Other features like viewing orders and tables still work offline with cached data.
@@ -1186,7 +1186,7 @@ const PopularDishes = () => {
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
   const searchInputRef = useRef(null);
   const suggestionsRef = useRef(null);
-  
+
   // Get offline status
   const { isOfflineMode } = useOfflineMode();
 
@@ -1273,11 +1273,11 @@ const PopularDishes = () => {
   }, [dateFilter, selectedDate]);
 
   // Fetch popular dishes
-  const { 
-    data: popularDishesData, 
-    isLoading, 
+  const {
+    data: popularDishesData,
+    isLoading,
     isError,
-    error 
+    error
   } = useQuery({
     queryKey: ['popular-dishes', dateFilter, selectedDate, dateRange, startDate, endDate],
     queryFn: () => getPopularDishes(1000, dateRange, startDate, endDate),
@@ -1316,11 +1316,11 @@ const PopularDishes = () => {
 
     return dishes.map((dish) => {
       const dishName = dish.name?.trim().toLowerCase();
-      
+
       const dishObj = dishesArray.find(
         d => d.dishName && d.dishName.trim().toLowerCase() === dishName
       );
-      
+
       let image = dishObj?.imageUrl || dishObj?.image;
 
       if (!image && dishObj?.category) {
@@ -1335,7 +1335,7 @@ const PopularDishes = () => {
         if (fallback?.image) image = fallback.image;
       }
 
-      const displayName = dish.variation 
+      const displayName = dish.variation
         ? `${dish.name} (${dish.variation})`
         : dish.name;
 
@@ -1364,7 +1364,7 @@ const PopularDishes = () => {
 
     const query = searchQuery.toLowerCase().trim();
     const matches = enrichedDishes
-      .filter(dish => 
+      .filter(dish =>
         dish.displayName.toLowerCase().includes(query) ||
         dish.name.toLowerCase().includes(query) ||
         dish.variation?.toLowerCase().includes(query)
@@ -1380,11 +1380,38 @@ const PopularDishes = () => {
   }, [searchQuery, enrichedDishes, searchHistory]);
 
   // Filter dishes based on debounced search query
+  // const filteredDishes = useMemo(() => {
+  //   if (!debouncedQuery.trim()) return enrichedDishes;
+
+  //   const query = debouncedQuery.toLowerCase().trim();
+
+  //   // Fuzzy matching - prioritize exact matches, then starts with, then contains
+  //   const exactMatches = [];
+  //   const startsWithMatches = [];
+  //   const containsMatches = [];
+
+  //   enrichedDishes.forEach(dish => {
+  //     const displayName = dish.displayName.toLowerCase();
+  //     const name = dish.name.toLowerCase();
+
+  //     if (displayName === query || name === query) {
+  //       exactMatches.push(dish);
+  //     } else if (displayName.startsWith(query) || name.startsWith(query)) {
+  //       startsWithMatches.push(dish);
+  //     } else if (displayName.includes(query) || name.includes(query) || dish.variation?.toLowerCase().includes(query)) {
+  //       containsMatches.push(dish);
+  //     }
+  //   });
+
+  //   return [...exactMatches, ...startsWithMatches, ...containsMatches];
+  // }, [enrichedDishes, debouncedQuery]);
+
+  // Filter dishes based on debounced search query
   const filteredDishes = useMemo(() => {
     if (!debouncedQuery.trim()) return enrichedDishes;
-    
+
     const query = debouncedQuery.toLowerCase().trim();
-    
+
     // Fuzzy matching - prioritize exact matches, then starts with, then contains
     const exactMatches = [];
     const startsWithMatches = [];
@@ -1393,12 +1420,23 @@ const PopularDishes = () => {
     enrichedDishes.forEach(dish => {
       const displayName = dish.displayName.toLowerCase();
       const name = dish.name.toLowerCase();
-      
+      const variation = dish.variation?.toLowerCase() || '';
+
+      // Check if query matches
+      const displayNameMatches = displayName.includes(query);
+      const nameMatches = name.includes(query);
+      const variationMatches = variation.includes(query);
+
+      if (!displayNameMatches && !nameMatches && !variationMatches) {
+        return; // Skip this dish - no match
+      }
+
+      // Categorize the match
       if (displayName === query || name === query) {
         exactMatches.push(dish);
       } else if (displayName.startsWith(query) || name.startsWith(query)) {
         startsWithMatches.push(dish);
-      } else if (displayName.includes(query) || name.includes(query) || dish.variation?.toLowerCase().includes(query)) {
+      } else {
         containsMatches.push(dish);
       }
     });
@@ -1414,12 +1452,12 @@ const PopularDishes = () => {
 
   const handleSearchSubmit = (query) => {
     if (!query.trim()) return;
-    
+
     // Add to search history
     const newHistory = [query, ...searchHistory.filter(h => h !== query)].slice(0, 10);
     setSearchHistory(newHistory);
     localStorage.setItem('dishSearchHistory', JSON.stringify(newHistory));
-    
+
     setSearchQuery(query);
     setDebouncedQuery(query);
     setShowSuggestions(false);
@@ -1435,7 +1473,7 @@ const PopularDishes = () => {
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        setSelectedSuggestionIndex(prev => 
+        setSelectedSuggestionIndex(prev =>
           prev < suggestions.length - 1 ? prev + 1 : prev
         );
         break;
@@ -1475,10 +1513,10 @@ const PopularDishes = () => {
 
   const highlightMatch = (text, query) => {
     if (!query.trim()) return text;
-    
+
     const index = text.toLowerCase().indexOf(query.toLowerCase());
     if (index === -1) return text;
-    
+
     return (
       <>
         {text.substring(0, index)}
@@ -1516,11 +1554,10 @@ const PopularDishes = () => {
               </span>
             )}
           </div>
-          <a 
-            href="#" 
-            className={`text-[#025cca] text-xs sm:text-sm font-semibold ${
-              isOfflineMode ? 'opacity-50 cursor-not-allowed' : 'hover:underline'
-            }`}
+          <a
+            href="#"
+            className={`text-[#025cca] text-xs sm:text-sm font-semibold ${isOfflineMode ? 'opacity-50 cursor-not-allowed' : 'hover:underline'
+              }`}
             onClick={(e) => {
               if (isOfflineMode) {
                 e.preventDefault();
@@ -1540,11 +1577,9 @@ const PopularDishes = () => {
                 key={f}
                 onClick={() => !isOfflineMode && setDateFilter(f)}
                 disabled={isOfflineMode}
-                className={`text-[#ababab] text-xs sm:text-sm ${
-                  dateFilter === f ? 'bg-[#383838]' : ''
-                } rounded-lg px-2 sm:px-3 py-1 font-semibold whitespace-nowrap transition-opacity ${
-                  isOfflineMode ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-                }`}
+                className={`text-[#ababab] text-xs sm:text-sm ${dateFilter === f ? 'bg-[#383838]' : ''
+                  } rounded-lg px-2 sm:px-3 py-1 font-semibold whitespace-nowrap transition-opacity ${isOfflineMode ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                  }`}
                 title={isOfflineMode ? "Filter not available offline" : ""}
               >
                 {f === 'All' ? 'All Dates' : f}
@@ -1557,9 +1592,8 @@ const PopularDishes = () => {
                 value={selectedDate}
                 onChange={(e) => !isOfflineMode && setSelectedDate(e.target.value)}
                 disabled={isOfflineMode}
-                className={`bg-[#383838] text-[#f5f5f5] rounded-lg px-2 sm:px-3 py-1 text-xs sm:text-sm ${
-                  isOfflineMode ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
+                className={`bg-[#383838] text-[#f5f5f5] rounded-lg px-2 sm:px-3 py-1 text-xs sm:text-sm ${isOfflineMode ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
               />
             )}
           </div>
@@ -1568,11 +1602,10 @@ const PopularDishes = () => {
         {/* Advanced Search Bar */}
         <div className="px-4 sm:px-6 pb-3 sm:pb-4 relative">
           <div className="relative">
-            <div className={`flex items-center bg-[#2a2a2a] rounded-xl border-2 transition-all ${
-              showSuggestions && (searchQuery || suggestions.length > 0)
+            <div className={`flex items-center bg-[#2a2a2a] rounded-xl border-2 transition-all ${showSuggestions && (searchQuery || suggestions.length > 0)
                 ? 'border-[#02ca3a] shadow-lg shadow-[#02ca3a]/20 rounded-b-none'
                 : 'border-[#383838] hover:border-[#444444]'
-            }`}>
+              }`}>
               <FaSearch className="ml-4 text-[#ababab]" size={16} />
               <input
                 ref={searchInputRef}
@@ -1612,11 +1645,10 @@ const PopularDishes = () => {
                       <div
                         key={index}
                         onClick={() => handleSuggestionClick(suggestion)}
-                        className={`flex items-center justify-between px-4 py-2.5 cursor-pointer transition-colors ${
-                          selectedSuggestionIndex === index
+                        className={`flex items-center justify-between px-4 py-2.5 cursor-pointer transition-colors ${selectedSuggestionIndex === index
                             ? 'bg-[#383838]'
                             : 'hover:bg-[#333333]'
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center gap-3 flex-1 min-w-0">
                           {suggestion.type === 'history' ? (
@@ -1625,7 +1657,7 @@ const PopularDishes = () => {
                             <FaSearch className="text-[#7a7a7a] flex-shrink-0" size={14} />
                           )}
                           <span className="text-[#f5f5f5] text-sm truncate">
-                            {suggestion.type === 'match' 
+                            {suggestion.type === 'match'
                               ? highlightMatch(suggestion.text, searchQuery)
                               : suggestion.text
                             }
@@ -1707,7 +1739,7 @@ const PopularDishes = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="max-w-md p-4 bg-[#252525] rounded-lg">
                     <p className="text-gray-400 text-xs text-center">
                       💡 <span className="font-semibold">Tip:</span> Other features like viewing orders and tables still work offline with cached data.
@@ -1732,10 +1764,10 @@ const PopularDishes = () => {
                 {debouncedQuery ? '🔍' : isOfflineMode ? '📦' : '📊'}
               </div>
               <p className="text-[#ababab] text-base sm:text-lg font-semibold">
-                {debouncedQuery 
+                {debouncedQuery
                   ? 'No dishes found'
-                  : isOfflineMode 
-                    ? 'No cached data available' 
+                  : isOfflineMode
+                    ? 'No cached data available'
                     : 'No records found'}
               </p>
               {debouncedQuery && (
