@@ -526,7 +526,7 @@ export async function updateOrdersCache(newOrders) {
   );
   
   await save(STORAGE_KEYS.ORDERS_CACHE, filtered);
-  console.log(`✅ Updated orders cache: ${filtered.length} orders`);
+  // console.log(`✅ Updated orders cache: ${filtered.length} orders`);
   return filtered;
 }
 
@@ -1076,5 +1076,5 @@ export async function getCachedDeliveryBoys() {
 
 export async function updateCachedData(key, data) {
   await save(key, data);
-  console.log(`✅ Updated cached ${key}`);
+  // console.log(`✅ Updated cached ${key}`);
 }

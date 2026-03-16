@@ -100,16 +100,16 @@ export const useCreateOrder = () => {
         };
 
       } else {
-        // ============================================
+        
         // ONLINE MODE - Create immediately via API
-        // ============================================
+        
         console.log('🟢 [ONLINE ORDER] Creating order online');
         console.log('📤 Sending to API:', orderData);
 
         // ✅ Send orderData directly (backend expects this format)
         const response = await addOrder(orderData);
         
-        console.log('📥 API Response:', response);
+        // console.log('📥 API Response:', response);
         
         const createdOrder = response.data?.data || response.data;
         console.log('✅ Created order from backend:', createdOrder);

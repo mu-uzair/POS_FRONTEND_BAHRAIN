@@ -44,14 +44,15 @@ const Orders = () => {
     const [isLoadingOffline, setIsLoadingOffline] = useState(false);
 
     /* --------------  FILTERS FOR HOOKS  -------------- */
-    const filters = useMemo(() => ({
-        status: status === "All" ? undefined : status,
-        dateFilter,
-        startDate: dateFilter === "Custom" && selectedDate ? selectedDate : undefined,
-        endDate: dateFilter === "Custom" && selectedDate ? selectedDate : undefined,
-        orderType: orderType === "All" ? undefined : orderType,
-        paymentMethod: paymentMethod === "All" ? undefined : paymentMethod
-    }), [status, dateFilter, selectedDate, orderType, paymentMethod]);
+   const filters = useMemo(() => ({
+    status: status === "All" ? undefined : status,
+    dateFilter,
+    startDate: dateFilter === "Custom" && selectedDate ? selectedDate : undefined,
+    endDate: dateFilter === "Custom" && selectedDate ? selectedDate : undefined,
+    // ✅ startDate and endDate can be same string — backend will handle 00:00 to 23:59
+    orderType: orderType === "All" ? undefined : orderType,
+    paymentMethod: paymentMethod === "All" ? undefined : paymentMethod
+}), [status, dateFilter, selectedDate, orderType, paymentMethod]);
 
     /* --------------  DATA HOOKS (ONLINE ONLY)  -------------- */
     const {
@@ -90,13 +91,13 @@ const Orders = () => {
     // ✅ Initialize offline cache with queryClient
     useEffect(() => {
         initializeOfflineCache(queryClient);
-        console.log('✅ Offline cache initialized with queryClient');
+        // console.log('✅ Offline cache initialized with queryClient');
     }, [queryClient]);
 
     /* --------------  HANDLE MODE CHANGES  -------------- */
     useEffect(() => {
         if (!isOfflineMode && actualOnlineStatus) {
-            console.log('🌐 Online mode - Refetching data...');
+            // console.log('🌐 Online mode - Refetching data...');
             refetchOrders();
             refetchStats();
             refetchPaymentTotals();
@@ -530,100 +531,7 @@ const Orders = () => {
                         <div className="flex justify-end gap-3">
                             <button onClick={() => setShowBulkCompleteModal(false)} className="px-4 py-2 rounded-lg bg-gray-700 text-gray-200 hover:bg-gray-600">Cancel</button>
 
-                            {/* <button onClick={async () => {
-                                try {
-                                    const payload = {
-                                        status: status === 'All' ? undefined : status,
-                                        dateFilter,
-                                        startDate: dateFilter === 'Custom' && selectedDate ? selectedDate : undefined,
-                                        endDate: dateFilter === 'Custom' && selectedDate ? selectedDate : undefined,
-                                        orderType: orderType === 'All' ? undefined : orderType,
-                                        paymentMethod: paymentMethod === 'All' ? undefined : paymentMethod,
-                                    };
-
-                                    const { success, modifiedCount, message } = await completeAllOrders(payload);
-
-                                    if (success) {
-                                        setLocalBulkStats(prev => ({
-                                            ...prev,
-                                            byStatus: {
-                                                ...prev.byStatus,
-                                                "In Progress": 0
-                                            }
-                                        }));
-
-                                        enqueueSnackbar(message, { variant: 'success' });
-
-                                        // ✅ STEP 1: Update React Query cache immediately (for UI)
-                                        queryClient.setQueryData(['orders'], (old) => {
-                                            if (old?.pages) {
-                                                const newPages = old.pages.map(page => ({
-                                                    ...page,
-                                                    data: page.data?.map(order => {
-                                                        // If order was "In Progress", mark as "Completed"
-                                                        if (order.orderStatus === 'In Progress') {
-                                                            return {
-                                                                ...order,
-                                                                orderStatus: 'Completed',
-                                                                completedAt: new Date().toISOString()
-                                                            };
-                                                        }
-                                                        return order;
-                                                    }) || []
-                                                }));
-                                                return { ...old, pages: newPages };
-                                            }
-                                            return old;
-                                        });
-
-                                        // ✅ STEP 2: Update offline cache with completed orders
-                                        const cachedOrders = await getCachedOrders();
-                                        const updatedCachedOrders = cachedOrders.map(order => {
-                                            if (order.orderStatus === 'In Progress') {
-                                                return {
-                                                    ...order,
-                                                    orderStatus: 'Completed',
-                                                    completedAt: new Date().toISOString()
-                                                };
-                                            }
-                                            return order;
-                                        });
-
-                                        // Save updated orders to cache
-                                        await updateOrdersCache(updatedCachedOrders);
-                                        console.log('✅ [BULK COMPLETE] Offline cache updated with completed orders');
-
-                                        // ✅ STEP 3: Invalidate and refetch from server
-                                        await Promise.all([
-                                            queryClient.invalidateQueries({ queryKey: ['orders'] }),
-                                            queryClient.invalidateQueries({ queryKey: ['tables'] }),
-                                            queryClient.invalidateQueries({ queryKey: ['orderStats'] }),
-                                            queryClient.invalidateQueries({ queryKey: ['paymentTotals'] })
-                                        ]);
-
-                                        // ✅ STEP 4: Force refresh from server after a delay
-                                        setTimeout(async () => {
-                                            try {
-                                                await fetchAndCacheRecentOrders(true); // Force refresh
-                                                console.log('✅ [BULK COMPLETE] Cache refreshed from server');
-                                            } catch (err) {
-                                                console.warn('⚠️ Failed to refresh cache after bulk complete:', err);
-                                            }
-                                        }, 1000);
-
-                                        // ✅ STEP 5: Manual refetch
-                                        refetchOrders();
-                                        refetchStats();
-                                        refetchPaymentTotals();
-                                    }
-                                } catch (err) {
-                                    enqueueSnackbar(err?.response?.data?.message || 'Bulk complete failed', { variant: 'error' });
-                                } finally {
-                                    setShowBulkCompleteModal(false);
-                                }
-                            }} className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white">
-                                Confirm
-                            </button> */}
+                           
 
                             <button onClick={async () => {
                                 setIsBulkCompleting(true); // Disable print button during bulk complete

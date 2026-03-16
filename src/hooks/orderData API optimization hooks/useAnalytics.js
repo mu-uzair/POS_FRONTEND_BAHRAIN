@@ -100,12 +100,12 @@ import {
 export const useDashboardAnalytics = (filters = {}) => {
   const { dateRange = 30, orderType, startDate, endDate } = filters;
 
-  console.log('🔍 useDashboardAnalytics called with filters:', filters);
+  // console.log('🔍 useDashboardAnalytics called with filters:', filters);
 
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['analytics', 'dashboard', dateRange, orderType, startDate, endDate],
     queryFn: () => {
-      console.log('📡 Fetching analytics with filters:', filters);
+      // console.log('📡 Fetching analytics with filters:', filters);
       return getDashboardAnalytics(filters);
     },
     staleTime: 60000, // 1 minute - data stays fresh
@@ -113,7 +113,7 @@ export const useDashboardAnalytics = (filters = {}) => {
     retry: 2,
   });
 
-  console.log('📊 Analytics data received:', data?.data);
+  // console.log('📊 Analytics data received:', data?.data);
 
   return {
     analytics: data?.data || null,

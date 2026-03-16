@@ -29,9 +29,9 @@ export const useTableManager = () => {
 
     try {
       if (isOfflineMode) {
-        // ============================================
+        
         // OFFLINE MODE - Queue for sync
-        // ============================================
+        
         console.log(`🔴 [OFFLINE] Booking table ${tableId} for order ${orderId}`);
 
         // Update in cache

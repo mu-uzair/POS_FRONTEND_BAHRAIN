@@ -3,13 +3,9 @@ import { motion } from "framer-motion";
 import { IoMdClose } from "react-icons/io";
 import { useMutation } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
-import { addDeliveryBoy } from "../../https"; // ✅ Import your real API call
+import { addDeliveryBoy } from "../../https"; 
 
-/**
- * API function (real)
- * Ensure this exists in your ../../https file:
- * export const addDeliveryBoy = (data) => api.post("/api/deliveryBoy", data);
- */
+
 
 const DeliveryBoyModal = ({ setIsDeliveryBoyModalOpen }) => {
   const [deliveryBoyData, setDeliveryBoyData] = useState({

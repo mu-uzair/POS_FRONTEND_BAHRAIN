@@ -27,12 +27,12 @@ export const setOfflineState = (state) => {
   const changed = offlineState.isOffline !== state.isOffline;
   offlineState = state;
   
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('🔄 [OFFLINE STATE] UPDATED');
-  console.log('   isOffline:', state.isOffline);
-  console.log('   Changed:', changed ? 'YES ⚠️' : 'No');
-  console.log('   Time:', new Date().toLocaleTimeString());
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  // console.log('🔄 [OFFLINE STATE] UPDATED');
+  // console.log('   isOffline:', state.isOffline);
+  // console.log('   Changed:', changed ? 'YES ⚠️' : 'No');
+  // console.log('   Time:', new Date().toLocaleTimeString());
+  // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 };
 
 export const getOfflineState = () => offlineState;

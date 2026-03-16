@@ -347,13 +347,7 @@ const EditPanel = () => {
       />
     );
   };
-  // ============================================
-  // CONTINUE TO PART 2 FOR THE RETURN/JSX
-  // ============================================
-  // ============================================
-  // PART 2: JSX RETURN SECTION
-  // Copy this after Part 1's handlers and before closing the component
-  // ============================================
+ 
 
   return (
     <div className="container mx-auto bg-[#262626] p-3 sm:p-4 md:p-6 rounded-lg overflow-y-auto h-[calc(100vh-5rem)] hidden-scrollbar">

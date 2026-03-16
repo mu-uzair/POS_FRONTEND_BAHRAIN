@@ -1,4 +1,4 @@
-// hooks/useSyncManager.js - FIXED VERSION
+
 import { useEffect, useRef, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
@@ -30,7 +30,7 @@ export const useSyncManager = () => {
   const syncPendingItems = useCallback(async () => {
     // Prevent concurrent syncs
     if (isSyncing.current) {
-      console.log("⏳ Sync already in progress, skipping...");
+      // console.log("⏳ Sync already in progress, skipping...");
       return { success: false, reason: 'already_syncing' };
     }
 
@@ -48,16 +48,16 @@ export const useSyncManager = () => {
 
     try {
       isSyncing.current = true;
-      console.log("🔄 [SYNC MANAGER] Starting sync...");
+      // console.log("🔄 [SYNC MANAGER] Starting sync...");
 
       const pendingItems = await getPendingSync();
       
       if (pendingItems.length === 0) {
-        console.log("✅ [SYNC MANAGER] No items to sync");
+        // console.log("✅ [SYNC MANAGER] No items to sync");
         return { success: true, synced: 0, failed: 0 };
       }
 
-      console.log(`📦 [SYNC MANAGER] Found ${pendingItems.length} items to sync`);
+      // console.log(`📦 [SYNC MANAGER] Found ${pendingItems.length} items to sync`);
       
       enqueueSnackbar(`Syncing ${pendingItems.length} offline changes...`, {
         variant: "info",
@@ -70,18 +70,18 @@ export const useSyncManager = () => {
       for (const item of pendingItems) {
         try {
           const orderId = item.orderId || item.data?.orderId || item.data?._id;
-          console.log(`🔄 [SYNC] Processing: ${item.type} - Order: ${orderId}`);
+          // console.log(`🔄 [SYNC] Processing: ${item.type} - Order: ${orderId}`);
 
           // Check retry limit
           if ((item.retryCount || 0) >= MAX_RETRIES) {
-            console.warn(`⚠️ [SYNC] Max retries reached for order ${orderId}`);
+            // console.warn(`⚠️ [SYNC] Max retries reached for order ${orderId}`);
             failedCount++;
             continue;
           }
 
-          // ============================================
+          
           // HANDLE DIFFERENT SYNC TYPES
-          // ============================================
+         
           
           if (item.type === "addOrder" || item.type === "createOrder") {
             // ✅ CREATE NEW ORDER
@@ -96,9 +96,9 @@ export const useSyncManager = () => {
               ...cleanOrder 
             } = item.data || item;
 
-            console.log("📤 [SYNC] Creating order:", cleanOrder.orderNo);
+            // console.log("📤 [SYNC] Creating order:", cleanOrder.orderNo);
             const response = await addOrder(cleanOrder);
-            console.log(`✅ [SYNC] Order created:`, response.data);
+            // console.log(`✅ [SYNC] Order created:`, response.data);
 
             // Remove from cache and pending sync
             await removeOrderFromCache(orderId);
@@ -109,7 +109,7 @@ export const useSyncManager = () => {
           } else if (item.type === "updateStatus") {
             // ✅ UPDATE ORDER STATUS
             const { orderId, data } = item;
-            console.log(`📤 [SYNC] Updating status: ${orderId} -> ${data.orderStatus}`);
+            // console.log(`📤 [SYNC] Updating status: ${orderId} -> ${data.orderStatus}`);
             
             await updateOrderStatus({ 
               orderId, 
@@ -117,7 +117,7 @@ export const useSyncManager = () => {
             });
             
             await removeFromPendingSync(orderId, item.type);
-            console.log(`✅ [SYNC] Status updated successfully`);
+            // console.log(`✅ [SYNC] Status updated successfully`);
             
             successCount++;
 
@@ -141,7 +141,7 @@ export const useSyncManager = () => {
             await updateOrder(orderId, cleanData);
             
             await removeFromPendingSync(orderId, item.type);
-            console.log(`✅ [SYNC] Order updated successfully`);
+            // console.log(`✅ [SYNC] Order updated successfully`);
             
             successCount++;
 
@@ -154,8 +154,8 @@ export const useSyncManager = () => {
           await new Promise(resolve => setTimeout(resolve, 300));
 
         } catch (err) {
-          console.error(`❌ [SYNC] Failed to sync item:`, err);
-          console.error("Error details:", err.response?.data || err.message);
+          // console.error(`❌ [SYNC] Failed to sync item:`, err);
+          // console.error("Error details:", err.response?.data || err.message);
           
           // Increment retry count
           const orderId = item.orderId || item.data?.orderId;
@@ -190,7 +190,7 @@ export const useSyncManager = () => {
       // Refresh orders in UI
       if (successCount > 0) {
         await queryClient.invalidateQueries({ queryKey: ["orders"] });
-        console.log("✅ [SYNC MANAGER] UI cache invalidated");
+        // console.log("✅ [SYNC MANAGER] UI cache invalidated");
       }
 
       return { 
@@ -200,7 +200,7 @@ export const useSyncManager = () => {
       };
 
     } catch (error) {
-      console.error("❌ [SYNC MANAGER] Critical error:", error);
+      // console.error("❌ [SYNC MANAGER] Critical error:", error);
       enqueueSnackbar("Error syncing offline changes", {
         variant: "error",
         autoHideDuration: 3000
@@ -228,15 +228,15 @@ export const useSyncManager = () => {
    * Effect: Sync when coming online or exiting offline mode
    */
   useEffect(() => {
-    console.log("🔍 [SYNC MANAGER] State changed:", {
-      isOfflineMode,
-      actualOnlineStatus,
-      hasInternetConnection
-    });
+    // console.log("🔍 [SYNC MANAGER] State changed:", {
+    //   isOfflineMode,
+    //   actualOnlineStatus,
+    //   hasInternetConnection
+    // });
 
     // Trigger sync when transitioning to online state
     if (actualOnlineStatus && hasInternetConnection && !isOfflineMode) {
-      console.log("🟢 [SYNC MANAGER] Online state detected - scheduling sync...");
+      // console.log("🟢 [SYNC MANAGER] Online state detected - scheduling sync...");
       scheduleSyncWithDelay(2000); // 2 second delay for stability
     }
 
@@ -252,7 +252,7 @@ export const useSyncManager = () => {
    */
   useEffect(() => {
     const handleOnline = () => {
-      console.log("🌐 [BROWSER EVENT] Online event fired");
+      // console.log("🌐 [BROWSER EVENT] Online event fired");
       
       // Only sync if not in manual offline mode
       if (!isOfflineMode) {
@@ -261,7 +261,7 @@ export const useSyncManager = () => {
     };
 
     const handleOffline = () => {
-      console.log("📴 [BROWSER EVENT] Offline event fired");
+      // console.log("📴 [BROWSER EVENT] Offline event fired");
       // Clear any pending syncs
       if (syncTimeoutRef.current) {
         clearTimeout(syncTimeoutRef.current);
