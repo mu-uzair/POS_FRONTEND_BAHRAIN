@@ -548,7 +548,7 @@ const initialState = {
   deliveryAddress: "",
   deliveryBoyId: null,
   items: [],
-  printedItems: [], // ✅ ALREADY ADDED - GOOD!
+  printedItems: [], 
   comment: "", 
 };
 
@@ -573,7 +573,7 @@ const customerSlice = createSlice({
       } = action.payload;
 
       // ✅ If it's a new order (not editing), generate preview order number
-      if (!isEdit) {
+      if (!isEdit ) {
         state.orderNo = getPreviewOrderNo();
         console.log("🆕 New order created with orderNo:", state.orderNo);
       } else if (orderNo) {

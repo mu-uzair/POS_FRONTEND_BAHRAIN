@@ -475,14 +475,15 @@ const orderStatusUpdateMutation = useMutation({
 
       return {
         orderNo: order.orderNo || null,
-        id: item.menuItem,
+        id: `${item.menuItem}-${variationKey}-${Date.now()}-${Math.random()}`,
         dishId: item.menuItem,
         menuItem: item.menuItem, // keep for backend consistency
         name: item.name,
         variationName: item.variationName || null,
         variationKey, // ✅ normalized key added
         pricePerQuantity: Number((item.pricePerQuantity || item.price).toFixed(3)),
-        price: Number((item.pricePerQuantity || item.price).toFixed(3)),
+        // price: Number((item.pricePerQuantity || item.price).toFixed(3)),
+        price: Number(((item.pricePerQuantity || item.price) * (item.quantity || 1)).toFixed(3)),// test1 add this line comment the abouve one
         quantity: Number(item.quantity) || 1,
         section: item.section || null,
         status: item.status || "Pending",

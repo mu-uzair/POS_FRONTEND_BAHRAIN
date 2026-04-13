@@ -9,7 +9,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Modal from "./Modal";
 import DineInTakeAwayModal from "./DineInTakeAwayModal";
 import { useDispatch } from "react-redux";
-import { setCustomer, setDeliveryInfo } from "../../redux/slice/customerSlice";
+import { setCustomer, setDeliveryInfo,removeCustomer } from "../../redux/slice/customerSlice";
 import { removeAllItems } from "../../redux/slice/cartSlice";
 import { setEditingMode } from "../../redux/slice/editOrderSlice";
 // import DeliveryModal from "./DeliveryModal";
@@ -161,6 +161,7 @@ const BottomNav = () => {
         onClick={() => {
           openDineInTakeAwayModal();
           dispatch(setEditingMode(false));
+          dispatch(removeCustomer()); //test1 add this only
           dispatch(removeAllItems());
         }}
         className={`absolute bottom-8 md:bottom-6 left-1/2 transform -translate-x-1/2 bg-[#F6B100] text-[#f5f5f5] rounded-full p-3 md:p-4 flex items-center justify-center shadow-lg transition-all hover:bg-[#e5a000] ${

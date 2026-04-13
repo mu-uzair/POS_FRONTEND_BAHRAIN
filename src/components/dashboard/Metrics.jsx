@@ -320,6 +320,9 @@ const Metrics = () => {
             params.endDate = endDate;
         } else if (dateFilter !== "All" && dateRange) {
             params.dateRange = dateRange;
+        } 
+        else if (dateFilter === "All") {
+            params.dateRange = "all"; // ✅ tell backend explicitly to fetch all time
         }
 
         if (orderTypeFilter !== "All") {
@@ -478,7 +481,7 @@ const Metrics = () => {
                         </p>
                     </div>
 
-                   
+
                     <div className="flex gap-3">
                         <SalesReportButton />
 
@@ -505,8 +508,8 @@ const Metrics = () => {
                                         key={type}
                                         onClick={() => setOrderTypeFilter(type)}
                                         className={`text-xs sm:text-sm font-medium px-3 sm:px-4 py-2 rounded-lg transition-all ${orderTypeFilter === type
-                                                ? "bg-gradient-to-r from-[#02ca3a] to-[#029c2e] text-black shadow-lg scale-105"
-                                                : "bg-[#333333] text-[#ababab] hover:bg-[#444444]"
+                                            ? "bg-gradient-to-r from-[#02ca3a] to-[#029c2e] text-black shadow-lg scale-105"
+                                            : "bg-[#333333] text-[#ababab] hover:bg-[#444444]"
                                             }`}
                                     >
                                         {type}
@@ -526,8 +529,8 @@ const Metrics = () => {
                                         key={filter}
                                         onClick={() => handleDateFilterChange(filter)}
                                         className={`text-xs sm:text-sm font-medium px-3 sm:px-4 py-2 rounded-lg transition-all whitespace-nowrap ${dateFilter === filter
-                                                ? "bg-gradient-to-r from-[#02ca3a] to-[#029c2e] text-black shadow-lg scale-105"
-                                                : "bg-[#333333] text-[#ababab] hover:bg-[#444444]"
+                                            ? "bg-gradient-to-r from-[#02ca3a] to-[#029c2e] text-black shadow-lg scale-105"
+                                            : "bg-[#333333] text-[#ababab] hover:bg-[#444444]"
                                             }`}
                                     >
                                         {filter}

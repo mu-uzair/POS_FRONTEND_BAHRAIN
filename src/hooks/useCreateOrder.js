@@ -119,7 +119,8 @@ export const useCreateOrder = () => {
         console.log('✅ Added to orders cache');
 
         // ✅ Invalidate React Query cache to refresh UI
-        await queryClient.invalidateQueries({ queryKey: ['orders'] });
+        // await queryClient.invalidateQueries({ queryKey: ['orders'] });
+        await queryClient.invalidateQueries({ queryKey: ['orders'], exact: false }); //test1 add this line and comment above one 
         console.log('✅ Invalidated React Query cache');
 
         enqueueSnackbar('Order created successfully', {

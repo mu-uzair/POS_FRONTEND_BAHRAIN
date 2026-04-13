@@ -1398,7 +1398,8 @@ const BillInfo = () => {
         setDiscountPercentage(0);
         dispatch(confirmOrder());
         dispatch(setCustomer({ ...customerData, comment: "" }));
-        if (customerData.orderType === "Dine-in" && !result.isOffline) dispatch(removeCustomer());
+        // if (customerData.orderType === "Dine-in" && !result.isOffline) dispatch(removeCustomer());
+        dispatch(removeCustomer()); //test1 add this and comment above line
       }
     } catch (error) {
       console.error("❌ ORDER PLACEMENT ERROR:", error);
