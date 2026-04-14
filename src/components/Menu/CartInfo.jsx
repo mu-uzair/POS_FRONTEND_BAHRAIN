@@ -153,9 +153,9 @@ const CartInfo = () => {
     // Previously this sent item.price (total) which corrupted pricePerQuantity
     const handleAdd = (item) => {
         dispatch(addItems({
-            menuItem: item.menuItem || item.dishId || item._id,
-            dishId: item.menuItem || item.dishId || item._id,
-            _id: item.menuItem || item.dishId || item._id,
+            menuItem: item.menuItem || item.dishId || item._id || item.id,
+            dishId: item.menuItem || item.dishId || item._id || item.id,
+            _id: item.menuItem || item.dishId || item._id || item.id,
             dishName: item.dishName || item.name,
             name: item.dishName || item.name,
             variationName: item.variationName,

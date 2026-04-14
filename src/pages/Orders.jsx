@@ -277,6 +277,25 @@ const Orders = () => {
     const handlePrintSalesReport = useCallback(async () => {
         setIsPrintingReport(true);
 
+
+                            //comment this out if you want the custom for the selected dated filter
+    //     try {
+    //    // ✅ Use sortedFilteredOrders directly — already filtered by your selected date/filters
+    //    const ordersToProcess = sortedFilteredOrders.filter(
+    //        o => o.orderStatus === "Completed"
+    //    );
+
+    //    // ✅ Dynamic date label based on selected filter
+    //    const dateLabel = dateFilter === "Custom" && selectedDate
+    //        ? new Date(selectedDate).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })
+    //        : dateFilter === "Yesterday"
+    //        ? new Date(Date.now() - 86400000).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })
+    //        : new Date().toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    //    console.log(`📊 Processing ${ordersToProcess.length} completed orders for: ${dateLabel}`);
+
+
+
         try {
             const today = new Date().toDateString();
             let ordersToProcess = [];
@@ -354,7 +373,9 @@ const Orders = () => {
             const averageOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0;
 
             const reportData = {
-                date: new Date().toLocaleDateString('en-GB', {
+                // date: dateLabel, comment this out if you want the custom for the selected dated filter
+                date: new Date().toLocaleDateString('en-GB', 
+                    {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric'

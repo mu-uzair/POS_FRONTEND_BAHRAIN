@@ -332,32 +332,62 @@ const cartSlice = createSlice({
       }
 
       // Custom dishes: always a new line item, never merged
-      if (isCustomDish(normalizedId)) {
-        const customItem = {
-          id:               normalizedId,
-          dishId:           normalizedId,
-          menuItem:         normalizedId,
-          _id:              normalizedId,
-          name:             incoming.dishName || incoming.name || "Custom Item",
-          dishName:         incoming.dishName || incoming.name || "Custom Item",
-          section:          incoming.section || null,
-          variationKey:     "custom",
-          variationName:    incoming.variationName || "Custom",
-          pricePerQuantity: unitPrice,
-          price:            round3(unitPrice * incomingQty),
-          quantity:         incomingQty,
-          status:           "Pending",
-          orderNo:          incoming.orderNo || null,
-        };
-        state.push(customItem);
-        console.log(`🛒 [Cart] Custom added: "${customItem.name}" | Unit: ${unitPrice} | Total: ${customItem.price}`);
+      // if (isCustomDish(normalizedId)) {
+      //   const customItem = {
+      //     id:               normalizedId,
+      //     dishId:           normalizedId,
+      //     menuItem:         normalizedId,
+      //     _id:              normalizedId,
+      //     name:             incoming.dishName || incoming.name || "Custom Item",
+      //     dishName:         incoming.dishName || incoming.name || "Custom Item",
+      //     section:          incoming.section || null,
+      //     variationKey:     "custom",
+      //     variationName:    incoming.variationName || "Custom",
+      //     pricePerQuantity: unitPrice,
+      //     price:            round3(unitPrice * incomingQty),
+      //     quantity:         incomingQty,
+      //     status:           "Pending",
+      //     orderNo:          incoming.orderNo || null,
+      //   };
+      //   state.push(customItem);
+      //   console.log(`🛒 [Cart] Custom added: "${customItem.name}" | Unit: ${unitPrice} | Total: ${customItem.price}`);
+      //   return;
+      // }
+      // TO THIS:
+if (isCustomDish(normalizedId)) {
+    const existing = state.find(item => item.id === normalizedId);
+    if (existing) {
+        existing.quantity += incomingQty;
+        existing.price = round3(existing.pricePerQuantity * existing.quantity);
         return;
-      }
+    }
+    const customItem = {
+        id:               normalizedId,
+        dishId:           normalizedId,
+        menuItem:         normalizedId,
+        _id:              normalizedId,
+        name:             incoming.dishName || incoming.name || "Custom Item",
+        dishName:         incoming.dishName || incoming.name || "Custom Item",
+        section:          incoming.section || null,
+        variationKey:     "custom",
+        variationName:    incoming.variationName || "Custom",
+        pricePerQuantity: unitPrice,
+        price:            round3(unitPrice * incomingQty),
+        quantity:         incomingQty,
+        status:           "Pending",
+        orderNo:          incoming.orderNo || null,
+    };
+    state.push(customItem);
+    return;
+}
 
       // Regular dishes: merge if same dish + same variation
       const existingItem = state.find((item) => {
+        // Direct ID match (handles custom dishes where id IS the stable key)
+    // if (item.id === normalizedId) return true;
         const itemDishId       = item.menuItem || item.dishId || item._id;
         const itemVariationKey = item.variationKey || "default";
+        
         return itemDishId === normalizedId && itemVariationKey === variationKey;
       });
 

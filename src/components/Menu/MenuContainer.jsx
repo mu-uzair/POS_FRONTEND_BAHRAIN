@@ -973,6 +973,7 @@ const MenuContainer = () => {
     }
 
     const customDishId = `custom-${uuidv4()}`;
+    // const customDishId = `custom-${customDishName.trim().toLowerCase().replace(/\s+/g, '-')}-${customDishPrice}`;
     const count = itemCounts[selectedCustomDish?._id] || 1;
 
     // ✅ FIX 6: Same rule — no `price` field in payload
